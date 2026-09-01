@@ -1,323 +1,577 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Estate Document Templates — Washington State Last Will & Testament">
-  <title>Estate Document Templates — Last Will & Testament</title>
-  <link rel="stylesheet" href="css/tokens.css">
-  <link rel="stylesheet" href="css/layout.css">
-  <link rel="stylesheet" href="css/document.css">
-  <link rel="stylesheet" href="css/print.css">
-</head>
-<body>
-  <a href="#main-content" class="skip-link">Skip to document preview</a>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Estate Document Templates — Washington State Last Will & Testament"
+    />
+    <title>Estate Document Templates — Last Will & Testament</title>
+    <link rel="stylesheet" href="css/tokens.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="css/document.css" />
+    <link rel="stylesheet" href="css/print.css" />
+  </head>
+  <body>
+    <a href="#main-content" class="skip-link">Skip to document preview</a>
 
-  <div class="app-container">
-    <header class="app-header">
-      <div class="header-brand">
-        <h1 class="app-title">Estate Document Templates</h1>
-        <span class="app-badge">Washington State</span>
+    <div class="app-container">
+      <header class="app-header">
+        <div class="header-brand">
+          <h1 class="app-title">Estate Document Templates</h1>
+          <span class="app-badge">Washington State</span>
+        </div>
+        <nav aria-label="Profile Quick Actions">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            id="btn-toggle-profile"
+            aria-pressed="false"
+          >
+            Profile: Avery Q. Ramos
+          </button>
+        </nav>
+      </header>
+
+      <div class="app-body">
+        <aside class="app-sidebar" aria-label="Document Controls">
+          <div id="a11y-status" class="sr-only" aria-live="polite"></div>
+          <form
+            id="document-form"
+            class="sidebar-form"
+            onsubmit="return false;"
+          >
+            <fieldset class="control-group">
+              <legend>Active Profile</legend>
+              <div class="form-field">
+                <label for="select-profile">Testator Profile</label>
+                <select id="select-profile" class="form-select">
+                  <option value="profile-1" selected>Avery Q. Ramos (Husband)</option>
+                  <option value="profile-2">Morgan T. Ramos (Wife)</option>
+                </select>
+              </div>
+            </fieldset>
+
+            <fieldset class="control-group">
+              <legend>Testator & Domicile</legend>
+              <div class="form-field">
+                <label for="input-testator-name">Full Legal Name</label>
+                <input
+                  type="text"
+                  id="input-testator-name"
+                  class="form-input"
+                  value="Avery Q. Ramos"
+                />
+              </div>
+              <div class="form-field">
+                <label for="input-county">County of Residence</label>
+                <input
+                  type="text"
+                  id="input-county"
+                  class="form-input"
+                  value="King"
+                />
+              </div>
+              <div class="form-field">
+                <label for="input-state">State</label>
+                <input
+                  type="text"
+                  id="input-state"
+                  class="form-input"
+                  value="Washington"
+                />
+              </div>
+            </fieldset>
+
+            <fieldset class="control-group">
+              <legend>Family & Guardians</legend>
+              <div class="form-field">
+                <label for="input-spouse-name">Spouse Name</label>
+                <input
+                  type="text"
+                  id="input-spouse-name"
+                  class="form-input"
+                  value="Morgan T. Ramos"
+                />
+              </div>
+              <div class="form-field">
+                <label for="input-children">Children Names</label>
+                <input
+                  type="text"
+                  id="input-children"
+                  class="form-input"
+                  value="Rowan A. Ramos and Sage B. Ramos"
+                />
+              </div>
+              <div class="form-field">
+                <label for="input-guardian">Primary Guardian</label>
+                <input
+                  type="text"
+                  id="input-guardian"
+                  class="form-input"
+                  value="Casey Delacroix"
+                />
+              </div>
+              <div class="form-field">
+                <label for="input-guardian-alt">Alternate Guardian</label>
+                <input
+                  type="text"
+                  id="input-guardian-alt"
+                  class="form-input"
+                  value="Priya Nandakumar"
+                />
+              </div>
+            </fieldset>
+
+            <fieldset class="control-group">
+              <legend>Fiduciaries (Article 6)</legend>
+              <div class="form-field">
+                <label for="input-pr-primary"
+                  >Primary Personal Representative</label
+                >
+                <input
+                  type="text"
+                  id="input-pr-primary"
+                  class="form-input"
+                  value="Morgan T. Ramos"
+                />
+              </div>
+              <div class="form-field">
+                <label for="input-pr-alt"
+                  >Alternate Personal Representative</label
+                >
+                <input
+                  type="text"
+                  id="input-pr-alt"
+                  class="form-input"
+                  value="Devin Okafor"
+                />
+              </div>
+              <div class="form-field">
+                <label for="input-trustee-primary">Primary Trustee</label>
+                <input
+                  type="text"
+                  id="input-trustee-primary"
+                  class="form-input"
+                  value="Casey Delacroix"
+                />
+              </div>
+              <div class="form-field">
+                <label for="input-trustee-alt">Alternate Trustee</label>
+                <input
+                  type="text"
+                  id="input-trustee-alt"
+                  class="form-input"
+                  value="Priya Nandakumar"
+                />
+              </div>
+            </fieldset>
+          </form>
+        </aside>
+
+        <main id="main-content" class="document-viewport">
+          <div
+            class="toolbar"
+            role="toolbar"
+            aria-label="Document View Controls"
+          >
+            <div class="toolbar-group">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                id="zoom-75"
+                aria-label="Zoom 75 percent"
+              >
+                75%
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                id="zoom-100"
+                aria-label="Zoom 100 percent"
+              >
+                100%
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                id="zoom-fit"
+                aria-label="Fit width"
+              >
+                Fit
+              </button>
+            </div>
+            <div class="toolbar-group">
+              <button
+                type="button"
+                class="btn btn-primary"
+                id="btn-print"
+                onclick="window.print()"
+              >
+                Print Document
+              </button>
+            </div>
+          </div>
+
+          <div id="sheet-container" class="sheet-container" data-zoom="100">
+            <article
+              id="document-sheet"
+              class="paged-sheet"
+              aria-label="Last Will and Testament Document"
+            >
+              <!-- Paged Sheet Content -->
+              <h1 class="doc-title">
+                Last Will and Testament<br />of<br /><mark class="dynamic-var"
+                  >Avery Q. Ramos</mark
+                >
+              </h1>
+
+              <p class="doc-preamble">
+                I, <mark class="dynamic-var">Avery Q. Ramos</mark>, a resident of
+                <mark class="dynamic-var">King</mark> County,
+                <mark class="dynamic-var">Washington</mark>, declare this to be
+                my Last Will and Testament, and I revoke all prior wills and
+                codicils made by me.
+              </p>
+
+              <h2 class="article-header">Article 1: Family and Guardians</h2>
+              <p class="clause">
+                <strong>1.1 Family.</strong> I declare that I am married to
+                <mark class="dynamic-var">Morgan T. Ramos</mark>, and all
+                references in this Will to &ldquo;my spouse&rdquo; are to
+                <mark class="dynamic-var">her</mark>. I have two children,
+                <mark class="dynamic-var"
+                  >Rowan A. Ramos and Sage B. Ramos</mark
+                >. All references in this Will to &ldquo;my children&rdquo;
+                include these children and any children hereafter born to or
+                adopted by me.
+              </p>
+              <p class="clause">
+                <strong>1.2 Guardian of Minor Children.</strong> If my spouse
+                does not survive me, or is unable or unwilling to act, I appoint
+                <mark class="dynamic-var">Casey Delacroix</mark> as Guardian of
+                the person and estate of any minor child of mine. If
+                <mark class="dynamic-var">Casey Delacroix</mark> is unable or
+                unwilling to serve, I appoint
+                <mark class="dynamic-var">Priya Nandakumar</mark> as alternate
+                Guardian.
+              </p>
+
+              <h2 class="article-header">Article 2: Disposition of Property</h2>
+              <p class="clause">
+                <strong>2.1 Primary Gift to Spouse.</strong> I give, devise, and
+                bequeath all of my estate, of every nature and wheresoever
+                situated, to my spouse, if my spouse survives me.
+              </p>
+              <p class="clause">
+                <strong>2.2 Separate Writing.</strong> Pursuant to RCW
+                11.12.260, I may dispose of tangible personal property by a
+                separate written list or memorandum referenced in this Will.
+              </p>
+              <p class="clause">
+                <strong>2.3 Residue and Contingent Gift to Descendants.</strong>
+                If my spouse does not survive me, I give the rest, residue, and
+                remainder of my estate to my then-surviving descendants, per
+                stirpes, subject to the trust provisions of Article 3 for any
+                beneficiary under the age of twenty-five (25) years.
+              </p>
+              <p class="clause">
+                <strong>2.4 Ultimate Contingent Beneficiary.</strong> If neither
+                my spouse nor any of my descendants survive me, my estate shall
+                be distributed to my sister, or if she does not survive me, to
+                my heirs at law determined under the laws of the State of
+                Washington.
+              </p>
+
+              <h2 class="article-header">
+                Article 3: Trust Beneficiaries and Distributions
+              </h2>
+              <p class="clause">
+                <strong>3.1 Minor Support Standard.</strong> Any share allocated
+                to a beneficiary under age twenty-five (25) shall be held in
+                trust by the Trustee. The Trustee may distribute so much of the
+                income and principal as necessary or advisable for the
+                beneficiary's health, education, support, and maintenance.
+              </p>
+              <p class="clause">
+                <strong>3.2 Final Distribution.</strong> When a beneficiary
+                attains the age of twenty-five (25) years, the Trustee shall
+                distribute to such beneficiary the remaining balance of their
+                trust share outright and free of trust.
+              </p>
+              <p class="clause">
+                <strong>3.3 Small Trust Termination.</strong> If the principal
+                of any trust share falls below Fifteen Thousand Dollars
+                ($15,000), the Trustee may terminate the trust and distribute
+                the remainder outright to the beneficiary.
+              </p>
+              <p class="clause">
+                <strong>3.4 Rule Against Perpetuities.</strong> All trusts
+                created hereunder shall terminate no later than twenty-one (21)
+                years after the death of the last surviving beneficiary living
+                at the time of my death.
+              </p>
+
+              <h2 class="article-header">Article 4: Claims by Strangers</h2>
+              <p class="clause">
+                Pursuant to RCW 6.32.250, no interest of any beneficiary in any
+                trust created hereunder shall be subject to voluntary or
+                involuntary transfer, assignment, anticipation, pledge, or
+                attachment, nor shall it be liable for the debts or liabilities
+                of any beneficiary or claims of creditors.
+              </p>
+              <h2 class="article-header">
+                Article 5: Powers and Duties of Trustee
+              </h2>
+              <p class="clause">
+                In addition to all powers conferred by the Washington Trust Act
+                (RCW 11.98), the Trustee shall have the following powers:
+              </p>
+              <ol class="legal-list legal-list-numbered">
+                <li>
+                  <strong>5.1 Retention.</strong> To retain property received
+                  into the trust without liability for depreciation or loss.
+                </li>
+                <li>
+                  <strong>5.2 Sale and Investment.</strong> To invest and
+                  reinvest in real, personal, or mixed property.
+                </li>
+                <li>
+                  <strong>5.3 Business Operations.</strong> To continue and
+                  operate any business enterprise owned by the trust.
+                </li>
+                <li>
+                  <strong>5.4 Non-Pro-Rata Distributions.</strong> To make
+                  distributions in cash or in kind, or partly in each, and
+                  allocate specific assets without regard to tax basis.
+                </li>
+                <li>
+                  <strong>5.5 Professional Advice.</strong> To employ attorneys,
+                  accountants, investment advisors, and agents.
+                </li>
+                <li>
+                  <strong>5.6 Settlement and Compromise.</strong> To compromise,
+                  contest, or settle claims.
+                </li>
+                <li>
+                  <strong>5.7 Digital Assets.</strong> To exercise authority
+                  over digital assets and accounts under RCW 11.120.
+                </li>
+                <li>
+                  <strong>5.8 Merger and Consolidation.</strong> To combine or
+                  pool trust shares for investment efficiency.
+                </li>
+                <li>
+                  <strong>5.9 Insurance.</strong> To purchase, maintain, or
+                  surrender insurance policies.
+                </li>
+                <li>
+                  <strong>5.10 Reliance in Good Faith.</strong> To act in good
+                  faith reliance on written advice or records without personal
+                  liability.
+                </li>
+                <li>
+                  <strong>5.11 Governing Law.</strong> This trust shall be
+                  construed and governed in accordance with the laws of the
+                  State of Washington.
+                </li>
+              </ol>
+
+              <h2 class="article-header">
+                Article 6: Administration and Fiduciaries
+              </h2>
+              <p class="clause">
+                <strong>6.1 Trustee Appointment.</strong> I appoint
+                <mark class="dynamic-var">Casey Delacroix</mark> as Trustee of
+                any trust created under this Will. If
+                <mark class="dynamic-var">Casey Delacroix</mark> is unable or
+                unwilling to serve, I appoint
+                <mark class="dynamic-var">Priya Nandakumar</mark> as alternate
+                Trustee.
+              </p>
+              <p class="clause">
+                <strong>6.2 Personal Representative Appointment.</strong> I
+                appoint my spouse,
+                <mark class="dynamic-var">Morgan T. Ramos</mark>, as
+                Personal Representative of my estate. If my spouse is unable or
+                unwilling to serve, I appoint
+                <mark class="dynamic-var">Devin Okafor</mark> as alternate
+                Personal Representative. No fiduciary nominated herein shall be
+                required to post bond or other security in any jurisdiction.
+              </p>
+              <p class="clause">
+                <strong>6.3 Nonintervention Powers.</strong> I direct that my
+                estate be administered with nonintervention powers under RCW
+                11.68, without the necessity of court supervision, decree, or
+                order, except as required by law.
+              </p>
+              <p class="clause">
+                <strong>6.4 Taxes and Expenses.</strong> All estate,
+                inheritance, transfer, and succession taxes assessed against my
+                probate or non-probate estate shall be paid out of the residue
+                of my estate without apportionment.
+              </p>
+              <p class="clause">
+                <strong>6.5 Survivorship and Representation.</strong> For
+                purposes of this Will, a beneficiary must survive me by sixty
+                (60) full days. Any gift to a deceased beneficiary's descendants
+                shall pass by right of representation pursuant to RCW
+                11.02.005(18).
+              </p>
+              <h2 class="article-header">Article 7: No Contest Provision</h2>
+              <p class="clause">
+                If any beneficiary under this Will, directly or indirectly,
+                contests this Will or any of its provisions, any share or
+                interest in my estate given to that contesting beneficiary is
+                revoked and shall be disposed of in the same manner provided
+                herein as if that contesting beneficiary had predeceased me
+                without issue. King County Superior Court shall have full TEDRA
+                (RCW 11.96A) jurisdiction.
+              </p>
+
+              <h2 class="article-header">
+                Article 8: Ancillary Administration
+              </h2>
+              <p class="clause">
+                If ancillary administration is required in any other state or
+                jurisdiction, I appoint my nominated Personal Representative to
+                serve as ancillary administrator without bond.
+              </p>
+
+              <h2 class="article-header">
+                Article 9: Presumption of Survivorship
+              </h2>
+              <p class="clause">
+                Pursuant to RCW 11.05A, if any person named herein as a
+                beneficiary fails to survive me by sixty (60) days, such
+                beneficiary shall be deemed to have predeceased me for all
+                purposes under this Will.
+              </p>
+
+              <h2 class="article-header">Article 10: Severability</h2>
+              <p class="clause">
+                If any provision of this Will is held invalid or unenforceable,
+                such invalidity shall not affect the remaining provisions, which
+                shall continue in full force and effect.
+              </p>
+
+              <div class="testimonium">
+                <strong>IN WITNESS WHEREOF</strong>, I have signed this Last
+                Will and Testament, consisting of this and the preceding pages,
+                in the City of Seattle, King County, Washington, on this _____
+                day of __________________, 20____.
+              </div>
+
+              <div class="sig-block-principal">
+                <div class="sig-lines-principal">
+                  <div class="sig-line">
+                    <strong><mark class="dynamic-var">Avery Q. Ramos</mark></strong
+                    >, Testator
+                  </div>
+                  <div class="sig-caption">
+                    Residing at King County, Washington
+                  </div>
+                </div>
+              </div>
+              <div class="witness-block">
+                <h2 class="doc-subtitle">Attestation of Witnesses</h2>
+                <p class="witness-declaration">
+                  The foregoing instrument was on the date thereof signed,
+                  published, and declared by the Testator,
+                  <mark class="dynamic-var">Avery Q. Ramos</mark>, to be
+                  <mark class="dynamic-var">his</mark> Last Will and Testament,
+                  in the presence of us, who, at
+                  <mark class="dynamic-var">his</mark> request, in
+                  <mark class="dynamic-var">his</mark> presence, and in the
+                  presence of each other, have subscribed our names as attesting
+                  witnesses thereto, believing the Testator to be of sound mind
+                  and memory and under no constraint or undue influence.
+                </p>
+                <div class="sig-grid">
+                  <div class="sig-column">
+                    <div class="sig-field">
+                      <div class="sig-field-line"></div>
+                      <div class="sig-field-label">Witness Signature</div>
+                    </div>
+                    <div class="sig-field">
+                      <div class="sig-field-line"></div>
+                      <div class="sig-field-label">Printed Name</div>
+                    </div>
+                    <div class="sig-field">
+                      <div class="sig-field-line"></div>
+                      <div class="sig-field-label">Residence Address</div>
+                    </div>
+                    <div class="sig-field">
+                      <div class="sig-field-line"></div>
+                      <div class="sig-field-label">City, State, Zip</div>
+                    </div>
+                  </div>
+                  <div class="sig-column">
+                    <div class="sig-field">
+                      <div class="sig-field-line"></div>
+                      <div class="sig-field-label">Witness Signature</div>
+                    </div>
+                    <div class="sig-field">
+                      <div class="sig-field-line"></div>
+                      <div class="sig-field-label">Printed Name</div>
+                    </div>
+                    <div class="sig-field">
+                      <div class="sig-field-line"></div>
+                      <div class="sig-field-label">Residence Address</div>
+                    </div>
+                    <div class="sig-field">
+                      <div class="sig-field-line"></div>
+                      <div class="sig-field-label">City, State, Zip</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="notary-block">
+                <div class="notary-heading">
+                  Self-Proving Affidavit & Notarial Certificate
+                </div>
+                <div class="notary-venue">
+                  STATE OF WASHINGTON )<br />
+                  COUNTY OF KING
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;) ss.
+                </div>
+                <p class="notary-body">
+                  Each of the undersigned, being first duly sworn on oath,
+                  deposes and states under penalty of perjury under the laws of
+                  the State of Washington that: on the date last above written,
+                  the Testator, <mark class="dynamic-var">Avery Q. Ramos</mark>, in
+                  our presence declared this instrument to be
+                  <mark class="dynamic-var">his</mark> Last Will and Testament
+                  and requested us to act as witnesses; the Testator signed this
+                  Will in our presence; and we subscribed our names as witnesses
+                  in the Testator's presence and in each other's presence.
+                </p>
+                <div class="notary-sig-row">
+                  <div class="sig-column">
+                    <div class="sig-field">
+                      <div class="sig-field-line"></div>
+                      <div class="sig-field-label">
+                        Signature of Notary Public
+                      </div>
+                    </div>
+                    <div class="sig-field">
+                      <div class="sig-field-line"></div>
+                      <div class="sig-field-label">
+                        Title / Commission Expiration
+                      </div>
+                    </div>
+                  </div>
+                  <div class="notary-seal-box">Notary Seal Box</div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </main>
       </div>
-      <nav aria-label="Profile Quick Actions">
-        <button type="button" class="btn btn-secondary" id="btn-toggle-profile" aria-pressed="false">Profile: Avery Q. Ramos</button>
-      </nav>
-    </header>
-
-    <div class="app-body">
-      <aside class="app-sidebar" aria-label="Document Controls">
-        <div id="a11y-status" class="sr-only" aria-live="polite"></div>
-        <form id="document-form" class="sidebar-form" onsubmit="return false;">
-          <fieldset class="control-group">
-            <legend>Active Profile</legend>
-            <div class="form-field">
-              <label for="select-profile">Testator Profile</label>
-              <select id="select-profile" class="form-select">
-                <option value="profile-1" selected>Avery Q. Ramos (Husband)</option>
-                <option value="profile-2">Morgan T. Ramos (Wife)</option>
-              </select>
-            </div>
-          </fieldset>
-
-          <fieldset class="control-group">
-            <legend>Testator & Domicile</legend>
-            <div class="form-field">
-              <label for="input-testator-name">Full Legal Name</label>
-              <input type="text" id="input-testator-name" class="form-input" value="Avery Q. Ramos">
-            </div>
-            <div class="form-field">
-              <label for="input-county">County of Residence</label>
-              <input type="text" id="input-county" class="form-input" value="King">
-            </div>
-            <div class="form-field">
-              <label for="input-state">State</label>
-              <input type="text" id="input-state" class="form-input" value="Washington">
-            </div>
-          </fieldset>
-
-          <fieldset class="control-group">
-            <legend>Family & Guardians</legend>
-            <div class="form-field">
-              <label for="input-spouse-name">Spouse Name</label>
-              <input type="text" id="input-spouse-name" class="form-input" value="Morgan T. Ramos">
-            </div>
-            <div class="form-field">
-              <label for="input-children">Children Names</label>
-              <input type="text" id="input-children" class="form-input" value="Rowan A. Ramos and Sage B. Ramos">
-            </div>
-            <div class="form-field">
-              <label for="input-guardian">Primary Guardian</label>
-              <input type="text" id="input-guardian" class="form-input" value="Casey Delacroix">
-            </div>
-            <div class="form-field">
-              <label for="input-guardian-alt">Alternate Guardian</label>
-              <input type="text" id="input-guardian-alt" class="form-input" value="Priya Nandakumar">
-            </div>
-          </fieldset>
-
-          <fieldset class="control-group">
-            <legend>Fiduciaries (Article 6)</legend>
-            <div class="form-field">
-              <label for="input-pr-primary">Primary Personal Representative</label>
-              <input type="text" id="input-pr-primary" class="form-input" value="Morgan T. Ramos">
-            </div>
-            <div class="form-field">
-              <label for="input-pr-alt">Alternate Personal Representative</label>
-              <input type="text" id="input-pr-alt" class="form-input" value="Devin Okafor">
-            </div>
-            <div class="form-field">
-              <label for="input-trustee-primary">Primary Trustee</label>
-              <input type="text" id="input-trustee-primary" class="form-input" value="Casey Delacroix">
-            </div>
-            <div class="form-field">
-              <label for="input-trustee-alt">Alternate Trustee</label>
-              <input type="text" id="input-trustee-alt" class="form-input" value="Priya Nandakumar">
-            </div>
-          </fieldset>
-        </form>
-      </aside>
-
-      <main id="main-content" class="document-viewport">
-        <div class="toolbar" role="toolbar" aria-label="Document View Controls">
-          <div class="toolbar-group">
-            <button type="button" class="btn btn-secondary" id="zoom-75" aria-label="Zoom 75 percent">75%</button>
-            <button type="button" class="btn btn-secondary" id="zoom-100" aria-label="Zoom 100 percent">100%</button>
-            <button type="button" class="btn btn-secondary" id="zoom-fit" aria-label="Fit width">Fit</button>
-          </div>
-          <div class="toolbar-group">
-            <button type="button" class="btn btn-primary" id="btn-print" onclick="window.print();">Print Document</button>
-          </div>
-        </div>
-
-        <div id="sheet-container" class="sheet-container" data-zoom="100">
-          <article class="paged-sheet" aria-label="Last Will and Testament Document">
-            <!-- Paged Sheet Content -->
-            <h1 class="doc-title">Last Will and Testament<br>of<br><mark class="dynamic-var">Avery Q. Ramos</mark></h1>
-
-            <p class="doc-preamble">
-              I, <mark class="dynamic-var">Avery Q. Ramos</mark>, a resident of <mark class="dynamic-var">King</mark> County, <mark class="dynamic-var">Washington</mark>, declare this to be my Last Will and Testament, and I revoke all prior wills and codicils made by me.
-            </p>
-
-            <h2 class="article-header">Article 1: Family and Guardians</h2>
-            <p class="clause">
-              <strong>1.1 Family.</strong> I declare that I am married to <mark class="dynamic-var">Morgan T. Ramos</mark>, and all references in this Will to &ldquo;my spouse&rdquo; are to <mark class="dynamic-var">her</mark>. I have two children, <mark class="dynamic-var">Rowan A. Ramos and Sage B. Ramos</mark>. All references in this Will to &ldquo;my children&rdquo; include these children and any children hereafter born to or adopted by me.
-            </p>
-            <p class="clause">
-              <strong>1.2 Guardian of Minor Children.</strong> If my spouse does not survive me, or is unable or unwilling to act, I appoint <mark class="dynamic-var">Casey Delacroix</mark> as Guardian of the person and estate of any minor child of mine. If <mark class="dynamic-var">Casey Delacroix</mark> is unable or unwilling to serve, I appoint <mark class="dynamic-var">Priya Nandakumar</mark> as alternate Guardian.
-            </p>
-
-            <h2 class="article-header">Article 2: Disposition of Property</h2>
-            <p class="clause">
-              <strong>2.1 Primary Gift to Spouse.</strong> I give, devise, and bequeath all of my estate, of every nature and wheresoever situated, to my spouse, if my spouse survives me.
-            </p>
-            <p class="clause">
-              <strong>2.2 Separate Writing.</strong> Pursuant to RCW 11.12.260, I may dispose of tangible personal property by a separate written list or memorandum referenced in this Will.
-            </p>
-            <p class="clause">
-              <strong>2.3 Residue and Contingent Gift to Descendants.</strong> If my spouse does not survive me, I give the rest, residue, and remainder of my estate to my then-surviving descendants, per stirpes, subject to the trust provisions of Article 3 for any beneficiary under the age of twenty-five (25) years.
-            </p>
-            <p class="clause">
-              <strong>2.4 Ultimate Contingent Beneficiary.</strong> If neither my spouse nor any of my descendants survive me, my estate shall be distributed to my sister, or if she does not survive me, to my heirs at law determined under the laws of the State of Washington.
-            </p>
-
-            <h2 class="article-header">Article 3: Trust Beneficiaries and Distributions</h2>
-            <p class="clause">
-              <strong>3.1 Minor Support Standard.</strong> Any share allocated to a beneficiary under age twenty-five (25) shall be held in trust by the Trustee. The Trustee may distribute so much of the income and principal as necessary or advisable for the beneficiary's health, education, support, and maintenance.
-            </p>
-            <p class="clause">
-              <strong>3.2 Final Distribution.</strong> When a beneficiary attains the age of twenty-five (25) years, the Trustee shall distribute to such beneficiary the remaining balance of their trust share outright and free of trust.
-            </p>
-            <p class="clause">
-              <strong>3.3 Small Trust Termination.</strong> If the principal of any trust share falls below Fifteen Thousand Dollars ($15,000), the Trustee may terminate the trust and distribute the remainder outright to the beneficiary.
-            </p>
-            <p class="clause">
-              <strong>3.4 Rule Against Perpetuities.</strong> All trusts created hereunder shall terminate no later than twenty-one (21) years after the death of the last surviving beneficiary living at the time of my death.
-            </p>
-
-            <h2 class="article-header">Article 4: Claims by Strangers</h2>
-            <p class="clause">
-              Pursuant to RCW 6.32.250, no interest of any beneficiary in any trust created hereunder shall be subject to voluntary or involuntary transfer, assignment, anticipation, pledge, or attachment, nor shall it be liable for the debts or liabilities of any beneficiary or claims of creditors.
-            </p>
-            <h2 class="article-header">Article 5: Powers and Duties of Trustee</h2>
-            <p class="clause">
-              In addition to all powers conferred by the Washington Trust Act (RCW 11.98), the Trustee shall have the following powers:
-            </p>
-            <ol class="legal-list legal-list-numbered">
-              <li><strong>5.1 Retention.</strong> To retain property received into the trust without liability for depreciation or loss.</li>
-              <li><strong>5.2 Sale and Investment.</strong> To invest and reinvest in real, personal, or mixed property.</li>
-              <li><strong>5.3 Business Operations.</strong> To continue and operate any business enterprise owned by the trust.</li>
-              <li><strong>5.4 Non-Pro-Rata Distributions.</strong> To make distributions in cash or in kind, or partly in each, and allocate specific assets without regard to tax basis.</li>
-              <li><strong>5.5 Professional Advice.</strong> To employ attorneys, accountants, investment advisors, and agents.</li>
-              <li><strong>5.6 Settlement and Compromise.</strong> To compromise, contest, or settle claims.</li>
-              <li><strong>5.7 Digital Assets.</strong> To exercise authority over digital assets and accounts under RCW 11.120.</li>
-              <li><strong>5.8 Merger and Consolidation.</strong> To combine or pool trust shares for investment efficiency.</li>
-              <li><strong>5.9 Insurance.</strong> To purchase, maintain, or surrender insurance policies.</li>
-              <li><strong>5.10 Reliance in Good Faith.</strong> To act in good faith reliance on written advice or records without personal liability.</li>
-              <li><strong>5.11 Governing Law.</strong> This trust shall be construed and governed in accordance with the laws of the State of Washington.</li>
-            </ol>
-
-            <h2 class="article-header">Article 6: Administration and Fiduciaries</h2>
-            <p class="clause">
-              <strong>6.1 Trustee Appointment.</strong> I appoint <mark class="dynamic-var">Casey Delacroix</mark> as Trustee of any trust created under this Will. If <mark class="dynamic-var">Casey Delacroix</mark> is unable or unwilling to serve, I appoint <mark class="dynamic-var">Priya Nandakumar</mark> as alternate Trustee.
-            </p>
-            <p class="clause">
-              <strong>6.2 Personal Representative Appointment.</strong> I appoint my spouse, <mark class="dynamic-var">Morgan T. Ramos</mark>, as Personal Representative of my estate. If my spouse is unable or unwilling to serve, I appoint <mark class="dynamic-var">Devin Okafor</mark> as alternate Personal Representative. No fiduciary nominated herein shall be required to post bond or other security in any jurisdiction.
-            </p>
-            <p class="clause">
-              <strong>6.3 Nonintervention Powers.</strong> I direct that my estate be administered with nonintervention powers under RCW 11.68, without the necessity of court supervision, decree, or order, except as required by law.
-            </p>
-            <p class="clause">
-              <strong>6.4 Taxes and Expenses.</strong> All estate, inheritance, transfer, and succession taxes assessed against my probate or non-probate estate shall be paid out of the residue of my estate without apportionment.
-            </p>
-            <p class="clause">
-              <strong>6.5 Survivorship and Representation.</strong> For purposes of this Will, a beneficiary must survive me by sixty (60) full days. Any gift to a deceased beneficiary's descendants shall pass by right of representation pursuant to RCW 11.02.005(18).
-            </p>
-            <h2 class="article-header">Article 7: No Contest Provision</h2>
-            <p class="clause">
-              If any beneficiary under this Will, directly or indirectly, contests this Will or any of its provisions, any share or interest in my estate given to that contesting beneficiary is revoked and shall be disposed of in the same manner provided herein as if that contesting beneficiary had predeceased me without issue. King County Superior Court shall have full TEDRA (RCW 11.96A) jurisdiction.
-            </p>
-
-            <h2 class="article-header">Article 8: Ancillary Administration</h2>
-            <p class="clause">
-              If ancillary administration is required in any other state or jurisdiction, I appoint my nominated Personal Representative to serve as ancillary administrator without bond.
-            </p>
-
-            <h2 class="article-header">Article 9: Presumption of Survivorship</h2>
-            <p class="clause">
-              Pursuant to RCW 11.05A, if any person named herein as a beneficiary fails to survive me by sixty (60) days, such beneficiary shall be deemed to have predeceased me for all purposes under this Will.
-            </p>
-
-            <h2 class="article-header">Article 10: Severability</h2>
-            <p class="clause">
-              If any provision of this Will is held invalid or unenforceable, such invalidity shall not affect the remaining provisions, which shall continue in full force and effect.
-            </p>
-
-            <div class="testimonium">
-              <strong>IN WITNESS WHEREOF</strong>, I have signed this Last Will and Testament, consisting of this and the preceding pages, in the City of Seattle, King County, Washington, on this _____ day of __________________, 20____.
-            </div>
-
-            <div class="sig-block-principal">
-              <div class="sig-lines-principal">
-                <div class="sig-line">
-                  <strong><mark class="dynamic-var">Avery Q. Ramos</mark></strong>, Testator
-                </div>
-                <div class="sig-caption">Residing at King County, Washington</div>
-              </div>
-            </div>
-            <div class="witness-block">
-              <h2 class="doc-subtitle">Attestation of Witnesses</h2>
-              <p class="witness-declaration">
-                The foregoing instrument was on the date thereof signed, published, and declared by the Testator, <mark class="dynamic-var">Avery Q. Ramos</mark>, to be <mark class="dynamic-var">his</mark> Last Will and Testament, in the presence of us, who, at <mark class="dynamic-var">his</mark> request, in <mark class="dynamic-var">his</mark> presence, and in the presence of each other, have subscribed our names as attesting witnesses thereto, believing the Testator to be of sound mind and memory and under no constraint or undue influence.
-              </p>
-              <div class="sig-grid">
-                <div class="sig-column">
-                  <div class="sig-field">
-                    <div class="sig-field-line"></div>
-                    <div class="sig-field-label">Witness Signature</div>
-                  </div>
-                  <div class="sig-field">
-                    <div class="sig-field-line"></div>
-                    <div class="sig-field-label">Printed Name</div>
-                  </div>
-                  <div class="sig-field">
-                    <div class="sig-field-line"></div>
-                    <div class="sig-field-label">Residence Address</div>
-                  </div>
-                  <div class="sig-field">
-                    <div class="sig-field-line"></div>
-                    <div class="sig-field-label">City, State, Zip</div>
-                  </div>
-                </div>
-                <div class="sig-column">
-                  <div class="sig-field">
-                    <div class="sig-field-line"></div>
-                    <div class="sig-field-label">Witness Signature</div>
-                  </div>
-                  <div class="sig-field">
-                    <div class="sig-field-line"></div>
-                    <div class="sig-field-label">Printed Name</div>
-                  </div>
-                  <div class="sig-field">
-                    <div class="sig-field-line"></div>
-                    <div class="sig-field-label">Residence Address</div>
-                  </div>
-                  <div class="sig-field">
-                    <div class="sig-field-line"></div>
-                    <div class="sig-field-label">City, State, Zip</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="notary-block">
-              <div class="notary-heading">Self-Proving Affidavit & Notarial Certificate</div>
-              <div class="notary-venue">
-                STATE OF WASHINGTON )<br>
-                COUNTY OF KING &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;) ss.
-              </div>
-              <p class="notary-body">
-                Each of the undersigned, being first duly sworn on oath, deposes and states under penalty of perjury under the laws of the State of Washington that: on the date last above written, the Testator, <mark class="dynamic-var">Avery Q. Ramos</mark>, in our presence declared this instrument to be <mark class="dynamic-var">his</mark> Last Will and Testament and requested us to act as witnesses; the Testator signed this Will in our presence; and we subscribed our names as witnesses in the Testator's presence and in each other's presence.
-              </p>
-              <div class="notary-sig-row">
-                <div class="sig-column">
-                  <div class="sig-field">
-                    <div class="sig-field-line"></div>
-                    <div class="sig-field-label">Signature of Notary Public</div>
-                  </div>
-                  <div class="sig-field">
-                    <div class="sig-field-line"></div>
-                    <div class="sig-field-label">Title / Commission Expiration</div>
-                  </div>
-                </div>
-                <div class="notary-seal-box">
-                  Notary Seal Box
-                </div>
-              </div>
-            </div>
-          </article>
-        </div>
-      </main>
     </div>
-  </div>
 
-  <script>
-    (function () {
-      const container = document.getElementById('sheet-container');
-      const zoomButtons = {
-        'zoom-75': '75',
-        'zoom-100': '100',
-        'zoom-fit': 'fit'
-      };
-
-      Object.keys(zoomButtons).forEach(id => {
-        const btn = document.getElementById(id);
-        if (btn) {
-          btn.addEventListener('click', () => {
-            container.setAttribute('data-zoom', zoomButtons[id]);
-          });
-        }
-      });
-    })();
-  </script>
-</body>
+    <script type="module" src="js/app.js"></script>
+  </body>
 </html>
