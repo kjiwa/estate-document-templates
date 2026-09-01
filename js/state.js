@@ -1,5 +1,4 @@
-import { PROFILES, DEFAULT_PROFILE_ID } from "./config.js";
-import { getTemplate } from "./templates/registry.js";
+import { PROFILES, DEFAULT_PROFILE_ID, SCHEMA_VERSION } from "./config.js";
 
 const STORAGE_KEY = "estate_templates_state_v1";
 
@@ -41,10 +40,49 @@ function notify(eventType, payload) {
   });
 }
 
+function getPathValue(obj, path) {
+  return path
+    .split(".")
+    .reduce(
+      (current, part) => (current == null ? undefined : current[part]),
+      obj
+    );
+}
+
+// Merges `source` onto a fresh clone of `target` field by field, so a stored
+// draft missing newer fields falls back to the shipped default rather than
+// leaving them undefined. Arrays are replaced wholesale (no per-element
+// merge) since they represent ordered lists (children, witnesses), not maps.
+function deepMerge(target, source) {
+  if (Array.isArray(source)) {
+    return source.slice();
+  }
+  if (source && typeof source === "object") {
+    const result = { ...target };
+    for (const key of Object.keys(source)) {
+      const targetValue =
+        target && typeof target === "object" ? target[key] : undefined;
+      if (
+        source[key] &&
+        typeof source[key] === "object" &&
+        targetValue &&
+        typeof targetValue === "object"
+      ) {
+        result[key] = deepMerge(targetValue, source[key]);
+      } else {
+        result[key] = source[key];
+      }
+    }
+    return result;
+  }
+  return source;
+}
+
 export function saveStateToLocalStorage() {
   if (typeof window === "undefined" || !window.localStorage) return;
   try {
     const data = {
+      schemaVersion: SCHEMA_VERSION,
       activeProfileId: state.activeProfileId,
       profiles: state.profiles,
       highlightVariables: state.highlightVariables,
@@ -56,26 +94,47 @@ export function saveStateToLocalStorage() {
   }
 }
 
+// Merges stored profiles over a fresh clone of PROFILES, keyed only by known
+// profile ids. This is what makes adding a field to config.js safe: a v1
+// draft missing e.g. `witnesses` gets the shipped default rather than an
+// undefined that renders as an invented fallback.
 export function loadStateFromLocalStorage() {
   if (typeof window === "undefined" || !window.localStorage) return false;
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return false;
     const parsed = JSON.parse(raw);
-    if (parsed && parsed.profiles && parsed.activeProfileId) {
-      state.activeProfileId =
-        parsed.activeProfileId in parsed.profiles
-          ? parsed.activeProfileId
-          : DEFAULT_PROFILE_ID;
-      state.profiles = parsed.profiles;
-      if (typeof parsed.highlightVariables === "boolean") {
-        state.highlightVariables = parsed.highlightVariables;
-      }
-      if (parsed.zoom) {
-        state.zoom = parsed.zoom;
-      }
-      return true;
+    if (!parsed || typeof parsed !== "object" || !parsed.profiles) {
+      return false;
     }
+
+    const freshProfiles = JSON.parse(JSON.stringify(PROFILES));
+    const mergedProfiles = {};
+    for (const profileId of Object.keys(freshProfiles)) {
+      const stored = parsed.profiles[profileId];
+      mergedProfiles[profileId] = stored
+        ? deepMerge(freshProfiles[profileId], stored)
+        : freshProfiles[profileId];
+    }
+    state.profiles = mergedProfiles;
+
+    state.activeProfileId =
+      parsed.activeProfileId in mergedProfiles
+        ? parsed.activeProfileId
+        : DEFAULT_PROFILE_ID;
+
+    if (typeof parsed.highlightVariables === "boolean") {
+      state.highlightVariables = parsed.highlightVariables;
+    }
+    if (parsed.zoom) {
+      state.zoom = parsed.zoom;
+    }
+    if (parsed.schemaVersion !== SCHEMA_VERSION) {
+      console.info(
+        `Migrated stored profiles from schema v${parsed.schemaVersion ?? 1} to v${SCHEMA_VERSION}.`
+      );
+    }
+    return true;
   } catch (err) {
     console.warn("Failed to load state from localStorage:", err);
   }
@@ -107,6 +166,30 @@ export function updateField(path, value) {
 
   saveStateToLocalStorage();
   notify("fieldUpdate", { path, value });
+}
+
+export function addListItem(path, defaultItem) {
+  const active = getActiveProfile();
+  if (!active) return;
+
+  const list = getPathValue(active, path);
+  if (!Array.isArray(list)) return;
+
+  list.push(defaultItem);
+  saveStateToLocalStorage();
+  notify("listChange", { path });
+}
+
+export function removeListItem(path, index) {
+  const active = getActiveProfile();
+  if (!active) return;
+
+  const list = getPathValue(active, path);
+  if (!Array.isArray(list)) return;
+
+  list.splice(index, 1);
+  saveStateToLocalStorage();
+  notify("listChange", { path });
 }
 
 export function updateActiveProfile(updates = {}) {
@@ -157,85 +240,49 @@ export function exportStateAsJson() {
   return JSON.stringify(state.profiles, null, 2);
 }
 
+// Validates shape (each entry must carry testator.name, the shape produced
+// by exportStateAsJson) rather than sniffing hardcoded profile ids, and
+// merges by known profile id only, same as loadStateFromLocalStorage.
 export function importStateFromJson(jsonString) {
   try {
     const parsed = JSON.parse(jsonString);
-    if (!parsed || typeof parsed !== "object") {
-      throw new Error("Invalid JSON structure");
-    }
-
-    if (parsed.profile-1 || parsed.profile-2) {
-      state.profiles = {
-        ...JSON.parse(JSON.stringify(PROFILES)),
-        ...parsed,
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return {
+        success: false,
+        error: "Invalid JSON: expected an object of profiles.",
       };
-    } else if (parsed.testator && parsed.testator.name) {
-      state.profiles[state.activeProfileId] = parsed;
-    } else {
-      throw new Error("JSON missing profile schema structure");
     }
 
+    const knownIds = Object.keys(PROFILES);
+    const freshProfiles = JSON.parse(JSON.stringify(PROFILES));
+    const mergedProfiles = { ...state.profiles };
+    let importedCount = 0;
+
+    for (const profileId of knownIds) {
+      const profile = parsed[profileId];
+      if (profile === undefined) continue;
+      if (!profile || typeof profile !== "object" || !profile.testator?.name) {
+        return {
+          success: false,
+          error: `Profile "${profileId}" is missing a required testator.name field.`,
+        };
+      }
+      mergedProfiles[profileId] = deepMerge(freshProfiles[profileId], profile);
+      importedCount++;
+    }
+
+    if (importedCount === 0) {
+      return {
+        success: false,
+        error: `JSON must contain at least one recognized profile (${knownIds.join(", ")}).`,
+      };
+    }
+
+    state.profiles = mergedProfiles;
     saveStateToLocalStorage();
     notify("import", { activeProfileId: state.activeProfileId });
     return { success: true };
   } catch (err) {
     return { success: false, error: err.message };
   }
-}
-
-export function generateStandaloneHtml(templateId = "will") {
-  const template = getTemplate(templateId);
-  const profile = getActiveProfile();
-  if (!template || !profile) return "";
-
-  const renderedBody = template.render(profile, { highlightVariables: false });
-  const title = `Last Will and Testament - ${profile.testator?.name || "Document"}`;
-
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${title}</title>
-  <style>
-    @page { size: letter portrait; margin: 0.85in 0.8in 0.85in 0.8in; }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: "Times New Roman", Times, Georgia, serif; font-size: 11pt; line-height: 1.6; color: #111827; background-color: #f1f5f9; padding: 2rem 1rem; }
-    .paged-sheet { max-width: 8.5in; margin: 0 auto; background: #ffffff; padding: 0.85in 0.8in; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-    .doc-title { font-size: 14pt; font-weight: bold; text-align: center; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1.5rem; }
-    .doc-subtitle { font-size: 12pt; font-weight: bold; text-align: center; margin-bottom: 1.5rem; }
-    .doc-preamble, .clause { text-align: justify; margin-bottom: 1rem; orphans: 3; widows: 3; }
-    .article-header { font-size: 12pt; font-weight: bold; text-align: center; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 1.5rem; margin-bottom: 0.75rem; break-after: avoid; }
-    .powers-list { margin-left: 2rem; margin-bottom: 1rem; }
-    .powers-list li { margin-bottom: 0.75rem; text-align: justify; }
-    .testimonium, .sig-block-principal, .witness-block, .notary-block { break-inside: avoid; page-break-inside: avoid; }
-    .testimonium { margin-top: 1.5rem; margin-bottom: 1rem; text-align: justify; }
-    .sig-block-principal { margin-top: 1.5rem; margin-bottom: 2rem; display: flex; justify-content: flex-end; }
-    .sig-lines-principal { width: 50%; }
-    .sig-line { border-top: 1px solid #111827; margin-top: 3rem; padding-top: 0.25rem; font-size: 10.5pt; }
-    .sig-caption { font-size: 10pt; color: #374151; }
-    .witness-block { margin-top: 1.5rem; border-top: 1px solid #111827; padding-top: 1.5rem; }
-    .witness-declaration { text-align: justify; margin-bottom: 1.5rem; }
-    .sig-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1rem; }
-    .sig-column { display: flex; flex-direction: column; gap: 0.75rem; }
-    .sig-field-line { border-bottom: 1px solid #111827; height: 1.5rem; }
-    .sig-field-label { font-size: 9pt; color: #4b5563; }
-    .notary-block { margin-top: 2rem; border: 1px solid #111827; padding: 1rem; }
-    .notary-heading { font-weight: bold; text-align: center; margin-bottom: 0.75rem; }
-    .notary-venue { font-weight: bold; margin-bottom: 0.75rem; }
-    .notary-body { text-align: justify; margin-bottom: 1rem; }
-    .notary-sig-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem; }
-    .notary-seal-box { border: 1px dashed #111827; height: 120px; display: flex; align-items: center; justify-content: center; font-size: 9pt; color: #4b5563; text-transform: uppercase; }
-    @media print {
-      body { background: transparent; padding: 0; }
-      .paged-sheet { box-shadow: none; padding: 0; max-width: 100%; }
-    }
-  </style>
-</head>
-<body>
-  <article class="paged-sheet">
-    ${renderedBody}
-  </article>
-</body>
-</html>`;
 }

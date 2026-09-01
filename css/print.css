@@ -5,7 +5,19 @@
 
 @page {
   size: letter portrait;
-  margin: 0.85in 0.8in 0.85in 0.8in;
+  margin: 0.85in 0.8in 1.05in 0.8in;
+  @bottom-left {
+    content: var(--print-doc-label, "");
+    font: 9pt var(--font-serif);
+  }
+  @bottom-center {
+    content: "Page " counter(page) " of " counter(pages);
+    font: 9pt var(--font-serif);
+  }
+  @bottom-right {
+    content: "Testator initials: ________";
+    font: 9pt var(--font-serif);
+  }
 }
 
 @media print {
@@ -32,6 +44,7 @@
   .document-viewport,
   .sheet-container {
     display: block !important;
+    background: transparent !important;
     padding: 0 !important;
     margin: 0 !important;
     width: 100% !important;
@@ -41,6 +54,7 @@
   }
 
   .paged-sheet {
+    zoom: 1 !important;
     box-shadow: none !important;
     border: none !important;
     background: transparent !important;
@@ -61,8 +75,7 @@
   /* Orphan & Widow Control */
   p,
   .clause,
-  .numbered-clause,
-  .legal-list > li {
+  .powers-list > li {
     orphans: 3;
     widows: 3;
   }
@@ -78,6 +91,7 @@
   .sig-block-principal,
   .witness-block,
   .sig-grid,
+  .affidavit-sig-row,
   .notary-block,
   .no-break {
     break-inside: avoid;

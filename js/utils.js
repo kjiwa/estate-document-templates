@@ -64,6 +64,19 @@ export function wrapVar(value, highlight = true) {
   return escaped;
 }
 
+export function fillIn(value, chars = 10, highlight = true) {
+  if (value === null || value === undefined || value === "") {
+    return `<span class="fill-in" style="width: ${chars}ch"></span>`;
+  }
+  return wrapVar(value, highlight);
+}
+
+export function escapeCssString(value) {
+  return String(value ?? "")
+    .replace(/\\/g, "\\\\")
+    .replace(/"/g, '\\"');
+}
+
 export function announceA11y(message) {
   if (typeof document === "undefined") return;
   const region = document.getElementById("a11y-status");

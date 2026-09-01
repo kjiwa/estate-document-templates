@@ -11,7 +11,7 @@
   box-shadow: var(--sheet-shadow);
   color: var(--color-text-primary);
   font-family: var(--font-serif);
-  font-size: 11pt;
+  font-size: var(--doc-size-body);
   line-height: var(--line-height-legal);
   box-sizing: border-box;
   text-rendering: optimizeLegibility;
@@ -28,9 +28,13 @@
   line-height: var(--line-height-tight);
 }
 
+.doc-title-line {
+  display: block;
+}
+
 .doc-subtitle {
   text-align: center;
-  font-size: 12pt;
+  font-size: var(--doc-size-heading);
   font-weight: var(--font-weight-bold);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -46,7 +50,7 @@
 
 /* Article Headers */
 .article-header {
-  font-size: 12pt;
+  font-size: var(--doc-size-heading);
   font-weight: var(--font-weight-bold);
   text-align: center;
   text-transform: uppercase;
@@ -63,30 +67,28 @@
   margin-bottom: var(--space-4);
 }
 
-.numbered-clause {
-  margin-bottom: var(--space-4);
-  text-align: justify;
+/* A visible ruled blank for an unset field, sized in `ch` by fillIn() — the
+   screen and print treatment for a value the template refuses to invent. */
+.fill-in {
+  display: inline-block;
+  border-bottom: 1px solid var(--color-border-dark);
+  height: 1em;
+  vertical-align: -0.15em;
 }
 
-.numbered-clause-title {
-  font-weight: var(--font-weight-bold);
-}
-
-/* Legal Lists */
-.legal-list {
+/* Trustee Powers List — numbered in the clause text itself (5.1, 5.2, ...),
+   so the list must not render its own browser-generated marker. */
+.powers-list {
   list-style: none;
   padding-left: 0;
   margin-bottom: var(--space-4);
 }
 
-.legal-list > li {
+.powers-list > li {
   margin-bottom: var(--space-3);
-  text-align: justify;
-}
-
-.legal-list-numbered > li {
   padding-left: var(--space-6);
   text-indent: calc(-1 * var(--space-6));
+  text-align: justify;
 }
 
 /* Dynamic Variable Highlighting */
@@ -136,12 +138,12 @@ mark.dynamic-var {
   border-top: 1px solid var(--color-border-dark);
   margin-top: var(--space-12);
   padding-top: var(--space-1);
-  font-size: 10.5pt;
+  font-size: var(--doc-size-caption);
   text-align: left;
 }
 
 .sig-caption {
-  font-size: 10pt;
+  font-size: var(--doc-size-fine);
   color: var(--color-text-secondary);
 }
 
@@ -185,9 +187,24 @@ mark.dynamic-var {
 }
 
 .sig-field-label {
-  font-size: 9pt;
+  font-size: var(--doc-size-fine);
   color: var(--color-text-secondary);
   margin-top: var(--space-1);
+}
+
+/* Self-Proving Affidavit Signature Row (testator + two witnesses) */
+.affidavit-sig-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.notary-jurat {
+  margin-top: var(--space-4);
+  text-align: justify;
 }
 
 /* Notarial Certificate & Self-Proving Affidavit */
@@ -200,7 +217,7 @@ mark.dynamic-var {
 }
 
 .notary-heading {
-  font-size: 11pt;
+  font-size: var(--doc-size-body);
   font-weight: var(--font-weight-bold);
   text-align: center;
   text-transform: uppercase;
@@ -230,7 +247,7 @@ mark.dynamic-var {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 9pt;
+  font-size: var(--doc-size-fine);
   color: var(--color-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;

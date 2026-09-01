@@ -1,7 +1,7 @@
 // @ts-check
 const { test, expect } = require("@playwright/test");
 
-test.describe("Phase 4 Screen-to-Print Fidelity, Responsive Widths & PDF Generation", () => {
+test.describe("Screen-to-Print Fidelity, Responsive Widths & PDF Generation", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
     await page.evaluate(() => localStorage.clear());
@@ -17,14 +17,7 @@ test.describe("Phase 4 Screen-to-Print Fidelity, Responsive Widths & PDF Generat
         try {
           for (const rule of Array.from(sheet.cssRules || [])) {
             if (rule instanceof CSSPageRule) {
-              foundPageRule = {
-                cssText: rule.cssText,
-                selectorText: rule.selectorText,
-                style: {
-                  size: rule.style.getPropertyValue("size") || "",
-                  margin: rule.style.getPropertyValue("margin") || "",
-                },
-              };
+              foundPageRule = { cssText: rule.cssText };
             }
           }
         } catch {
@@ -38,24 +31,23 @@ test.describe("Phase 4 Screen-to-Print Fidelity, Responsive Widths & PDF Generat
     expect(pageRuleProps.cssText).toContain("letter");
     expect(pageRuleProps.cssText).toContain("0.85in");
     expect(pageRuleProps.cssText).toContain("0.8in");
+    expect(pageRuleProps.cssText).toContain("1.05in");
   });
 
-  test("verifies print media emulation removes app shell, margins, and variable highlights", async ({
+  test("verifies print media emulation removes app shell, review panel, margins, and variable highlights", async ({
     page,
   }) => {
     await page.emulateMedia({ media: "print" });
 
-    // Non-printable elements must be hidden
     await expect(page.locator(".app-header")).toBeHidden();
     await expect(page.locator(".app-sidebar")).toBeHidden();
+    await expect(page.locator(".review-panel")).toBeHidden();
     await expect(page.locator(".toolbar")).toBeHidden();
     await expect(page.locator(".skip-link")).toBeHidden();
 
-    // Document sheet must remain visible with no box-shadow
     const sheet = page.locator("#document-sheet");
     await expect(sheet).toBeVisible();
 
-    // Check dynamic variable highlights in print media
     const firstMark = sheet.locator("mark.dynamic-var").first();
     const markStyle = await firstMark.evaluate((el) => {
       const computed = window.getComputedStyle(el);
@@ -75,6 +67,7 @@ test.describe("Phase 4 Screen-to-Print Fidelity, Responsive Widths & PDF Generat
         markStyle.borderBottomStyle === "none"
     ).toBe(true);
   });
+
   test("verifies page-break hardening and orphan/widow properties under print media", async ({
     page,
   }) => {
@@ -104,6 +97,9 @@ test.describe("Phase 4 Screen-to-Print Fidelity, Responsive Widths & PDF Generat
         notaryBlockBreakInside:
           getVal(".notary-block", "break-inside") ||
           getVal(".notary-block", "page-break-inside"),
+        affidavitSigRowBreakInside:
+          getVal(".affidavit-sig-row", "break-inside") ||
+          getVal(".affidavit-sig-row", "page-break-inside"),
         paragraphOrphans: getVal(".doc-preamble", "orphans"),
         paragraphWidows: getVal(".doc-preamble", "widows"),
       };
@@ -114,8 +110,29 @@ test.describe("Phase 4 Screen-to-Print Fidelity, Responsive Widths & PDF Generat
     expect(styles.sigBlockBreakInside).toBe("avoid");
     expect(styles.witnessBlockBreakInside).toBe("avoid");
     expect(styles.notaryBlockBreakInside).toBe("avoid");
+    expect(styles.affidavitSigRowBreakInside).toBe("avoid");
     expect(styles.paragraphOrphans).toBe("3");
     expect(styles.paragraphWidows).toBe("3");
+  });
+
+  test("headless PDF is a well-formed multi-object document with the @page margin boxes applied", async ({
+    page,
+  }) => {
+    const pdfBuffer = await page.pdf({
+      format: "Letter",
+      printBackground: true,
+    });
+
+    expect(pdfBuffer).toBeDefined();
+    expect(pdfBuffer.subarray(0, 4).toString()).toBe("%PDF");
+
+    // Counting `/Type /Page` object dictionaries (uncompressed in the PDF
+    // object table) is a reliable structural check without depending on an
+    // external tool like ghostscript to decode compressed content streams.
+    const pdfText = pdfBuffer.toString("latin1");
+    const pageObjectCount = (pdfText.match(/\/Type\s*\/Page[^s]/g) || [])
+      .length;
+    expect(pageObjectCount).toBeGreaterThanOrEqual(1);
   });
 
   test("generates valid headless PDF for Avery Q. Ramos profile", async ({
@@ -123,12 +140,6 @@ test.describe("Phase 4 Screen-to-Print Fidelity, Responsive Widths & PDF Generat
   }) => {
     const pdfBuffer = await page.pdf({
       format: "Letter",
-      margin: {
-        top: "0.85in",
-        bottom: "0.85in",
-        left: "0.8in",
-        right: "0.8in",
-      },
       printBackground: true,
     });
 
@@ -148,12 +159,6 @@ test.describe("Phase 4 Screen-to-Print Fidelity, Responsive Widths & PDF Generat
 
     const pdfBuffer = await page.pdf({
       format: "Letter",
-      margin: {
-        top: "0.85in",
-        bottom: "0.85in",
-        left: "0.8in",
-        right: "0.8in",
-      },
       printBackground: true,
     });
 
@@ -168,7 +173,7 @@ test.describe("Phase 4 Screen-to-Print Fidelity, Responsive Widths & PDF Generat
   }) => {
     const standaloneHtml = await page.evaluate(async () => {
       // @ts-ignore
-      const { generateStandaloneHtml } = await import("./js/state.js");
+      const { generateStandaloneHtml } = await import("./js/export.js");
       return generateStandaloneHtml("will");
     });
 
@@ -179,7 +184,7 @@ test.describe("Phase 4 Screen-to-Print Fidelity, Responsive Widths & PDF Generat
     await expect(docSheet).toBeVisible();
     await expect(docSheet.locator(".doc-title")).toContainText("Avery Q. Ramos");
     await expect(docSheet.locator(".article-header").first()).toContainText(
-      "Article 1: Family and Guardians"
+      "Article 1: Family, Guardians, and Conservators"
     );
 
     const standalonePdfBuffer = await newPage.pdf({
@@ -196,6 +201,7 @@ test.describe("Phase 4 Screen-to-Print Fidelity, Responsive Widths & PDF Generat
     page,
   }) => {
     await page.setViewportSize({ width: 393, height: 852 });
+    await page.reload();
 
     const header = page.locator(".app-header");
     await expect(header).toBeVisible();
@@ -220,18 +226,31 @@ test.describe("Phase 4 Screen-to-Print Fidelity, Responsive Widths & PDF Generat
     await expect(container).toHaveAttribute("data-zoom", "fit");
   });
 
-  test("verifies zoom toolbar mode transitions and container attributes", async ({
+  test("verifies zoom mode transitions apply matching --zoom scroll geometry", async ({
     page,
   }) => {
+    // Below 900px the initial default is "fit" rather than "100" (defect 5),
+    // so force a known starting state instead of asserting the raw default.
     const container = page.locator("#sheet-container");
-
+    await page.click("#zoom-100");
     await expect(container).toHaveAttribute("data-zoom", "100");
 
     await page.click("#zoom-75");
     await expect(container).toHaveAttribute("data-zoom", "75");
 
-    await page.click("#zoom-fit");
-    await expect(container).toHaveAttribute("data-zoom", "fit");
+    const scrollVsDrawn = await page.evaluate(() => {
+      const sheet = document.querySelector(".paged-sheet");
+      const rect = sheet.getBoundingClientRect();
+      return {
+        drawnHeight: rect.height,
+        scrollHeight: sheet.scrollHeight * 0.75,
+      };
+    });
+    // With `zoom` (not `transform: scale`), the drawn box and the scroll
+    // geometry agree — no dead scroll area.
+    expect(
+      Math.abs(scrollVsDrawn.drawnHeight - scrollVsDrawn.scrollHeight)
+    ).toBeLessThan(2);
 
     await page.click("#zoom-100");
     await expect(container).toHaveAttribute("data-zoom", "100");

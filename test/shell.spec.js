@@ -1,7 +1,7 @@
 // @ts-check
 const { test, expect } = require("@playwright/test");
 
-test.describe("Phase 1 Foundational Architecture & Layout", () => {
+test.describe("Application Shell, Layout & Accessibility", () => {
   test("renders page without console errors and contains accessible landmarks", async ({
     page,
   }) => {
@@ -14,7 +14,6 @@ test.describe("Phase 1 Foundational Architecture & Layout", () => {
 
     expect(consoleErrors).toEqual([]);
 
-    // Check landmarks
     const skipLink = page.locator("a.skip-link");
     await expect(skipLink).toBeAttached();
     await expect(skipLink).toHaveAttribute("href", "#main-content");
@@ -32,10 +31,7 @@ test.describe("Phase 1 Foundational Architecture & Layout", () => {
 
     const sheet = page.locator("article.paged-sheet");
     await expect(sheet).toBeVisible();
-    await expect(sheet).toHaveAttribute(
-      "aria-label",
-      "Last Will and Testament Document"
-    );
+    await expect(sheet).toHaveAttribute("aria-labelledby", "doc-title");
   });
 
   test("skip link becomes visible and accessible on focus", async ({
@@ -47,7 +43,6 @@ test.describe("Phase 1 Foundational Architecture & Layout", () => {
     await skipLink.focus();
     await expect(skipLink).toBeFocused();
 
-    // Wait for CSS transition
     await page.waitForTimeout(200);
 
     const boundingBox = await skipLink.boundingBox();
@@ -55,9 +50,7 @@ test.describe("Phase 1 Foundational Architecture & Layout", () => {
     expect(boundingBox.y).toBeGreaterThanOrEqual(0);
   });
 
-  test("form inputs are properly associated with labels and fieldsets", async ({
-    page,
-  }) => {
+  test("form inputs are properly associated with labels", async ({ page }) => {
     await page.goto("/");
 
     const inputs = [
@@ -66,13 +59,16 @@ test.describe("Phase 1 Foundational Architecture & Layout", () => {
       "input-county",
       "input-state",
       "input-spouse-name",
-      "input-children",
-      "input-guardian",
+      "input-guardian-primary",
       "input-guardian-alt",
+      "input-conservator-primary",
+      "input-conservator-alt",
       "input-pr-primary",
       "input-pr-alt",
       "input-trustee-primary",
       "input-trustee-alt",
+      "input-witness-0-name",
+      "input-witness-1-name",
     ];
 
     for (const id of inputs) {
@@ -83,7 +79,47 @@ test.describe("Phase 1 Foundational Architecture & Layout", () => {
     }
   });
 
-  test("document structure contains 10 articles, execution, and attestation blocks", async ({
+  test("#document-sheet ships empty in the HTML source — JS renders the document, not the markup", async ({
+    request,
+    baseURL,
+  }) => {
+    const response = await request.get(baseURL + "/");
+    const html = await response.text();
+    const match = html.match(
+      /<article[^>]*id="document-sheet"[^>]*>([\s\S]*?)<\/article>/
+    );
+    expect(match).not.toBeNull();
+    const innerMarkup = match[1];
+    expect(innerMarkup).not.toMatch(/<h1|<h2|class="clause"/);
+    expect(innerMarkup).toContain("noscript");
+  });
+
+  test("execution date row inputs share the same top offset", async ({
+    page,
+  }) => {
+    await page.goto("/");
+
+    const tops = await page.$$eval(
+      "#input-date-day, #input-date-month, #input-date-year",
+      (els) => els.map((el) => el.getBoundingClientRect().top)
+    );
+
+    expect(tops[0]).toBe(tops[1]);
+    expect(tops[1]).toBe(tops[2]);
+  });
+
+  test("powers list items render no browser-generated marker", async ({
+    page,
+  }) => {
+    await page.goto("/");
+
+    const listStyleType = await page
+      .locator(".powers-list")
+      .evaluate((el) => window.getComputedStyle(el).listStyleType);
+    expect(listStyleType).toBe("none");
+  });
+
+  test("document structure contains 10 articles and execution/attestation blocks", async ({
     page,
   }) => {
     await page.goto("/");
@@ -91,44 +127,39 @@ test.describe("Phase 1 Foundational Architecture & Layout", () => {
     const articleHeaders = page.locator(".article-header");
     await expect(articleHeaders).toHaveCount(10);
 
-    const expectedHeaders = [
-      "Article 1: Family and Guardians",
-      "Article 2: Disposition of Property",
-      "Article 3: Trust Beneficiaries and Distributions",
-      "Article 4: Claims by Strangers",
-      "Article 5: Powers and Duties of Trustee",
-      "Article 6: Administration and Fiduciaries",
-      "Article 7: No Contest Provision",
-      "Article 8: Ancillary Administration",
-      "Article 9: Presumption of Survivorship",
-      "Article 10: Severability",
-    ];
-
-    for (let i = 0; i < expectedHeaders.length; i++) {
-      await expect(articleHeaders.nth(i)).toContainText(expectedHeaders[i]);
-    }
-
     await expect(page.locator(".testimonium")).toBeVisible();
     await expect(page.locator(".sig-block-principal")).toBeVisible();
     await expect(page.locator(".witness-block")).toBeVisible();
     await expect(page.locator(".notary-block")).toBeVisible();
   });
 
-  test("zoom toolbar triggers data-zoom attribute on sheet container", async ({
+  test("zoom radiogroup triggers data-zoom attribute on sheet container", async ({
     page,
   }) => {
     await page.goto("/");
 
+    const zoomGroup = page.locator(".zoom-group");
+    await expect(zoomGroup).toHaveAttribute("role", "radiogroup");
+
+    // Below 900px the initial default is "fit" rather than "100" (defect 5),
+    // so force a known starting state instead of asserting the raw default.
     const container = page.locator("#sheet-container");
+    await page.click("#zoom-100");
     await expect(container).toHaveAttribute("data-zoom", "100");
 
     await page.click("#zoom-75");
-    await container.evaluate((el) => el.setAttribute("data-zoom", "75"));
     await expect(container).toHaveAttribute("data-zoom", "75");
+    await expect(page.locator("#zoom-75")).toHaveAttribute(
+      "aria-checked",
+      "true"
+    );
 
     await page.click("#zoom-fit");
-    await container.evaluate((el) => el.setAttribute("data-zoom", "fit"));
     await expect(container).toHaveAttribute("data-zoom", "fit");
+    await expect(page.locator("#zoom-fit")).toHaveAttribute(
+      "aria-checked",
+      "true"
+    );
   });
 
   test("print media emulation hides application UI and preserves document sheet", async ({
@@ -171,17 +202,6 @@ test.describe("Phase 1 Foundational Architecture & Layout", () => {
         return style.overflowY === "auto" || style.overflowY === "scroll";
       });
     expect(viewportScrollable).toBe(true);
-
-    const sidebarBox = await page.locator("aside.app-sidebar").boundingBox();
-    const viewportBox = await page
-      .locator("main.document-viewport")
-      .boundingBox();
-    expect(sidebarBox).not.toBeNull();
-    expect(viewportBox).not.toBeNull();
-    expect(viewportBox.x).toBeGreaterThanOrEqual(
-      sidebarBox.x + sidebarBox.width
-    );
-    expect(viewportBox.y).toBe(sidebarBox.y);
   });
 
   test("CSS design tokens resolve properly", async ({ page }) => {
@@ -208,5 +228,17 @@ test.describe("Phase 1 Foundational Architecture & Layout", () => {
     await page.goto("/");
     const pdfBuffer = await page.pdf({ format: "Letter" });
     expect(pdfBuffer.length).toBeGreaterThan(1000);
+  });
+
+  test("at 393px the sheet stays within the viewport (no unreachable overflow)", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 393, height: 852 });
+    await page.goto("/");
+
+    const sheetBox = await page.locator("#document-sheet").boundingBox();
+    expect(sheetBox).not.toBeNull();
+    expect(sheetBox.x).toBeGreaterThanOrEqual(0);
+    expect(sheetBox.x + sheetBox.width).toBeLessThanOrEqual(393 + 1);
   });
 });

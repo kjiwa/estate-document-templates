@@ -1,0 +1,23 @@
+name: Citation Check
+
+on:
+  schedule:
+    # 09:00 UTC on the 1st of every month.
+    - cron: "0 9 1 * *"
+  workflow_dispatch: {}
+
+jobs:
+  check-citations:
+    name: Verify RCW Citations
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check every cited RCW section against app.leg.wa.gov
+        run: node scripts/check-citations.mjs

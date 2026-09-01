@@ -1,3 +1,5 @@
+export const SCHEMA_VERSION = 2;
+
 export const PROFILES = {
   profile-1: {
     id: "profile-1",
@@ -12,8 +14,12 @@ export const PROFILES = {
       name: "Morgan T. Ramos",
       gender: "female",
     },
-    children: "Rowan A. Ramos and Sage B. Ramos",
+    children: ["Rowan A. Ramos", "Sage B. Ramos"],
     guardians: {
+      primary: "Casey Delacroix",
+      alternate: "Priya Nandakumar",
+    },
+    conservators: {
       primary: "Casey Delacroix",
       alternate: "Priya Nandakumar",
     },
@@ -25,7 +31,30 @@ export const PROFILES = {
       primary: "Casey Delacroix",
       alternate: "Priya Nandakumar",
     },
-    tertiaryBeneficiary: "my sister",
+    ultimateBeneficiary: {
+      relationship: "sister",
+      name: "Robin Ramos",
+      gender: "female",
+    },
+    survivorshipDays: 60,
+    spousalGift: "outright",
+    communityPropertyAgreement: {
+      exists: false,
+      date: "",
+    },
+    remains: {
+      agent: "",
+      alternate: "",
+      preference: "",
+    },
+    witnesses: [
+      { name: "", address: "", cityStateZip: "" },
+      { name: "", address: "", cityStateZip: "" },
+    ],
+    notary: {
+      name: "",
+      commissionExpires: "",
+    },
     city: "Seattle",
     executionDate: {
       day: "",
@@ -46,8 +75,12 @@ export const PROFILES = {
       name: "Avery Q. Ramos",
       gender: "male",
     },
-    children: "Rowan A. Ramos and Sage B. Ramos",
+    children: ["Rowan A. Ramos", "Sage B. Ramos"],
     guardians: {
+      primary: "Casey Delacroix",
+      alternate: "Priya Nandakumar",
+    },
+    conservators: {
       primary: "Casey Delacroix",
       alternate: "Priya Nandakumar",
     },
@@ -59,7 +92,30 @@ export const PROFILES = {
       primary: "Casey Delacroix",
       alternate: "Priya Nandakumar",
     },
-    tertiaryBeneficiary: "my sister",
+    ultimateBeneficiary: {
+      relationship: "sister",
+      name: "Casey Delacroix",
+      gender: "female",
+    },
+    survivorshipDays: 60,
+    spousalGift: "outright",
+    communityPropertyAgreement: {
+      exists: false,
+      date: "",
+    },
+    remains: {
+      agent: "",
+      alternate: "",
+      preference: "",
+    },
+    witnesses: [
+      { name: "", address: "", cityStateZip: "" },
+      { name: "", address: "", cityStateZip: "" },
+    ],
+    notary: {
+      name: "",
+      commissionExpires: "",
+    },
     city: "Seattle",
     executionDate: {
       day: "",

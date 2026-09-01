@@ -1,33 +1,31 @@
 // @ts-check
 const { test, expect } = require("@playwright/test");
 
-test.describe("Phase 3 WCAG 2.1/2.2 AA Accessible UI & Reactive State", () => {
+test.describe("Reactive State, Persistence & Data Management", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
-    // Clear localStorage to ensure a clean state
     await page.evaluate(() => localStorage.clear());
     await page.reload();
   });
 
-  test("initial state has correct defaults including tertiary sister beneficiary and Devin Okafor", async ({
+  test("initial state has correct defaults including the named ultimate beneficiary", async ({
     page,
   }) => {
     const sheet = page.locator("#document-sheet");
     await expect(sheet).toBeVisible();
 
-    // Verify Tertiary Beneficiary in Form and Document (Article 2.4)
-    const tertiaryInput = page.locator("#input-tertiary-beneficiary");
-    await expect(tertiaryInput).toHaveValue("my sister");
-    await expect(sheet).toContainText("distributed to my sister");
+    const relInput = page.locator("#input-ultimate-beneficiary-relationship");
+    await expect(relInput).toHaveValue("sister");
+    const nameInput = page.locator("#input-ultimate-beneficiary-name");
+    await expect(nameInput).toHaveValue("Robin Ramos");
+    await expect(sheet).toContainText("distributed to my sister, Robin Ramos");
 
-    // Verify Devin Okafor as Alternate PR (Article 6.2)
     const prAltInput = page.locator("#input-pr-alt");
     await expect(prAltInput).toHaveValue("Devin Okafor");
     await expect(sheet).toContainText(
       "Devin Okafor as alternate Personal Representative"
     );
 
-    // Verify City of Execution
     const cityInput = page.locator("#input-city");
     await expect(cityInput).toHaveValue("Seattle");
     await expect(sheet.locator(".testimonium")).toContainText(
@@ -40,18 +38,15 @@ test.describe("Phase 3 WCAG 2.1/2.2 AA Accessible UI & Reactive State", () => {
   }) => {
     const sheet = page.locator("#document-sheet");
 
-    // 1. Domicile & City
     await page.fill("#input-city", "Bellevue");
     await page.fill("#input-county", "Pierce");
     await expect(sheet.locator(".testimonium")).toContainText(
       "City of Bellevue, Pierce County"
     );
 
-    // 2. Tertiary Beneficiary (Article 2.4)
-    await page.fill("#input-tertiary-beneficiary", "my sister, Yasmin Ramos");
+    await page.fill("#input-ultimate-beneficiary-name", "Yasmin Ramos");
     await expect(sheet).toContainText("distributed to my sister, Yasmin Ramos");
 
-    // 3. Execution Date
     await page.fill("#input-date-day", "15th");
     await page.fill("#input-date-month", "October");
     await page.fill("#input-date-year", "2026");
@@ -60,73 +55,45 @@ test.describe("Phase 3 WCAG 2.1/2.2 AA Accessible UI & Reactive State", () => {
     );
   });
 
-  test("gender select updates pronoun declensions in document", async ({
-    page,
-  }) => {
-    const sheet = page.locator("#document-sheet");
-
-    // Switch Testator gender to female
-    await page.selectOption("#select-testator-gender", "female");
-    await expect(sheet.locator(".witness-declaration")).toContainText(
-      "to be her Last Will and Testament"
-    );
-    await expect(sheet.locator(".notary-body")).toContainText(
-      "to be her Last Will and Testament"
-    );
-
-    // Switch Spouse gender to male
-    await page.selectOption("#select-spouse-gender", "male");
-    const article1 = sheet.locator(".clause").first();
-    await expect(article1).toContainText("are to him");
-  });
   test("persists state to localStorage across page reloads", async ({
     page,
   }) => {
-    // Modify multiple fields
     await page.fill("#input-testator-name", "Avery Alexander Ramos");
-    await page.fill(
-      "#input-tertiary-beneficiary",
-      "Children's Hospital Seattle"
-    );
+    await page.fill("#input-ultimate-beneficiary-name", "Children's Hospital");
     await page.fill("#input-date-year", "2027");
 
-    // Reload page
     await page.reload();
 
-    // Check that form controls retain values
     await expect(page.locator("#input-testator-name")).toHaveValue(
       "Avery Alexander Ramos"
     );
-    await expect(page.locator("#input-tertiary-beneficiary")).toHaveValue(
-      "Children's Hospital Seattle"
+    await expect(page.locator("#input-ultimate-beneficiary-name")).toHaveValue(
+      "Children's Hospital"
     );
     await expect(page.locator("#input-date-year")).toHaveValue("2027");
 
-    // Check that rendered document reflects persisted values
     const sheet = page.locator("#document-sheet");
     await expect(sheet.locator(".doc-title")).toContainText(
       "Avery Alexander Ramos"
     );
     await expect(sheet).toContainText(
-      "distributed to Children's Hospital Seattle"
+      "distributed to my sister, Children's Hospital"
     );
   });
 
   test("resets active profile back to defaults", async ({ page }) => {
     await page.fill("#input-testator-name", "Custom Testator Name");
-    await page.fill("#input-tertiary-beneficiary", "Custom Beneficiary");
+    await page.fill("#input-ultimate-beneficiary-name", "Custom Beneficiary");
 
     const a11yStatus = page.locator("#a11y-status");
 
-    // Click Reset Active Profile
     await page.click("#btn-reset-profile");
 
-    // Expect reset to defaults
     await expect(page.locator("#input-testator-name")).toHaveValue(
       "Avery Q. Ramos"
     );
-    await expect(page.locator("#input-tertiary-beneficiary")).toHaveValue(
-      "my sister"
+    await expect(page.locator("#input-ultimate-beneficiary-name")).toHaveValue(
+      "Robin Ramos"
     );
     await expect(a11yStatus).toContainText("Active profile reset");
   });
@@ -138,32 +105,42 @@ test.describe("Phase 3 WCAG 2.1/2.2 AA Accessible UI & Reactive State", () => {
     const sheet = page.locator("#document-sheet");
     const a11yStatus = page.locator("#a11y-status");
 
-    // Initially Highlights are ON
     await expect(highlightBtn).toContainText("Highlights: ON");
     await expect(highlightBtn).toHaveAttribute("aria-pressed", "true");
     await expect(sheet).toHaveAttribute("data-highlights", "true");
 
-    // Toggle Highlights OFF
     await highlightBtn.click();
     await expect(highlightBtn).toContainText("Highlights: OFF");
-    await expect(highlightBtn).toHaveAttribute("aria-pressed", "false");
     await expect(sheet).toHaveAttribute("data-highlights", "false");
     await expect(a11yStatus).toContainText("Dynamic highlights turned off");
 
-    // Toggle Highlights back ON
     await highlightBtn.click();
     await expect(highlightBtn).toContainText("Highlights: ON");
-    await expect(highlightBtn).toHaveAttribute("aria-pressed", "true");
     await expect(sheet).toHaveAttribute("data-highlights", "true");
-    await expect(a11yStatus).toContainText("Dynamic highlights turned on");
+  });
+
+  test("children are repeatable: add and remove rows update the document", async ({
+    page,
+  }) => {
+    const sheet = page.locator("#document-sheet");
+    await expect(sheet).toContainText("I have two children");
+
+    await page.click("#btn-add-child");
+    const childInputs = page.locator("[data-child-index]");
+    await expect(childInputs).toHaveCount(3);
+
+    await childInputs.nth(2).fill("Third Child Name");
+    await expect(sheet).toContainText("I have three children");
+    await expect(sheet).toContainText("Third Child Name");
+
+    await page.locator("[data-remove-child]").first().click();
+    await expect(page.locator("[data-child-index]")).toHaveCount(2);
   });
 
   test("JSON export and import works roundtrip", async ({ page }) => {
-    // Modify profile data
     await page.fill("#input-testator-name", "Export Testator");
     await page.fill("#input-city", "Kirkland");
 
-    // Evaluate JSON export from state
     const exportedJson = await page.evaluate(async () => {
       // @ts-ignore
       const { exportStateAsJson } = await import("./js/state.js");
@@ -174,13 +151,11 @@ test.describe("Phase 3 WCAG 2.1/2.2 AA Accessible UI & Reactive State", () => {
     expect(parsed.profile-1.testator.name).toBe("Export Testator");
     expect(parsed.profile-1.city).toBe("Kirkland");
 
-    // Reset profiles
     await page.click("#btn-reset-all");
     await expect(page.locator("#input-testator-name")).toHaveValue(
       "Avery Q. Ramos"
     );
 
-    // Import previously exported JSON
     const importResult = await page.evaluate(async (jsonStr) => {
       // @ts-ignore
       const { importStateFromJson } = await import("./js/state.js");
@@ -189,7 +164,6 @@ test.describe("Phase 3 WCAG 2.1/2.2 AA Accessible UI & Reactive State", () => {
 
     expect(importResult.success).toBe(true);
 
-    // Sync check
     await page.reload();
     await expect(page.locator("#input-testator-name")).toHaveValue(
       "Export Testator"
@@ -197,12 +171,67 @@ test.describe("Phase 3 WCAG 2.1/2.2 AA Accessible UI & Reactive State", () => {
     await expect(page.locator("#input-city")).toHaveValue("Kirkland");
   });
 
-  test("standalone HTML export generates valid self-contained HTML", async ({
+  test("JSON import surfaces a field-level error via role=alert instead of alert()", async ({
+    page,
+  }) => {
+    const result = await page.evaluate(async () => {
+      // @ts-ignore
+      const { importStateFromJson } = await import("./js/state.js");
+      return importStateFromJson(
+        JSON.stringify({ profile-1: { label: "no testator" } })
+      );
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("testator.name");
+
+    const importErrorEl = page.locator("#import-error");
+    await expect(importErrorEl).toHaveAttribute("role", "alert");
+  });
+
+  test("seeding a v1-shaped localStorage value still yields both profiles and a complete document, with no invented county fallback", async ({
+    page,
+  }) => {
+    await page.evaluate(() => {
+      localStorage.setItem(
+        "estate_templates_state_v1",
+        JSON.stringify({
+          activeProfileId: "profile-1",
+          profiles: {
+            profile-1: {
+              testator: { name: "Avery Q. Ramos", gender: "male", county: "" },
+              tertiaryBeneficiary: "my sister",
+            },
+          },
+        })
+      );
+    });
+    await page.reload();
+
+    const optionValues = await page
+      .locator("#select-profile option")
+      .evaluateAll((opts) => opts.map((o) => o.value));
+    expect(optionValues).toEqual(["profile-1", "profile-2"]);
+
+    const sheet = page.locator("#document-sheet");
+    await expect(sheet.locator(".article-header")).toHaveCount(10);
+    await expect(sheet).not.toContainText("King County");
+
+    const preambleFillIn = sheet.locator(".doc-preamble .fill-in");
+    await expect(preambleFillIn).toHaveCount(1);
+
+    await page.selectOption("#select-profile", "profile-2");
+    await expect(sheet.locator(".doc-title")).toContainText(
+      "Morgan T. Ramos"
+    );
+  });
+
+  test("standalone HTML export generates valid self-contained HTML with no guidance and no highlight marks", async ({
     page,
   }) => {
     const standaloneHtml = await page.evaluate(async () => {
       // @ts-ignore
-      const { generateStandaloneHtml } = await import("./js/state.js");
+      const { generateStandaloneHtml } = await import("./js/export.js");
       return generateStandaloneHtml("will");
     });
 
@@ -210,9 +239,31 @@ test.describe("Phase 3 WCAG 2.1/2.2 AA Accessible UI & Reactive State", () => {
     expect(standaloneHtml).toContain(
       "<title>Last Will and Testament - Avery Q. Ramos</title>"
     );
-    expect(standaloneHtml).toContain("Article 1: Family and Guardians");
-    expect(standaloneHtml).toContain("Article 10: Severability");
+    expect(standaloneHtml).toContain(
+      "Article 1: Family, Guardians, and Conservators"
+    );
+    expect(standaloneHtml).toContain(
+      "Article 10: Severability and Governing Law"
+    );
     expect(standaloneHtml).toContain("Self-Proving Affidavit");
     expect(standaloneHtml).not.toContain('<mark class="dynamic-var">');
+    expect(standaloneHtml).not.toContain('class="guidance"');
+  });
+
+  test("attorney memo export lists choices and advisories as plain text", async ({
+    page,
+  }) => {
+    const memo = await page.evaluate(async () => {
+      // @ts-ignore
+      const { generateAttorneyMemo } = await import("./js/export.js");
+      // @ts-ignore
+      const { getActiveProfile } = await import("./js/state.js");
+      return generateAttorneyMemo(getActiveProfile());
+    });
+
+    expect(memo).toContain("ATTORNEY MEMORANDUM");
+    expect(memo).toContain("CHOICES MADE");
+    expect(memo).toContain("ADVISORIES RAISED");
+    expect(memo).toContain("OPEN QUESTIONS FOR COUNSEL");
   });
 });

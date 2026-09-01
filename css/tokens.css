@@ -44,11 +44,10 @@
 
   /* ==========================================================================
      Color Palette (WCAG 2.1/2.2 AA Conforming)
-     Body copy contrast > 10:1 against white; Headings > 14:1 against white
      ========================================================================== */
-  --color-text-primary: #111827; /* Slate-900 (15.3:1 contrast) */
-  --color-text-secondary: #374151; /* Slate-700 (9.0:1 contrast) */
-  --color-text-muted: #4b5563; /* Slate-600 (5.8:1 contrast) */
+  --color-text-primary: #111827; /* Slate-900 */
+  --color-text-secondary: #374151; /* Slate-700 */
+  --color-text-muted: #4b5563; /* Slate-600 */
   --color-text-inverse: #ffffff;
 
   --color-bg-app: #f1f5f9; /* Slate-100 */
@@ -69,13 +68,26 @@
   --color-highlight-bg: #fef08a; /* Yellow-200 */
   --color-highlight-border: #ca8a04; /* Yellow-600 */
 
+  --color-danger-bg: #fef2f2; /* Red-50 */
+  --color-danger-border: #fecaca; /* Red-200 */
+  --color-danger-text: #991b1b; /* Red-800 */
+
+  /* ==========================================================================
+     Document Typography (Paged Media)
+     ========================================================================== */
+  --doc-size-body: 11pt;
+  --doc-size-heading: 12pt;
+  --doc-size-caption: 10.5pt;
+  --doc-size-fine: 9pt;
+
   /* ==========================================================================
      Paper & Paged Media Geometry (US Letter Standard)
      ========================================================================== */
   --sheet-width: 8.5in;
   --sheet-min-height: 11in;
+  --sheet-footer-space: 0.2in;
   --sheet-margin-top: 0.85in;
-  --sheet-margin-bottom: 0.85in;
+  --sheet-margin-bottom: calc(0.85in + var(--sheet-footer-space));
   --sheet-margin-left: 0.8in;
   --sheet-margin-right: 0.8in;
   --sheet-padding: var(--sheet-margin-top) var(--sheet-margin-right)

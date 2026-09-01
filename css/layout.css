@@ -85,6 +85,48 @@ body {
   z-index: 10;
 }
 
+.header-brand {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.app-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-tight);
+  white-space: nowrap;
+}
+
+.app-badge {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  background-color: var(--color-bg-subtle);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+.header-profile {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+}
+
+.header-profile-label {
+  color: var(--color-text-secondary);
+}
+
+.header-profile-name {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
 .app-body {
   display: flex;
   flex: 1;
@@ -112,6 +154,9 @@ body {
 }
 
 .control-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: var(--space-4);
@@ -129,14 +174,18 @@ body {
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
-  margin-top: var(--space-3);
-}
-
-.form-field:first-of-type {
-  margin-top: var(--space-1);
 }
 
 .form-field label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
+.form-field-checkbox label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
   color: var(--color-text-secondary);
@@ -195,14 +244,11 @@ body {
   background-color: var(--color-bg-app);
 }
 
-.btn-outline {
-  background-color: transparent;
-  color: var(--color-primary);
-  border-color: var(--color-primary);
-}
-
-.btn-outline:hover {
+.btn[aria-checked="true"],
+.btn[aria-pressed="true"] {
   background-color: var(--color-primary-light);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
 
 .btn-sm {
@@ -214,7 +260,6 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
-  margin-top: var(--space-3);
 }
 
 .form-row {
@@ -226,7 +271,100 @@ body {
 .form-hint {
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
-  margin-top: var(--space-1);
+}
+
+.form-alert {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-danger-bg);
+  border: 1px solid var(--color-danger-border);
+  color: var(--color-danger-text);
+  font-size: var(--font-size-xs);
+}
+
+.repeatable-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.repeatable-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.repeatable-row .form-input {
+  flex: 1;
+}
+
+/* ==========================================================================
+   Guidance Disclosures & Review Panel
+   ========================================================================== */
+.guidance {
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-bg-sidebar);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.guidance summary {
+  cursor: pointer;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.guidance p {
+  margin-top: var(--space-2);
+}
+
+.guidance ul {
+  margin: var(--space-1) 0 var(--space-1) var(--space-4);
+}
+
+.review-panel {
+  margin: var(--space-6) 0 0 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  background-color: var(--color-bg-card);
+}
+
+.review-panel h2 {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-2);
+}
+
+.review-panel ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.review-item {
+  font-size: var(--font-size-xs);
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--color-border);
+}
+
+.review-warning {
+  border-left-color: var(--color-highlight-border);
+  background-color: var(--color-highlight-bg);
+}
+
+.review-info {
+  border-left-color: var(--color-primary);
+  background-color: var(--color-primary-light);
+}
+
+.review-empty {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
 }
 
 /* ==========================================================================
@@ -261,6 +399,12 @@ body {
   gap: var(--space-2);
 }
 
+.zoom-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
 .sheet-container {
   display: flex;
   flex-direction: column;
@@ -269,20 +413,11 @@ body {
   width: 100%;
 }
 
-/* Zoom Levels */
-.sheet-container[data-zoom="75"] {
-  transform: scale(0.75);
-  transform-origin: top center;
-}
-
-.sheet-container[data-zoom="100"] {
-  transform: scale(1);
-  transform-origin: top center;
-}
-
-.sheet-container[data-zoom="fit"] {
-  transform: scale(0.9);
-  transform-origin: top center;
+/* Zoom is applied as the CSS `zoom` property (not `transform: scale`) so the
+   scroll area matches what is actually drawn. `--zoom` is set by app.js;
+   "fit" is computed from a ResizeObserver rather than a hardcoded ratio. */
+#sheet-container .paged-sheet {
+  zoom: var(--zoom, 1);
 }
 
 /* ==========================================================================
@@ -296,7 +431,15 @@ body {
   }
 
   .app-header {
-    padding: 0 var(--space-4);
+    height: auto;
+    flex-wrap: wrap;
+    row-gap: var(--space-1);
+    padding: var(--space-2) var(--space-4);
+  }
+
+  .header-profile {
+    width: 100%;
+    justify-content: flex-start;
   }
 
   .app-body {
@@ -304,14 +447,15 @@ body {
     overflow: visible;
   }
 
+  .document-viewport {
+    order: -1;
+    overflow: visible;
+  }
+
   .app-sidebar {
     width: 100%;
     border-right: none;
     border-bottom: 1px solid var(--color-border);
-  }
-
-  .document-viewport {
-    overflow: visible;
   }
 
   .toolbar {
@@ -329,12 +473,5 @@ body {
     padding: var(--space-4) var(--space-2);
     overflow-x: auto;
     width: 100%;
-  }
-
-  .sheet-container[data-zoom="fit"] {
-    transform: scale(0.45);
-    transform-origin: top left;
-    width: calc(var(--sheet-width) * 0.45);
-    margin: 0 auto;
   }
 }
