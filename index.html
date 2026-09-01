@@ -65,6 +65,16 @@
                 />
               </div>
               <div class="form-field">
+                <label for="select-testator-gender">Gender / Pronouns</label>
+                <select id="select-testator-gender" class="form-select">
+                  <option value="male" selected>Male (he / him / his)</option>
+                  <option value="female">Female (she / her / hers)</option>
+                  <option value="nonbinary">
+                    Non-binary (they / them / theirs)
+                  </option>
+                </select>
+              </div>
+              <div class="form-field">
                 <label for="input-county">County of Residence</label>
                 <input
                   type="text"
@@ -82,6 +92,15 @@
                   value="Washington"
                 />
               </div>
+              <div class="form-field">
+                <label for="input-city">City of Execution</label>
+                <input
+                  type="text"
+                  id="input-city"
+                  class="form-input"
+                  value="Seattle"
+                />
+              </div>
             </fieldset>
 
             <fieldset class="control-group">
@@ -94,6 +113,20 @@
                   class="form-input"
                   value="Morgan T. Ramos"
                 />
+              </div>
+              <div class="form-field">
+                <label for="select-spouse-gender"
+                  >Spouse Gender / Pronouns</label
+                >
+                <select id="select-spouse-gender" class="form-select">
+                  <option value="female" selected>
+                    Female (she / her / hers)
+                  </option>
+                  <option value="male">Male (he / him / his)</option>
+                  <option value="nonbinary">
+                    Non-binary (they / them / theirs)
+                  </option>
+                </select>
               </div>
               <div class="form-field">
                 <label for="input-children">Children Names</label>
@@ -120,6 +153,21 @@
                   id="input-guardian-alt"
                   class="form-input"
                   value="Priya Nandakumar"
+                />
+              </div>
+            </fieldset>
+
+            <fieldset class="control-group">
+              <legend>Disposition of Property (Article 2)</legend>
+              <div class="form-field">
+                <label for="input-tertiary-beneficiary"
+                  >Ultimate Contingent Beneficiary (2.4)</label
+                >
+                <input
+                  type="text"
+                  id="input-tertiary-beneficiary"
+                  class="form-input"
+                  value="my sister"
                 />
               </div>
             </fieldset>
@@ -167,6 +215,87 @@
                 />
               </div>
             </fieldset>
+
+            <fieldset class="control-group">
+              <legend>Execution Date (Testimonium)</legend>
+              <div class="form-row">
+                <div class="form-field">
+                  <label for="input-date-day">Day</label>
+                  <input
+                    type="text"
+                    id="input-date-day"
+                    class="form-input"
+                    placeholder="e.g. 1st"
+                  />
+                </div>
+                <div class="form-field">
+                  <label for="input-date-month">Month</label>
+                  <input
+                    type="text"
+                    id="input-date-month"
+                    class="form-input"
+                    placeholder="e.g. September"
+                  />
+                </div>
+                <div class="form-field">
+                  <label for="input-date-year">Year</label>
+                  <input
+                    type="text"
+                    id="input-date-year"
+                    class="form-input"
+                    placeholder="e.g. 2026"
+                  />
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="control-group">
+              <legend>Data Management & Export</legend>
+              <div class="btn-group">
+                <button
+                  type="button"
+                  id="btn-reset-profile"
+                  class="btn btn-secondary btn-sm"
+                >
+                  Reset Active Profile
+                </button>
+                <button
+                  type="button"
+                  id="btn-reset-all"
+                  class="btn btn-secondary btn-sm"
+                >
+                  Reset All Profiles
+                </button>
+                <button
+                  type="button"
+                  id="btn-export-json"
+                  class="btn btn-secondary btn-sm"
+                >
+                  Export JSON
+                </button>
+                <button
+                  type="button"
+                  id="btn-import-json"
+                  class="btn btn-secondary btn-sm"
+                >
+                  Import JSON
+                </button>
+                <input
+                  type="file"
+                  id="input-import-json"
+                  accept=".json,application/json"
+                  class="sr-only"
+                  aria-label="Upload JSON Profile File"
+                />
+                <button
+                  type="button"
+                  id="btn-export-html"
+                  class="btn btn-secondary btn-sm"
+                >
+                  Export Standalone HTML
+                </button>
+              </div>
+            </fieldset>
           </form>
         </aside>
 
@@ -177,6 +306,14 @@
             aria-label="Document View Controls"
           >
             <div class="toolbar-group">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                id="btn-toggle-highlights"
+                aria-pressed="true"
+              >
+                Highlights: ON
+              </button>
               <button
                 type="button"
                 class="btn btn-secondary"
