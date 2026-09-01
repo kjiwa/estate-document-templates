@@ -78,4 +78,3 @@ Run the Playwright test suite (covers desktop/mobile viewports, WCAG accessibili
 ```sh
 npm test
 ```
-

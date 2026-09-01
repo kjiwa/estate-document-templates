@@ -26,7 +26,7 @@ export function setActiveProfile(profileId) {
   const profile = getActiveProfile();
   if (profile) {
     announceA11y(
-      `Profile changed to ${profile.label || profile.testator?.name}`,
+      `Profile changed to ${profile.label || profile.testator?.name}`
     );
   }
 }
@@ -46,7 +46,7 @@ export function renderDocument() {
     });
     sheet.setAttribute(
       "data-highlights",
-      state.highlightVariables ? "true" : "false",
+      state.highlightVariables ? "true" : "false"
     );
   }
 }
@@ -65,7 +65,7 @@ export function syncFormInputs() {
     toggleBtn.textContent = `Profile: ${profile.testator?.name || "Active"}`;
     toggleBtn.setAttribute(
       "aria-pressed",
-      activeId === "profile-2" ? "true" : "false",
+      activeId === "profile-2" ? "true" : "false"
     );
   }
 
@@ -107,7 +107,7 @@ export function syncFormInputs() {
       : "Highlights: OFF";
     highlightBtn.setAttribute(
       "aria-pressed",
-      state.highlightVariables ? "true" : "false",
+      state.highlightVariables ? "true" : "false"
     );
   }
 }
@@ -160,7 +160,7 @@ function initProfileControls() {
         : "Highlights: OFF";
       highlightBtn.setAttribute(
         "aria-pressed",
-        isHighlighted ? "true" : "false",
+        isHighlighted ? "true" : "false"
       );
       announceA11y(`Dynamic highlights turned ${isHighlighted ? "on" : "off"}`);
     });

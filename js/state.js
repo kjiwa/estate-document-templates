@@ -127,7 +127,7 @@ export function resetProfiles() {
 export function resetActiveProfile() {
   if (PROFILES[state.activeProfileId]) {
     state.profiles[state.activeProfileId] = JSON.parse(
-      JSON.stringify(PROFILES[state.activeProfileId]),
+      JSON.stringify(PROFILES[state.activeProfileId])
     );
     saveStateToLocalStorage();
     notify("resetActive", { activeProfileId: state.activeProfileId });

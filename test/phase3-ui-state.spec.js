@@ -24,14 +24,14 @@ test.describe("Phase 3 WCAG 2.1/2.2 AA Accessible UI & Reactive State", () => {
     const prAltInput = page.locator("#input-pr-alt");
     await expect(prAltInput).toHaveValue("Devin Okafor");
     await expect(sheet).toContainText(
-      "Devin Okafor as alternate Personal Representative",
+      "Devin Okafor as alternate Personal Representative"
     );
 
     // Verify City of Execution
     const cityInput = page.locator("#input-city");
     await expect(cityInput).toHaveValue("Seattle");
     await expect(sheet.locator(".testimonium")).toContainText(
-      "City of Seattle",
+      "City of Seattle"
     );
   });
 
@@ -44,7 +44,7 @@ test.describe("Phase 3 WCAG 2.1/2.2 AA Accessible UI & Reactive State", () => {
     await page.fill("#input-city", "Bellevue");
     await page.fill("#input-county", "Pierce");
     await expect(sheet.locator(".testimonium")).toContainText(
-      "City of Bellevue, Pierce County",
+      "City of Bellevue, Pierce County"
     );
 
     // 2. Tertiary Beneficiary (Article 2.4)
@@ -56,7 +56,7 @@ test.describe("Phase 3 WCAG 2.1/2.2 AA Accessible UI & Reactive State", () => {
     await page.fill("#input-date-month", "October");
     await page.fill("#input-date-year", "2026");
     await expect(sheet.locator(".testimonium")).toContainText(
-      "on this 15th day of October, 2026",
+      "on this 15th day of October, 2026"
     );
   });
 
@@ -68,10 +68,10 @@ test.describe("Phase 3 WCAG 2.1/2.2 AA Accessible UI & Reactive State", () => {
     // Switch Testator gender to female
     await page.selectOption("#select-testator-gender", "female");
     await expect(sheet.locator(".witness-declaration")).toContainText(
-      "to be her Last Will and Testament",
+      "to be her Last Will and Testament"
     );
     await expect(sheet.locator(".notary-body")).toContainText(
-      "to be her Last Will and Testament",
+      "to be her Last Will and Testament"
     );
 
     // Switch Spouse gender to male
@@ -86,7 +86,7 @@ test.describe("Phase 3 WCAG 2.1/2.2 AA Accessible UI & Reactive State", () => {
     await page.fill("#input-testator-name", "Avery Alexander Ramos");
     await page.fill(
       "#input-tertiary-beneficiary",
-      "Children's Hospital Seattle",
+      "Children's Hospital Seattle"
     );
     await page.fill("#input-date-year", "2027");
 
@@ -95,20 +95,20 @@ test.describe("Phase 3 WCAG 2.1/2.2 AA Accessible UI & Reactive State", () => {
 
     // Check that form controls retain values
     await expect(page.locator("#input-testator-name")).toHaveValue(
-      "Avery Alexander Ramos",
+      "Avery Alexander Ramos"
     );
     await expect(page.locator("#input-tertiary-beneficiary")).toHaveValue(
-      "Children's Hospital Seattle",
+      "Children's Hospital Seattle"
     );
     await expect(page.locator("#input-date-year")).toHaveValue("2027");
 
     // Check that rendered document reflects persisted values
     const sheet = page.locator("#document-sheet");
     await expect(sheet.locator(".doc-title")).toContainText(
-      "Avery Alexander Ramos",
+      "Avery Alexander Ramos"
     );
     await expect(sheet).toContainText(
-      "distributed to Children's Hospital Seattle",
+      "distributed to Children's Hospital Seattle"
     );
   });
 
@@ -123,10 +123,10 @@ test.describe("Phase 3 WCAG 2.1/2.2 AA Accessible UI & Reactive State", () => {
 
     // Expect reset to defaults
     await expect(page.locator("#input-testator-name")).toHaveValue(
-      "Avery Q. Ramos",
+      "Avery Q. Ramos"
     );
     await expect(page.locator("#input-tertiary-beneficiary")).toHaveValue(
-      "my sister",
+      "my sister"
     );
     await expect(a11yStatus).toContainText("Active profile reset");
   });
@@ -177,7 +177,7 @@ test.describe("Phase 3 WCAG 2.1/2.2 AA Accessible UI & Reactive State", () => {
     // Reset profiles
     await page.click("#btn-reset-all");
     await expect(page.locator("#input-testator-name")).toHaveValue(
-      "Avery Q. Ramos",
+      "Avery Q. Ramos"
     );
 
     // Import previously exported JSON
@@ -192,7 +192,7 @@ test.describe("Phase 3 WCAG 2.1/2.2 AA Accessible UI & Reactive State", () => {
     // Sync check
     await page.reload();
     await expect(page.locator("#input-testator-name")).toHaveValue(
-      "Export Testator",
+      "Export Testator"
     );
     await expect(page.locator("#input-city")).toHaveValue("Kirkland");
   });
@@ -208,7 +208,7 @@ test.describe("Phase 3 WCAG 2.1/2.2 AA Accessible UI & Reactive State", () => {
 
     expect(standaloneHtml).toContain("<!DOCTYPE html>");
     expect(standaloneHtml).toContain(
-      "<title>Last Will and Testament - Avery Q. Ramos</title>",
+      "<title>Last Will and Testament - Avery Q. Ramos</title>"
     );
     expect(standaloneHtml).toContain("Article 1: Family and Guardians");
     expect(standaloneHtml).toContain("Article 10: Severability");

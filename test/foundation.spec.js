@@ -34,7 +34,7 @@ test.describe("Phase 1 Foundational Architecture & Layout", () => {
     await expect(sheet).toBeVisible();
     await expect(sheet).toHaveAttribute(
       "aria-label",
-      "Last Will and Testament Document",
+      "Last Will and Testament Document"
     );
   });
 

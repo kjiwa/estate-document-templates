@@ -68,11 +68,11 @@ test.describe("Phase 4 Screen-to-Print Fidelity, Responsive Widths & PDF Generat
 
     expect(
       markStyle.backgroundColor === "rgba(0, 0, 0, 0)" ||
-        markStyle.backgroundColor === "transparent",
+        markStyle.backgroundColor === "transparent"
     ).toBe(true);
     expect(
       markStyle.borderBottomWidth === "0px" ||
-        markStyle.borderBottomStyle === "none",
+        markStyle.borderBottomStyle === "none"
     ).toBe(true);
   });
   test("verifies page-break hardening and orphan/widow properties under print media", async ({
@@ -143,7 +143,7 @@ test.describe("Phase 4 Screen-to-Print Fidelity, Responsive Widths & PDF Generat
     await page.selectOption("#select-profile", "profile-2");
     const sheet = page.locator("#document-sheet");
     await expect(sheet.locator(".doc-title")).toContainText(
-      "Morgan T. Ramos",
+      "Morgan T. Ramos"
     );
 
     const pdfBuffer = await page.pdf({
@@ -179,7 +179,7 @@ test.describe("Phase 4 Screen-to-Print Fidelity, Responsive Widths & PDF Generat
     await expect(docSheet).toBeVisible();
     await expect(docSheet.locator(".doc-title")).toContainText("Avery Q. Ramos");
     await expect(docSheet.locator(".article-header").first()).toContainText(
-      "Article 1: Family and Guardians",
+      "Article 1: Family and Guardians"
     );
 
     const standalonePdfBuffer = await newPage.pdf({

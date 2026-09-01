@@ -1,4 +1,4 @@
-import { escapeHtml, getPronouns, wrapVar } from "../utils.js";
+import { getPronouns, wrapVar } from "../utils.js";
 
 function renderTitleAndPreamble(data, v) {
   const testatorName = data.testator?.name || "";

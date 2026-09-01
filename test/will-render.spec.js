@@ -25,7 +25,7 @@ test.describe("Phase 2 Will Template Engine & Rendering", () => {
 
     for (const title of expectedArticles) {
       await expect(
-        sheet.locator(".article-header", { hasText: title }),
+        sheet.locator(".article-header", { hasText: title })
       ).toBeVisible();
     }
 
@@ -33,21 +33,21 @@ test.describe("Phase 2 Will Template Engine & Rendering", () => {
     await expect(powersList).toHaveCount(11);
     await expect(powersList.nth(0)).toContainText("5.1 General Powers");
     await expect(powersList.nth(1)).toContainText(
-      "5.2 Investment and Retention",
+      "5.2 Investment and Retention"
     );
     await expect(powersList.nth(10)).toContainText("5.11 Governing Law");
 
     await expect(sheet.locator(".testimonium")).toContainText(
-      "IN WITNESS WHEREOF",
+      "IN WITNESS WHEREOF"
     );
     await expect(sheet.locator(".sig-block-principal")).toContainText(
-      "Testator",
+      "Testator"
     );
     await expect(sheet.locator(".witness-block")).toContainText(
-      "Attestation of Witnesses",
+      "Attestation of Witnesses"
     );
     await expect(sheet.locator(".notary-block")).toContainText(
-      "Self-Proving Affidavit",
+      "Self-Proving Affidavit"
     );
   });
 
@@ -60,7 +60,7 @@ test.describe("Phase 2 Will Template Engine & Rendering", () => {
     await expect(sheet.locator(".doc-title")).toContainText("Avery Q. Ramos");
     await expect(sheet.locator(".doc-preamble")).toContainText("Avery Q. Ramos");
     await expect(sheet.locator(".doc-preamble")).toContainText(
-      "King County, Washington",
+      "King County, Washington"
     );
 
     const article1 = sheet.locator(".clause").first();
@@ -70,17 +70,17 @@ test.describe("Phase 2 Will Template Engine & Rendering", () => {
     await expect(sheet).toContainText("Casey Delacroix as Trustee");
     await expect(sheet).toContainText("Priya Nandakumar as alternate Trustee");
     await expect(sheet).toContainText(
-      "Morgan T. Ramos, as Personal Representative",
+      "Morgan T. Ramos, as Personal Representative"
     );
     await expect(sheet).toContainText(
-      "Devin Okafor as alternate Personal Representative",
+      "Devin Okafor as alternate Personal Representative"
     );
 
     await expect(sheet.locator(".witness-declaration")).toContainText(
-      "to be his Last Will and Testament",
+      "to be his Last Will and Testament"
     );
     await expect(sheet.locator(".notary-body")).toContainText(
-      "declared this instrument to be his Last Will and Testament",
+      "declared this instrument to be his Last Will and Testament"
     );
   });
   test("switching profile to Morgan inverts pronouns and fiduciaries correctly", async ({
@@ -92,10 +92,10 @@ test.describe("Phase 2 Will Template Engine & Rendering", () => {
 
     const sheet = page.locator("#document-sheet");
     await expect(sheet.locator(".doc-title")).toContainText(
-      "Morgan T. Ramos",
+      "Morgan T. Ramos"
     );
     await expect(sheet.locator(".doc-preamble")).toContainText(
-      "Morgan T. Ramos",
+      "Morgan T. Ramos"
     );
 
     const article1 = sheet.locator(".clause").first();
@@ -104,14 +104,14 @@ test.describe("Phase 2 Will Template Engine & Rendering", () => {
 
     await expect(sheet).toContainText("Avery Q. Ramos, as Personal Representative");
     await expect(sheet).toContainText(
-      "Devin Okafor as alternate Personal Representative",
+      "Devin Okafor as alternate Personal Representative"
     );
 
     await expect(sheet.locator(".witness-declaration")).toContainText(
-      "to be her Last Will and Testament",
+      "to be her Last Will and Testament"
     );
     await expect(sheet.locator(".notary-body")).toContainText(
-      "declared this instrument to be her Last Will and Testament",
+      "declared this instrument to be her Last Will and Testament"
     );
 
     const a11yStatus = page.locator("#a11y-status");
@@ -129,7 +129,7 @@ test.describe("Phase 2 Will Template Engine & Rendering", () => {
 
     const sheet = page.locator("#document-sheet");
     await expect(sheet.locator(".doc-title")).toContainText(
-      "Morgan T. Ramos",
+      "Morgan T. Ramos"
     );
 
     await toggleBtn.click();
@@ -155,7 +155,7 @@ test.describe("Phase 2 Will Template Engine & Rendering", () => {
 
     const inputName = page.locator("#input-testator-name");
     await inputName.fill(
-      '<script id="xss-test">alert("xss")</script><b>Bold Name</b>',
+      '<script id="xss-test">alert("xss")</script><b>Bold Name</b>'
     );
 
     const injectedScript = page.locator("#xss-test");
@@ -163,7 +163,7 @@ test.describe("Phase 2 Will Template Engine & Rendering", () => {
 
     const sheet = page.locator("#document-sheet");
     await expect(sheet).toContainText(
-      '<script id="xss-test">alert("xss")</script><b>Bold Name</b>',
+      '<script id="xss-test">alert("xss")</script><b>Bold Name</b>'
     );
   });
 
@@ -187,7 +187,7 @@ test.describe("Phase 2 Will Template Engine & Rendering", () => {
 
     expect(registryCheck.willExists).toBe(true);
     expect(registryCheck.willName).toBe(
-      "Washington State Last Will and Testament",
+      "Washington State Last Will and Testament"
     );
     expect(registryCheck.totalTemplates).toBeGreaterThanOrEqual(1);
   });
