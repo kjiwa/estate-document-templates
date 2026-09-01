@@ -171,6 +171,17 @@ test.describe("Phase 1 Foundational Architecture & Layout", () => {
         return style.overflowY === "auto" || style.overflowY === "scroll";
       });
     expect(viewportScrollable).toBe(true);
+
+    const sidebarBox = await page.locator("aside.app-sidebar").boundingBox();
+    const viewportBox = await page
+      .locator("main.document-viewport")
+      .boundingBox();
+    expect(sidebarBox).not.toBeNull();
+    expect(viewportBox).not.toBeNull();
+    expect(viewportBox.x).toBeGreaterThanOrEqual(
+      sidebarBox.x + sidebarBox.width
+    );
+    expect(viewportBox.y).toBe(sidebarBox.y);
   });
 
   test("CSS design tokens resolve properly", async ({ page }) => {

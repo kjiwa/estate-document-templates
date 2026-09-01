@@ -85,6 +85,13 @@ body {
   z-index: 10;
 }
 
+.app-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
 /* ==========================================================================
    Sidebar: Form Controls & Document Configuration
    ========================================================================== */
