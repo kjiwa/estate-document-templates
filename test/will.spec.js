@@ -1,5 +1,6 @@
 // @ts-check
 const { test, expect } = require("@playwright/test");
+const { seedProfiles } = require("./fixtures");
 
 const EXPECTED_ARTICLES = [
   "Article 1: Family, Guardians, and Conservators",
@@ -15,11 +16,14 @@ const EXPECTED_ARTICLES = [
 ];
 
 test.describe("Will Template Engine & Rendering", () => {
+  test.beforeEach(async ({ page }) => {
+    await seedProfiles(page);
+    await page.goto("/");
+  });
+
   test("template generates all 10 articles in the resulting order with required legal blocks", async ({
     page,
   }) => {
-    await page.goto("/");
-
     const sheet = page.locator("#document-sheet");
     await expect(sheet).toBeVisible();
 
@@ -50,16 +54,16 @@ test.describe("Will Template Engine & Rendering", () => {
     );
   });
 
-  test("correctly sets initial profile data for Avery Q. Ramos", async ({
+  test("correctly sets initial profile data for profile-1", async ({
     page,
   }) => {
-    await page.goto("/");
-
     const sheet = page.locator("#document-sheet");
     await expect(sheet.locator(".doc-title")).toContainText("Avery Q. Ramos");
-    await expect(sheet.locator(".doc-preamble")).toContainText("Avery Q. Ramos");
     await expect(sheet.locator(".doc-preamble")).toContainText(
-      "King County, Washington"
+      "Avery Q. Ramos"
+    );
+    await expect(sheet.locator(".doc-preamble")).toContainText(
+      "Pierce County, Washington"
     );
 
     const article1 = sheet.locator(".clause").first();
@@ -84,17 +88,13 @@ test.describe("Will Template Engine & Rendering", () => {
     );
   });
 
-  test("switching profile to Morgan inverts pronouns and fiduciaries correctly", async ({
+  test("switching profile to profile-2 inverts pronouns and fiduciaries correctly", async ({
     page,
   }) => {
-    await page.goto("/");
-
     await page.selectOption("#select-profile", "profile-2");
 
     const sheet = page.locator("#document-sheet");
-    await expect(sheet.locator(".doc-title")).toContainText(
-      "Morgan T. Ramos"
-    );
+    await expect(sheet.locator(".doc-title")).toContainText("Morgan T. Ramos");
     await expect(sheet.locator(".doc-preamble")).toContainText(
       "Morgan T. Ramos"
     );
@@ -103,7 +103,9 @@ test.describe("Will Template Engine & Rendering", () => {
     await expect(article1).toContainText("Avery Q. Ramos");
     await expect(article1).toContainText("are to him");
 
-    await expect(sheet).toContainText("Avery Q. Ramos, as Personal Representative");
+    await expect(sheet).toContainText(
+      "Avery Q. Ramos, as Personal Representative"
+    );
     await expect(sheet).toContainText(
       "Devin Okafor as alternate Personal Representative"
     );
@@ -118,8 +120,6 @@ test.describe("Will Template Engine & Rendering", () => {
   test("live form input updates document preview reactively", async ({
     page,
   }) => {
-    await page.goto("/");
-
     const inputName = page.locator("#input-testator-name");
     await inputName.fill("Jane Doe");
 
@@ -129,8 +129,6 @@ test.describe("Will Template Engine & Rendering", () => {
   });
 
   test("sanitizes input strings against HTML injection", async ({ page }) => {
-    await page.goto("/");
-
     const inputName = page.locator("#input-testator-name");
     await inputName.fill(
       '<script id="xss-test">alert("xss")</script><b>Bold Name</b>'
@@ -148,8 +146,6 @@ test.describe("Will Template Engine & Rendering", () => {
   test("naming a guardian different from the conservator renders both nominations", async ({
     page,
   }) => {
-    await page.goto("/");
-
     await page.fill("#input-guardian-primary", "Guardian Person");
     await page.fill("#input-conservator-primary", "Conservator Person");
 
@@ -165,8 +161,6 @@ test.describe("Will Template Engine & Rendering", () => {
   test("changing survivorshipDays changes the clause text", async ({
     page,
   }) => {
-    await page.goto("/");
-
     await page.fill("#input-survivorship-days", "90");
 
     const sheet = page.locator("#document-sheet");
@@ -176,8 +170,6 @@ test.describe("Will Template Engine & Rendering", () => {
   test("selecting disclaimerTrust emits the RCW 11.86.031 clause; outright does not", async ({
     page,
   }) => {
-    await page.goto("/");
-
     const sheet = page.locator("#document-sheet");
     await expect(sheet).not.toContainText("RCW 11.86.031");
 
@@ -189,8 +181,6 @@ test.describe("Will Template Engine & Rendering", () => {
   test("the rendered document contains no per stirpes and no King County Superior Court", async ({
     page,
   }) => {
-    await page.goto("/");
-
     const sheet = page.locator("#document-sheet");
     await expect(sheet).not.toContainText("per stirpes");
     await expect(sheet).not.toContainText("King County Superior Court");
@@ -202,8 +192,6 @@ test.describe("Will Template Engine & Rendering", () => {
   test("the document expresses digital-asset content-disclosure consent naming the Personal Representative, and the jurat contains a date line", async ({
     page,
   }) => {
-    await page.goto("/");
-
     const sheet = page.locator("#document-sheet");
     await expect(sheet).toContainText(
       "I consent to the disclosure of the content of my electronic communications to my Personal Representative and to my Trustee"
@@ -217,8 +205,6 @@ test.describe("Will Template Engine & Rendering", () => {
   test("witness and notary names appear in the attestation and affidavit; the affidavit contains testator and two witness signature lines", async ({
     page,
   }) => {
-    await page.goto("/");
-
     await page.fill("#input-witness-0-name", "Wanda Witness");
     await page.fill("#input-witness-1-name", "Walter Witness");
     await page.fill("#input-notary-name", "Nora Notary");
@@ -241,8 +227,6 @@ test.describe("Will Template Engine & Rendering", () => {
   test("the witness declaration and affidavit no longer require signing in the presence of each other", async ({
     page,
   }) => {
-    await page.goto("/");
-
     const sheet = page.locator("#document-sheet");
     const text = await sheet.innerText();
     expect(text).not.toContain("presence of each other");
@@ -252,8 +236,6 @@ test.describe("Will Template Engine & Rendering", () => {
   test("template registry provides valid registered templates", async ({
     page,
   }) => {
-    await page.goto("/");
-
     const registryCheck = await page.evaluate(async () => {
       // @ts-ignore
       const { getTemplate, listTemplates } =

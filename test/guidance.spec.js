@@ -1,12 +1,16 @@
 // @ts-check
 const { test, expect } = require("@playwright/test");
+const { seedProfiles, PROFILE_2 } = require("./fixtures");
 
 test.describe("Guidance Layer: disclosures, review advisories, and leak prevention", () => {
+  test.beforeEach(async ({ page }) => {
+    await seedProfiles(page);
+    await page.goto("/");
+  });
+
   test("guidance renders as a <details> disclosure in the sidebar", async ({
     page,
   }) => {
-    await page.goto("/");
-
     const guardianGuidance = page.locator(
       '[data-guidance-id="guardians"] details.guidance'
     );
@@ -18,8 +22,6 @@ test.describe("Guidance Layer: disclosures, review advisories, and leak preventi
   test("no .guidance element appears inside #document-sheet, and the standalone export contains no guidance text", async ({
     page,
   }) => {
-    await page.goto("/");
-
     await expect(page.locator("#document-sheet .guidance")).toHaveCount(0);
 
     const standaloneHtml = await page.evaluate(async () => {
@@ -35,23 +37,18 @@ test.describe("Guidance Layer: disclosures, review advisories, and leak preventi
   test("review panel is a role=status region that updates as fields change", async ({
     page,
   }) => {
-    await page.goto("/");
-
     const reviewPanel = page.locator(".review-panel");
     await expect(reviewPanel).toHaveAttribute("role", "status");
 
-    // Default profiles have no alternate trustee gap and no interested
-    // witness, but Morgan's profile has no alternate remains agent name
-    // and children exist and execution date is unset — so at least one
-    // completeness advisory should already be present.
+    // profile-1's guardian, conservator, and trustee roles are each held by
+    // the same two people, and the execution date is unset — so at least
+    // one advisory should already be present.
     await expect(page.locator("#review-list li").first()).toBeVisible();
   });
 
   test("naming a witness who is also a named fiduciary raises the interested-witness advisory", async ({
     page,
   }) => {
-    await page.goto("/");
-
     await page.fill("#input-witness-0-name", "Casey Delacroix");
 
     const reviewList = page.locator("#review-list");
@@ -62,8 +59,6 @@ test.describe("Guidance Layer: disclosures, review advisories, and leak preventi
   test("analyzeProfile: a witness who is also a beneficiary raises the RCW 11.12.160 advisory", async ({
     page,
   }) => {
-    await page.goto("/");
-
     const advisories = await page.evaluate(async () => {
       // @ts-ignore
       const { analyzeProfile } = await import("./js/review.js");
@@ -93,19 +88,16 @@ test.describe("Guidance Layer: disclosures, review advisories, and leak preventi
   test("analyzeProfile: a person holding four roles is reported once with all four listed", async ({
     page,
   }) => {
-    await page.goto("/");
-
-    const advisories = await page.evaluate(async () => {
+    const advisories = await page.evaluate(async (profile) => {
       // @ts-ignore
       const { analyzeProfile } = await import("./js/review.js");
-      // @ts-ignore
-      const { PROFILES } = await import("./js/config.js");
-      return analyzeProfile(PROFILES.profile-2);
-    });
+      return analyzeProfile(profile);
+    }, PROFILE_2);
 
     const multiRole = advisories.find(
       (a) =>
-        a.id.startsWith("multi-role-") && a.message.startsWith("Casey Delacroix")
+        a.id.startsWith("multi-role-") &&
+        a.message.startsWith("Casey Delacroix")
     );
     expect(multiRole).toBeDefined();
     expect(multiRole.message).toContain("4 roles");
@@ -118,8 +110,6 @@ test.describe("Guidance Layer: disclosures, review advisories, and leak preventi
   test("attorney memo export is not injected into the document sheet or standalone export", async ({
     page,
   }) => {
-    await page.goto("/");
-
     const sheetText = await page.locator("#document-sheet").innerText();
     expect(sheetText).not.toContain("ATTORNEY MEMORANDUM");
 

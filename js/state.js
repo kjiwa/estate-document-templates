@@ -1,10 +1,15 @@
-import { PROFILES, DEFAULT_PROFILE_ID, SCHEMA_VERSION } from "./config.js";
+import {
+  BLANK_PROFILE,
+  INITIAL_PROFILES,
+  DEFAULT_PROFILE_ID,
+  SCHEMA_VERSION,
+} from "./config.js";
 
 const STORAGE_KEY = "estate_templates_state_v1";
 
 let state = {
   activeProfileId: DEFAULT_PROFILE_ID,
-  profiles: JSON.parse(JSON.stringify(PROFILES)),
+  profiles: JSON.parse(JSON.stringify(INITIAL_PROFILES)),
   highlightVariables: true,
   zoom: "100",
 };
@@ -78,6 +83,12 @@ function deepMerge(target, source) {
   return source;
 }
 
+function normalizeProfile(profileId, stored) {
+  const merged = deepMerge(BLANK_PROFILE, stored || {});
+  merged.id = profileId; // the key is the identity; a stale stored id is not
+  return merged;
+}
+
 export function saveStateToLocalStorage() {
   if (typeof window === "undefined" || !window.localStorage) return;
   try {
@@ -94,9 +105,10 @@ export function saveStateToLocalStorage() {
   }
 }
 
-// Merges stored profiles over a fresh clone of PROFILES, keyed only by known
-// profile ids. This is what makes adding a field to config.js safe: a v1
-// draft missing e.g. `witnesses` gets the shipped default rather than an
+// Merges stored profiles over a fresh clone of BLANK_PROFILE, keyed by
+// whatever profile ids are actually stored (an open set: imported ids are
+// not shipped ids). This is what makes adding a field to config.js safe: a
+// v1 draft missing e.g. `witnesses` gets the shipped default rather than an
 // undefined that renders as an invented fallback.
 export function loadStateFromLocalStorage() {
   if (typeof window === "undefined" || !window.localStorage) return false;
@@ -108,20 +120,22 @@ export function loadStateFromLocalStorage() {
       return false;
     }
 
-    const freshProfiles = JSON.parse(JSON.stringify(PROFILES));
+    const storedIds = Object.keys(parsed.profiles);
+    if (storedIds.length === 0) return false;
+
     const mergedProfiles = {};
-    for (const profileId of Object.keys(freshProfiles)) {
-      const stored = parsed.profiles[profileId];
-      mergedProfiles[profileId] = stored
-        ? deepMerge(freshProfiles[profileId], stored)
-        : freshProfiles[profileId];
+    for (const profileId of storedIds) {
+      mergedProfiles[profileId] = normalizeProfile(
+        profileId,
+        parsed.profiles[profileId]
+      );
     }
     state.profiles = mergedProfiles;
 
     state.activeProfileId =
       parsed.activeProfileId in mergedProfiles
         ? parsed.activeProfileId
-        : DEFAULT_PROFILE_ID;
+        : storedIds[0];
 
     if (typeof parsed.highlightVariables === "boolean") {
       state.highlightVariables = parsed.highlightVariables;
@@ -202,16 +216,22 @@ export function updateActiveProfile(updates = {}) {
 }
 
 export function resetProfiles() {
-  state.profiles = JSON.parse(JSON.stringify(PROFILES));
+  state.profiles = JSON.parse(JSON.stringify(INITIAL_PROFILES));
+  if (!state.profiles[state.activeProfileId]) {
+    state.activeProfileId = DEFAULT_PROFILE_ID;
+  }
   saveStateToLocalStorage();
   notify("reset", { activeProfileId: state.activeProfileId });
 }
 
 export function resetActiveProfile() {
-  if (PROFILES[state.activeProfileId]) {
-    state.profiles[state.activeProfileId] = JSON.parse(
-      JSON.stringify(PROFILES[state.activeProfileId])
-    );
+  const active = state.profiles[state.activeProfileId];
+  if (active) {
+    state.profiles[state.activeProfileId] = {
+      id: active.id,
+      label: active.label,
+      ...JSON.parse(JSON.stringify(BLANK_PROFILE)),
+    };
     saveStateToLocalStorage();
     notify("resetActive", { activeProfileId: state.activeProfileId });
   }
@@ -241,8 +261,9 @@ export function exportStateAsJson() {
 }
 
 // Validates shape (each entry must carry testator.name, the shape produced
-// by exportStateAsJson) rather than sniffing hardcoded profile ids, and
-// merges by known profile id only, same as loadStateFromLocalStorage.
+// by exportStateAsJson) rather than sniffing hardcoded profile ids.
+// Unrecognized ids are accepted: import is how a profile id beyond the two
+// shipped ones enters state, since there is no profile-create UI.
 export function importStateFromJson(jsonString) {
   try {
     const parsed = JSON.parse(jsonString);
@@ -253,28 +274,24 @@ export function importStateFromJson(jsonString) {
       };
     }
 
-    const knownIds = Object.keys(PROFILES);
-    const freshProfiles = JSON.parse(JSON.stringify(PROFILES));
     const mergedProfiles = { ...state.profiles };
     let importedCount = 0;
 
-    for (const profileId of knownIds) {
-      const profile = parsed[profileId];
-      if (profile === undefined) continue;
+    for (const [profileId, profile] of Object.entries(parsed)) {
       if (!profile || typeof profile !== "object" || !profile.testator?.name) {
         return {
           success: false,
           error: `Profile "${profileId}" is missing a required testator.name field.`,
         };
       }
-      mergedProfiles[profileId] = deepMerge(freshProfiles[profileId], profile);
+      mergedProfiles[profileId] = normalizeProfile(profileId, profile);
       importedCount++;
     }
 
     if (importedCount === 0) {
       return {
         success: false,
-        error: `JSON must contain at least one recognized profile (${knownIds.join(", ")}).`,
+        error: "JSON must contain at least one profile keyed by profile id.",
       };
     }
 

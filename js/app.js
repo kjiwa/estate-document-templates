@@ -1,4 +1,3 @@
-import { PROFILES } from "./config.js";
 import {
   getState,
   getActiveProfile,
@@ -26,13 +25,17 @@ export function getActiveProfileData() {
   return getActiveProfile();
 }
 
+function profileDisplayName(profile) {
+  return (
+    profile?.testator?.name?.trim() || profile?.label || "Untitled profile"
+  );
+}
+
 export function setActiveProfile(profileId) {
   setActiveProfileId(profileId);
   const profile = getActiveProfile();
   if (profile) {
-    announceA11y(
-      `Profile changed to ${profile.label || profile.testator?.name}`
-    );
+    announceA11y(`Profile changed to ${profileDisplayName(profile)}`);
   }
 }
 
@@ -122,32 +125,31 @@ function renderChildrenFields() {
   });
 }
 
-function populateProfileOptions() {
-  const select = document.getElementById("select-profile");
-  if (!select) return;
+function renderProfileIdentity() {
+  const activeId = getActiveProfileId();
 
-  select.innerHTML = Object.values(PROFILES)
-    .map(
-      (profile) =>
-        `<option value="${escapeHtml(profile.id)}">${escapeHtml(profile.label)}</option>`
-    )
-    .join("");
+  const select = document.getElementById("select-profile");
+  if (select) {
+    select.innerHTML = Object.values(getState().profiles)
+      .map(
+        (profile) =>
+          `<option value="${escapeHtml(profile.id)}">${escapeHtml(profileDisplayName(profile))}</option>`
+      )
+      .join("");
+    select.value = activeId;
+  }
+
+  const activeProfileName = document.getElementById("active-profile-name");
+  if (activeProfileName) {
+    activeProfileName.textContent = profileDisplayName(getActiveProfile());
+  }
 }
 
 export function syncFormInputs() {
   const profile = getActiveProfile();
   if (!profile) return;
 
-  const activeId = getActiveProfileId();
-
-  const profileSelect = document.getElementById("select-profile");
-  if (profileSelect) profileSelect.value = activeId;
-
-  const activeProfileName = document.getElementById("active-profile-name");
-  if (activeProfileName) {
-    activeProfileName.textContent =
-      profile.label || profile.testator?.name || "";
-  }
+  renderProfileIdentity();
 
   const setVal = (id, val) => {
     const el = document.getElementById(id);
@@ -557,7 +559,6 @@ function initPrintControls() {
 
 function init() {
   const hadStoredState = loadStateFromLocalStorage();
-  populateProfileOptions();
 
   if (
     !hadStoredState &&
@@ -570,7 +571,9 @@ function init() {
   subscribe((currentState, eventType) => {
     renderDocument();
     renderReviewPanel();
-    if (eventType !== "fieldUpdate") {
+    if (eventType === "fieldUpdate") {
+      renderProfileIdentity();
+    } else {
       syncFormInputs();
     }
   });

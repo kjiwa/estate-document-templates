@@ -18,7 +18,7 @@ A client-side web application for generating, customizing, and printing legally 
   - **RCW 11.68.011**: Nonintervention powers, requested by petition rather than directed outright.
   - **RCW 11.20.020 & RCW 42.45.130**: Self-proving affidavit with testator and witness signature lines, and a dated notarial jurat.
 - **Guidance Layer**: Every decision-bearing field carries a native `<details>` disclosure explaining what it does, the options, what's typical, and its impact — content only, never part of the printed document. A live Review panel raises advisories (e.g. an interested witness, a missing alternate fiduciary) computed by a pure `analyzeProfile()` function. An Attorney Memo export lists every choice and advisory for counsel.
-- **Profile Switching & Pronoun Agreement**: Toggle between reciprocal spousal profiles, generated from a single `PROFILES` source of truth, with automatic updates to pronouns, fiduciary appointments, and beneficiary declarations.
+- **Profile Switching & Pronoun Agreement**: Toggle between reciprocal spousal profiles, with automatic updates to pronouns, fiduciary appointments, and beneficiary declarations.
 - **Variable Highlighting**: Toggle dynamic field indicators on screen to audit customizable terms without affecting printed output.
 - **Screen-to-Print Fidelity**: Print stylesheets configured for standard Letter portrait dimensions (`8.5in x 11in`), calibrated margins, `@page` margin-box page numbers and testator initials, widow/orphan controls, and unbreakable signature and notary blocks.
 - **State Persistence & Portability**:
@@ -55,7 +55,7 @@ A client-side web application for generating, customizing, and printing legally 
 │   └── print.css           # Print media rules and page-break controls
 ├── js/
 │   ├── app.js               # Application bootstrapping and event wiring
-│   ├── config.js             # Default testator profiles and constants
+│   ├── config.js             # Blank profile shape and schema constants
 │   ├── state.js              # Reactive state store and persistence
 │   ├── export.js             # Standalone HTML and attorney-memo generation
 │   ├── guidance.js           # Guidance content and <details> rendering

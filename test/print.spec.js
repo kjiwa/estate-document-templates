@@ -1,11 +1,11 @@
 // @ts-check
 const { test, expect } = require("@playwright/test");
+const { seedProfiles } = require("./fixtures");
 
 test.describe("Screen-to-Print Fidelity, Responsive Widths & PDF Generation", () => {
   test.beforeEach(async ({ page }) => {
+    await seedProfiles(page);
     await page.goto("/");
-    await page.evaluate(() => localStorage.clear());
-    await page.reload();
   });
 
   test("verifies @page rules and physical print geometry in stylesheet", async ({
@@ -135,9 +135,7 @@ test.describe("Screen-to-Print Fidelity, Responsive Widths & PDF Generation", ()
     expect(pageObjectCount).toBeGreaterThanOrEqual(1);
   });
 
-  test("generates valid headless PDF for Avery Q. Ramos profile", async ({
-    page,
-  }) => {
+  test("generates valid headless PDF for profile-1", async ({ page }) => {
     const pdfBuffer = await page.pdf({
       format: "Letter",
       printBackground: true,
@@ -148,14 +146,12 @@ test.describe("Screen-to-Print Fidelity, Responsive Widths & PDF Generation", ()
     expect(pdfBuffer.subarray(0, 4).toString()).toBe("%PDF");
   });
 
-  test("generates valid headless PDF for Morgan T. Ramos profile after inversion", async ({
+  test("generates valid headless PDF for profile-2 after inversion", async ({
     page,
   }) => {
     await page.selectOption("#select-profile", "profile-2");
     const sheet = page.locator("#document-sheet");
-    await expect(sheet.locator(".doc-title")).toContainText(
-      "Morgan T. Ramos"
-    );
+    await expect(sheet.locator(".doc-title")).toContainText("Morgan T. Ramos");
 
     const pdfBuffer = await page.pdf({
       format: "Letter",
@@ -182,7 +178,9 @@ test.describe("Screen-to-Print Fidelity, Responsive Widths & PDF Generation", ()
 
     const docSheet = newPage.locator(".paged-sheet");
     await expect(docSheet).toBeVisible();
-    await expect(docSheet.locator(".doc-title")).toContainText("Avery Q. Ramos");
+    await expect(docSheet.locator(".doc-title")).toContainText(
+      "Avery Q. Ramos"
+    );
     await expect(docSheet.locator(".article-header").first()).toContainText(
       "Article 1: Family, Guardians, and Conservators"
     );

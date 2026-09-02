@@ -1,128 +1,78 @@
 export const SCHEMA_VERSION = 2;
 
-export const PROFILES = {
-  profile-1: {
-    id: "profile-1",
-    label: "Avery Q. Ramos (Husband)",
-    testator: {
-      name: "Avery Q. Ramos",
-      gender: "male",
-      county: "King",
-      state: "Washington",
-    },
-    spouse: {
-      name: "Morgan T. Ramos",
-      gender: "female",
-    },
-    children: ["Rowan A. Ramos", "Sage B. Ramos"],
-    guardians: {
-      primary: "Casey Delacroix",
-      alternate: "Priya Nandakumar",
-    },
-    conservators: {
-      primary: "Casey Delacroix",
-      alternate: "Priya Nandakumar",
-    },
-    personalRepresentatives: {
-      primary: "Morgan T. Ramos",
-      alternate: "Devin Okafor",
-    },
-    trustees: {
-      primary: "Casey Delacroix",
-      alternate: "Priya Nandakumar",
-    },
-    ultimateBeneficiary: {
-      relationship: "sister",
-      name: "Robin Ramos",
-      gender: "female",
-    },
-    survivorshipDays: 60,
-    spousalGift: "outright",
-    communityPropertyAgreement: {
-      exists: false,
-      date: "",
-    },
-    remains: {
-      agent: "",
-      alternate: "",
-      preference: "",
-    },
-    witnesses: [
-      { name: "", address: "", cityStateZip: "" },
-      { name: "", address: "", cityStateZip: "" },
-    ],
-    notary: {
-      name: "",
-      commissionExpires: "",
-    },
-    city: "Seattle",
-    executionDate: {
-      day: "",
-      month: "",
-      year: "",
-    },
+// Non-empty defaults here are template behaviour, not personal data:
+// survivorshipDays/spousalGift/state reflect the drafting defaults this app
+// ships, and the two witnesses exist because js/app.js binds witnesses.0.*
+// and witnesses.1.* by fixed index. Two profiles, not one, because the
+// reciprocal-spousal-pair workflow is a shipped feature and there is no
+// profile-create UI.
+export const BLANK_PROFILE = {
+  testator: {
+    name: "",
+    gender: "",
+    county: "",
+    state: "Washington",
   },
-  profile-2: {
-    id: "profile-2",
-    label: "Morgan T. Ramos (Wife)",
-    testator: {
-      name: "Morgan T. Ramos",
-      gender: "female",
-      county: "King",
-      state: "Washington",
-    },
-    spouse: {
-      name: "Avery Q. Ramos",
-      gender: "male",
-    },
-    children: ["Rowan A. Ramos", "Sage B. Ramos"],
-    guardians: {
-      primary: "Casey Delacroix",
-      alternate: "Priya Nandakumar",
-    },
-    conservators: {
-      primary: "Casey Delacroix",
-      alternate: "Priya Nandakumar",
-    },
-    personalRepresentatives: {
-      primary: "Avery Q. Ramos",
-      alternate: "Devin Okafor",
-    },
-    trustees: {
-      primary: "Casey Delacroix",
-      alternate: "Priya Nandakumar",
-    },
-    ultimateBeneficiary: {
-      relationship: "sister",
-      name: "Casey Delacroix",
-      gender: "female",
-    },
-    survivorshipDays: 60,
-    spousalGift: "outright",
-    communityPropertyAgreement: {
-      exists: false,
-      date: "",
-    },
-    remains: {
-      agent: "",
-      alternate: "",
-      preference: "",
-    },
-    witnesses: [
-      { name: "", address: "", cityStateZip: "" },
-      { name: "", address: "", cityStateZip: "" },
-    ],
-    notary: {
-      name: "",
-      commissionExpires: "",
-    },
-    city: "Seattle",
-    executionDate: {
-      day: "",
-      month: "",
-      year: "",
-    },
+  spouse: {
+    name: "",
+    gender: "",
+  },
+  children: [],
+  guardians: {
+    primary: "",
+    alternate: "",
+  },
+  conservators: {
+    primary: "",
+    alternate: "",
+  },
+  personalRepresentatives: {
+    primary: "",
+    alternate: "",
+  },
+  trustees: {
+    primary: "",
+    alternate: "",
+  },
+  ultimateBeneficiary: {
+    relationship: "",
+    name: "",
+    gender: "",
+  },
+  survivorshipDays: 60,
+  spousalGift: "outright",
+  communityPropertyAgreement: {
+    exists: false,
+    date: "",
+  },
+  remains: {
+    agent: "",
+    alternate: "",
+    preference: "",
+  },
+  witnesses: [
+    { name: "", address: "", cityStateZip: "" },
+    { name: "", address: "", cityStateZip: "" },
+  ],
+  notary: {
+    name: "",
+    commissionExpires: "",
+  },
+  city: "",
+  executionDate: {
+    day: "",
+    month: "",
+    year: "",
   },
 };
 
 export const DEFAULT_PROFILE_ID = "profile-1";
+
+function blankProfile(id, label) {
+  return { id, label, ...JSON.parse(JSON.stringify(BLANK_PROFILE)) };
+}
+
+export const INITIAL_PROFILES = {
+  "profile-1": blankProfile("profile-1", "Profile 1"),
+  "profile-2": blankProfile("profile-2", "Profile 2"),
+};

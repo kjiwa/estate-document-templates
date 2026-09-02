@@ -1,11 +1,11 @@
 // @ts-check
 const { test, expect } = require("@playwright/test");
+const { seedProfiles, PROFILE_1 } = require("./fixtures");
 
 test.describe("Reactive State, Persistence & Data Management", () => {
   test.beforeEach(async ({ page }) => {
+    await seedProfiles(page);
     await page.goto("/");
-    await page.evaluate(() => localStorage.clear());
-    await page.reload();
   });
 
   test("initial state has correct defaults including the named ultimate beneficiary", async ({
@@ -27,10 +27,8 @@ test.describe("Reactive State, Persistence & Data Management", () => {
     );
 
     const cityInput = page.locator("#input-city");
-    await expect(cityInput).toHaveValue("Seattle");
-    await expect(sheet.locator(".testimonium")).toContainText(
-      "City of Seattle"
-    );
+    await expect(cityInput).toHaveValue("Tacoma");
+    await expect(sheet.locator(".testimonium")).toContainText("City of Tacoma");
   });
 
   test("two-way binding updates document reactively across all sections", async ({
@@ -39,9 +37,9 @@ test.describe("Reactive State, Persistence & Data Management", () => {
     const sheet = page.locator("#document-sheet");
 
     await page.fill("#input-city", "Bellevue");
-    await page.fill("#input-county", "Pierce");
+    await page.fill("#input-county", "Kitsap");
     await expect(sheet.locator(".testimonium")).toContainText(
-      "City of Bellevue, Pierce County"
+      "City of Bellevue, Kitsap County"
     );
 
     await page.fill("#input-ultimate-beneficiary-name", "Yasmin Ramos");
@@ -81,7 +79,7 @@ test.describe("Reactive State, Persistence & Data Management", () => {
     );
   });
 
-  test("resets active profile back to defaults", async ({ page }) => {
+  test("resets active profile back to blank field values", async ({ page }) => {
     await page.fill("#input-testator-name", "Custom Testator Name");
     await page.fill("#input-ultimate-beneficiary-name", "Custom Beneficiary");
 
@@ -89,11 +87,9 @@ test.describe("Reactive State, Persistence & Data Management", () => {
 
     await page.click("#btn-reset-profile");
 
-    await expect(page.locator("#input-testator-name")).toHaveValue(
-      "Avery Q. Ramos"
-    );
+    await expect(page.locator("#input-testator-name")).toHaveValue("");
     await expect(page.locator("#input-ultimate-beneficiary-name")).toHaveValue(
-      "Robin Ramos"
+      ""
     );
     await expect(a11yStatus).toContainText("Active profile reset");
   });
@@ -148,13 +144,11 @@ test.describe("Reactive State, Persistence & Data Management", () => {
     });
 
     const parsed = JSON.parse(exportedJson);
-    expect(parsed.profile-1.testator.name).toBe("Export Testator");
-    expect(parsed.profile-1.city).toBe("Kirkland");
+    expect(parsed["profile-1"].testator.name).toBe("Export Testator");
+    expect(parsed["profile-1"].city).toBe("Kirkland");
 
     await page.click("#btn-reset-all");
-    await expect(page.locator("#input-testator-name")).toHaveValue(
-      "Avery Q. Ramos"
-    );
+    await expect(page.locator("#input-testator-name")).toHaveValue("");
 
     const importResult = await page.evaluate(async (jsonStr) => {
       // @ts-ignore
@@ -178,7 +172,7 @@ test.describe("Reactive State, Persistence & Data Management", () => {
       // @ts-ignore
       const { importStateFromJson } = await import("./js/state.js");
       return importStateFromJson(
-        JSON.stringify({ profile-1: { label: "no testator" } })
+        JSON.stringify({ "profile-1": { label: "no testator" } })
       );
     });
 
@@ -189,7 +183,7 @@ test.describe("Reactive State, Persistence & Data Management", () => {
     await expect(importErrorEl).toHaveAttribute("role", "alert");
   });
 
-  test("seeding a v1-shaped localStorage value still yields both profiles and a complete document, with no invented county fallback", async ({
+  test("seeding a partial v1-shaped localStorage value still yields both stored profiles and a complete document, with fields not stored falling back to blank defaults", async ({
     page,
   }) => {
     await page.evaluate(() => {
@@ -198,9 +192,11 @@ test.describe("Reactive State, Persistence & Data Management", () => {
         JSON.stringify({
           activeProfileId: "profile-1",
           profiles: {
-            profile-1: {
+            "profile-1": {
               testator: { name: "Avery Q. Ramos", gender: "male", county: "" },
-              tertiaryBeneficiary: "my sister",
+            },
+            "profile-2": {
+              testator: { name: "Morgan T. Ramos", gender: "female" },
             },
           },
         })
@@ -215,15 +211,13 @@ test.describe("Reactive State, Persistence & Data Management", () => {
 
     const sheet = page.locator("#document-sheet");
     await expect(sheet.locator(".article-header")).toHaveCount(10);
-    await expect(sheet).not.toContainText("King County");
+    await expect(sheet).toContainText("survive me by 60 full days");
 
     const preambleFillIn = sheet.locator(".doc-preamble .fill-in");
     await expect(preambleFillIn).toHaveCount(1);
 
     await page.selectOption("#select-profile", "profile-2");
-    await expect(sheet.locator(".doc-title")).toContainText(
-      "Morgan T. Ramos"
-    );
+    await expect(sheet.locator(".doc-title")).toContainText("Morgan T. Ramos");
   });
 
   test("standalone HTML export generates valid self-contained HTML with no guidance and no highlight marks", async ({
@@ -237,7 +231,7 @@ test.describe("Reactive State, Persistence & Data Management", () => {
 
     expect(standaloneHtml).toContain("<!DOCTYPE html>");
     expect(standaloneHtml).toContain(
-      "<title>Last Will and Testament - Avery Q. Ramos</title>"
+      `<title>Last Will and Testament - ${PROFILE_1.testator.name}</title>`
     );
     expect(standaloneHtml).toContain(
       "Article 1: Family, Guardians, and Conservators"
@@ -265,5 +259,103 @@ test.describe("Reactive State, Persistence & Data Management", () => {
     expect(memo).toContain("CHOICES MADE");
     expect(memo).toContain("ADVISORIES RAISED");
     expect(memo).toContain("OPEN QUESTIONS FOR COUNSEL");
+  });
+});
+
+test.describe("Unseeded blank profile defaults", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto("/");
+    await page.evaluate(() => localStorage.clear());
+    await page.reload();
+  });
+
+  test("ships two blank profiles named Profile 1 and Profile 2 with no console errors", async ({
+    page,
+  }) => {
+    const consoleErrors = [];
+    page.on("console", (msg) => {
+      if (msg.type() === "error") consoleErrors.push(msg.text());
+    });
+
+    await page.reload();
+
+    const optionLabels = await page
+      .locator("#select-profile option")
+      .evaluateAll((opts) => opts.map((o) => o.textContent));
+    expect(optionLabels).toEqual(["Profile 1", "Profile 2"]);
+
+    await expect(page.locator("#input-testator-name")).toHaveValue("");
+    await expect(page.locator("#input-spouse-name")).toHaveValue("");
+    await expect(page.locator("#input-guardian-primary")).toHaveValue("");
+    await expect(page.locator("#input-pr-primary")).toHaveValue("");
+    await expect(page.locator("#input-trustee-primary")).toHaveValue("");
+    await expect(page.locator("#input-ultimate-beneficiary-name")).toHaveValue(
+      ""
+    );
+    await expect(page.locator("#input-survivorship-days")).toHaveValue("60");
+    await expect(page.locator("#input-state")).toHaveValue("Washington");
+    await expect(page.locator("#select-spousal-gift")).toHaveValue("outright");
+
+    const sheet = page.locator("#document-sheet");
+    await expect(sheet.locator(".article-header")).toHaveCount(10);
+
+    expect(consoleErrors).toEqual([]);
+  });
+
+  test("importing an unrecognized profile id is accepted and appears in the dropdown", async ({
+    page,
+  }) => {
+    const result = await page.evaluate(async () => {
+      // @ts-ignore
+      const { importStateFromJson } = await import("./js/state.js");
+      return importStateFromJson(
+        JSON.stringify({
+          "custom-profile": {
+            testator: { name: "Custom Imported Testator" },
+          },
+        })
+      );
+    });
+
+    expect(result.success).toBe(true);
+
+    const optionValues = await page
+      .locator("#select-profile option")
+      .evaluateAll((opts) => opts.map((o) => o.value));
+    expect(optionValues).toContain("custom-profile");
+  });
+
+  test("reset-to-blank clears the active profile and the dropdown label falls back to Profile 1", async ({
+    page,
+  }) => {
+    await page.fill("#input-testator-name", "Temporary Name");
+    await page.fill(
+      "#input-ultimate-beneficiary-name",
+      "Temporary Beneficiary"
+    );
+
+    await page.click("#btn-reset-profile");
+
+    await expect(page.locator("#input-testator-name")).toHaveValue("");
+    await expect(page.locator("#input-ultimate-beneficiary-name")).toHaveValue(
+      ""
+    );
+    await expect(
+      page.locator("#select-profile option[value='profile-1']")
+    ).toHaveText("Profile 1");
+    await expect(page.locator("#active-profile-name")).toHaveText("Profile 1");
+  });
+
+  test("the dropdown option text and active-profile-name follow testator.name as it is typed", async ({
+    page,
+  }) => {
+    await page.fill("#input-testator-name", "Typed Testator Name");
+
+    await expect(page.locator("#active-profile-name")).toHaveText(
+      "Typed Testator Name"
+    );
+    await expect(
+      page.locator("#select-profile option[value='profile-1']")
+    ).toHaveText("Typed Testator Name");
   });
 });
