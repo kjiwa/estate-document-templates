@@ -73,6 +73,18 @@ A client-side web application for generating, customizing, and printing legally 
 
 ## Getting Started
 
+### Deploy Your Own
+
+This is a zero-build static site with no backend. To run your own copy:
+
+1. Fork this repository.
+2. In the fork's settings, go to **Settings → Pages** and set **Source** to
+   **GitHub Actions**.
+3. Push to `main`. The included workflow builds nothing and deploys the repository
+   as-is; the fork is served at `https://<your-username>.github.io/estate-document-templates/`.
+
+No account beyond GitHub is required.
+
 ### Local Development
 
 Serve the root directory using any static file server:
@@ -98,3 +110,16 @@ RCW citations in `js/templates/will.js` and `js/guidance.js` are checked monthly
 ```sh
 npm run check:citations
 ```
+
+## Your Data
+
+Every draft lives in the browser's `localStorage`, on the machine that typed it.
+Nothing is uploaded and there is no server. **Export JSON is the only backup** —
+clearing site data, using a private window, or switching browsers loses the draft.
+
+## Disclaimer
+
+This tool is a drafting aid, not legal advice, and using it does not create an
+attorney-client relationship. It generates documents under Washington State law
+(RCW Title 11) only. Have a licensed attorney review any document before you sign
+it.
