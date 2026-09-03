@@ -25,35 +25,38 @@ export function getPronouns(gender) {
       possessivePronoun: "hers",
       possessivePronounCap: "Hers",
       reflexive: "herself",
-      spouseTitle: "Wife",
     };
   }
-  if (g === "nonbinary" || g === "nb" || g === "they") {
+  if (g === "male" || g === "m" || g === "man" || g === "he") {
     return {
-      subjective: "they",
-      subjectiveCap: "They",
-      objective: "them",
-      objectiveCap: "Them",
-      possessive: "their",
-      possessiveCap: "Their",
-      possessivePronoun: "theirs",
-      possessivePronounCap: "Theirs",
-      reflexive: "themselves",
-      spouseTitle: "Spouse",
+      subjective: "he",
+      subjectiveCap: "He",
+      objective: "him",
+      objectiveCap: "Him",
+      possessive: "his",
+      possessiveCap: "His",
+      possessivePronoun: "his",
+      possessivePronounCap: "His",
+      reflexive: "himself",
     };
   }
   return {
-    subjective: "he",
-    subjectiveCap: "He",
-    objective: "him",
-    objectiveCap: "Him",
-    possessive: "his",
-    possessiveCap: "His",
-    possessivePronoun: "his",
-    possessivePronounCap: "His",
-    reflexive: "himself",
-    spouseTitle: "Husband",
+    subjective: "they",
+    subjectiveCap: "They",
+    objective: "them",
+    objectiveCap: "Them",
+    possessive: "their",
+    possessiveCap: "Their",
+    possessivePronoun: "theirs",
+    possessivePronounCap: "Theirs",
+    reflexive: "themselves",
   };
+}
+
+export function normalizeName(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase();
 }
 
 export function wrapVar(value, highlight = true) {

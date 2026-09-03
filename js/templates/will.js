@@ -1,4 +1,4 @@
-import { getPronouns, wrapVar, fillIn } from "../utils.js";
+import { getPronouns, wrapVar, fillIn, normalizeName } from "../utils.js";
 
 const COUNT_WORDS = [
   "no",
@@ -23,6 +23,13 @@ function formatList(items) {
   if (items.length === 1) return items[0];
   if (items.length === 2) return `${items[0]} and ${items[1]}`;
   return `${items.slice(0, -1).join(", ")}, and ${items[items.length - 1]}`;
+}
+
+// "my spouse, NAME" is only true when NAME is in fact the spouse. The field
+// takes any name, so the apposition is derived, never assumed.
+function isSpouse(data, name) {
+  const n = normalizeName(name);
+  return Boolean(n) && n === normalizeName(data.spouse?.name);
 }
 
 // Builds a "<articleNum>.<n> Title." numbered clause list from an array that
@@ -56,14 +63,14 @@ function renderTitleAndPreamble(data, v, fill) {
   const state = data.testator?.state || "";
 
   return `
-    <h1 id="doc-title" class="doc-title"><span class="doc-title-line">Last Will and Testament</span><span class="doc-title-line">of</span><span class="doc-title-line">${v(testatorName)}</span></h1>
+    <h1 id="doc-title" class="doc-title"><span class="doc-title-line">Last Will and Testament</span><span class="doc-title-line">of</span><span class="doc-title-line">${fill(testatorName, 20)}</span></h1>
     <p class="doc-preamble">
-      I, ${v(testatorName)}, a resident of ${fill(county, 12)} County, ${fill(state, 14)}, declare this to be my Last Will and Testament, and I revoke all prior wills and codicils made by me.
+      I, ${fill(testatorName, 16)}, a resident of ${fill(county, 12)} County, ${fill(state, 14)}, declare this to be my Last Will and Testament, and I revoke all prior wills and codicils made by me.
     </p>
   `;
 }
 
-function renderArticle1(data, v) {
+function renderArticle1(data, v, fill) {
   const spousePronouns = getPronouns(data.spouse?.gender);
   const children = (data.children || []).filter(Boolean);
   const childrenSentence = children.length
@@ -75,15 +82,15 @@ function renderArticle1(data, v) {
     ${renderClauses(1, [
       {
         title: "Family",
-        body: `I declare that I am married to ${v(data.spouse?.name)}, and all references in this Will to &ldquo;my spouse&rdquo; are to ${v(spousePronouns.objective)}. ${childrenSentence} All references in this Will to &ldquo;my children&rdquo; include these children and any children hereafter born to or adopted by me.`,
+        body: `I declare that I am married to ${fill(data.spouse?.name, 16)}, and all references in this Will to &ldquo;my spouse&rdquo; are to ${v(spousePronouns.objective)}. ${childrenSentence} All references in this Will to &ldquo;my children&rdquo; include these children and any children hereafter born to or adopted by me.`,
       },
       {
         title: "Guardian of the Person",
-        body: `If my spouse does not survive me, or is unable or unwilling to act, I appoint ${v(data.guardians?.primary)} as Guardian of the person of any minor child of mine, pursuant to chapter 11.130 RCW. If ${v(data.guardians?.primary)} is unable or unwilling to serve, I appoint ${v(data.guardians?.alternate)} as alternate Guardian.`,
+        body: `If my spouse does not survive me, or is unable or unwilling to act, I appoint ${fill(data.guardians?.primary, 16)} as Guardian of the person of any minor child of mine, pursuant to chapter 11.130 RCW. If ${fill(data.guardians?.primary, 16)} is unable or unwilling to serve, I appoint ${fill(data.guardians?.alternate, 16)} as alternate Guardian.`,
       },
       {
         title: "Conservator of the Estate",
-        body: `If my spouse does not survive me, or is unable or unwilling to act, I appoint ${v(data.conservators?.primary)} as Conservator of the estate of any minor child of mine, pursuant to chapter 11.130 RCW, to manage such child's property and financial affairs. If ${v(data.conservators?.primary)} is unable or unwilling to serve, I appoint ${v(data.conservators?.alternate)} as alternate Conservator.`,
+        body: `If my spouse does not survive me, or is unable or unwilling to act, I appoint ${fill(data.conservators?.primary, 16)} as Conservator of the estate of any minor child of mine, pursuant to chapter 11.130 RCW, to manage such child's property and financial affairs. If ${fill(data.conservators?.primary, 16)} is unable or unwilling to serve, I appoint ${fill(data.conservators?.alternate, 16)} as alternate Conservator.`,
       },
     ])}
   `;
@@ -148,7 +155,7 @@ function renderArticle3(data, v, fill) {
       },
       {
         title: "Ultimate Contingent Beneficiary",
-        body: `If neither my spouse nor any of my descendants survive me, my estate shall be distributed to my ${v(beneficiary.relationship)}, ${fill(beneficiary.name, 16)}, or if ${v(beneficiaryPronouns.subjective)} does not survive me, to my heirs at law determined under the laws of the State of Washington.`,
+        body: `If neither my spouse nor any of my descendants survive me, my estate shall be distributed to my ${fill(beneficiary.relationship, 12)}, ${fill(beneficiary.name, 16)}, or if ${v(beneficiaryPronouns.subjective)} does not survive me, to my heirs at law determined under the laws of the State of Washington.`,
       },
     ])}
   `;
@@ -234,17 +241,22 @@ function renderArticle6() {
   `;
 }
 
-function renderArticle7(data, v) {
+function renderArticle7(data, v, fill) {
+  const prPrimary = data.personalRepresentatives?.primary;
+  const prAppointment = isSpouse(data, prPrimary)
+    ? `I appoint my spouse, ${fill(prPrimary, 16)}, as Personal Representative of my estate.`
+    : `I appoint ${fill(prPrimary, 16)} as Personal Representative of my estate.`;
+
   return `
     <h2 class="article-header">Article 7: Administration and Fiduciaries</h2>
     ${renderClauses(7, [
       {
         title: "Trustee Appointment",
-        body: `I appoint ${v(data.trustees?.primary)} as Trustee of any trust created under this Will. If ${v(data.trustees?.primary)} is unable or unwilling to serve, I appoint ${v(data.trustees?.alternate)} as alternate Trustee.`,
+        body: `I appoint ${fill(data.trustees?.primary, 16)} as Trustee of any trust created under this Will. If ${fill(data.trustees?.primary, 16)} is unable or unwilling to serve, I appoint ${fill(data.trustees?.alternate, 16)} as alternate Trustee.`,
       },
       {
         title: "Personal Representative Appointment",
-        body: `I appoint my spouse, ${v(data.personalRepresentatives?.primary)}, as Personal Representative of my estate. If my spouse is unable or unwilling to serve, I appoint ${v(data.personalRepresentatives?.alternate)} as alternate Personal Representative. No fiduciary nominated herein shall be required to post bond or other security in any jurisdiction.`,
+        body: `${prAppointment} If ${fill(prPrimary, 16)} is unable or unwilling to serve, I appoint ${fill(data.personalRepresentatives?.alternate, 16)} as alternate Personal Representative. No fiduciary nominated herein shall be required to post bond or other security in any jurisdiction.`,
       },
       {
         title: "Debts, Expenses, and Taxes",
@@ -315,7 +327,7 @@ function renderTestimoniumAndSignatures(data, v, fill) {
     <div class="sig-block-principal">
       <div class="sig-lines-principal">
         <div class="sig-line">
-          <strong>${v(testatorName)}</strong>, Testator
+          <strong>${fill(testatorName, 20)}</strong>, Testator
         </div>
         <div class="sig-caption">Residing at ${fill(county, 12)} County, ${fill(state, 14)}</div>
       </div>
@@ -355,7 +367,7 @@ function renderWitnessAttestation(data, v, fill) {
     <div class="witness-block">
       <h2 class="doc-subtitle">Attestation of Witnesses</h2>
       <p class="witness-declaration">
-        The foregoing instrument was on the date thereof signed, published, and declared by the Testator, ${v(testatorName)}, to be ${v(testatorPronouns.possessive)} Last Will and Testament, in the presence of us, who, at ${v(testatorPronouns.possessive)} request and in ${v(testatorPronouns.possessive)} presence, have subscribed our names as attesting witnesses thereto, believing the Testator to be of sound mind and memory and under no constraint or undue influence.
+        The foregoing instrument was on the date thereof signed, published, and declared by the Testator, ${fill(testatorName, 16)}, to be ${v(testatorPronouns.possessive)} Last Will and Testament, in the presence of us, who, at ${v(testatorPronouns.possessive)} request and in ${v(testatorPronouns.possessive)} presence, have subscribed our names as attesting witnesses thereto, believing the Testator to be of sound mind and memory and under no constraint or undue influence.
       </p>
       <div class="sig-grid">
         ${renderWitnessSigColumn(fill, witnesses[0])}
@@ -382,12 +394,12 @@ function renderNotaryCertificate(data, v, fill) {
         COUNTY OF ${fill(county ? county.toUpperCase() : "", 12)} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;) ss.
       </div>
       <p class="notary-body">
-        Each of the undersigned, being first duly sworn on oath, deposes and states under penalty of perjury under the laws of the State of ${fill(state, 14)} that: on the date last above written, the Testator, ${v(testatorName)}, in our presence declared this instrument to be ${v(testatorPronouns.possessive)} Last Will and Testament and requested us to act as witnesses; the Testator signed this Will in our presence; and we subscribed our names as witnesses in the Testator's presence.
+        Each of the undersigned, being first duly sworn on oath, deposes and states under penalty of perjury under the laws of the State of ${fill(state, 14)} that: on the date last above written, the Testator, ${fill(testatorName, 16)}, in our presence declared this instrument to be ${v(testatorPronouns.possessive)} Last Will and Testament and requested us to act as witnesses; the Testator signed this Will in our presence; and we subscribed our names as witnesses in the Testator's presence.
       </p>
       <div class="affidavit-sig-row">
         <div class="sig-field">
           <div class="sig-field-line"></div>
-          <div class="sig-field-label">Testator Signature — ${v(testatorName)}</div>
+          <div class="sig-field-label">Testator Signature — ${fill(testatorName, 16)}</div>
         </div>
         <div class="sig-field">
           <div class="sig-field-line"></div>
@@ -435,13 +447,13 @@ export function renderWill(data = {}, options = {}) {
 
   return [
     renderTitleAndPreamble(data, v, fill),
-    renderArticle1(data, v),
+    renderArticle1(data, v, fill),
     renderArticle2(data, v, fill),
     renderArticle3(data, v, fill),
     renderArticle4(),
     renderArticle5(),
     renderArticle6(),
-    renderArticle7(data, v),
+    renderArticle7(data, v, fill),
     renderArticle8(),
     renderArticle9(),
     renderArticle10(),

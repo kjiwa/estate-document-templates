@@ -1,14 +1,10 @@
 // Pure function over a profile: no DOM, no state import, so it is directly
 // unit-testable and safe to reuse from the attorney-memo export.
 
+import { normalizeName } from "./utils.js";
+
 const RCW_INTERESTED_WITNESS = "RCW 11.12.160";
 const RCW_DISCLAIMER_TRUST = "RCW 11.86.031";
-
-function normalizeName(name) {
-  return String(name || "")
-    .trim()
-    .toLowerCase();
-}
 
 function collectRoleHolders(profile) {
   const holders = [];
@@ -129,20 +125,6 @@ function missingAlternateAdvisories(profile) {
   }));
 }
 
-function personalRepresentativeSpouseMismatchAdvisory(profile) {
-  const pr = normalizeName(profile.personalRepresentatives?.primary);
-  const spouse = normalizeName(profile.spouse?.name);
-  if (!pr || !spouse || pr === spouse) return null;
-
-  return {
-    id: "pr-not-spouse",
-    severity: "warning",
-    title: "Personal Representative is not the spouse",
-    message:
-      'The named primary Personal Representative does not match the spouse’s name, but the will’s recital reads "I appoint my spouse." Confirm the recital matches who is actually appointed before execution.',
-  };
-}
-
 function completenessAdvisories(profile) {
   const advisories = [];
 
@@ -182,14 +164,12 @@ function completenessAdvisories(profile) {
 export function analyzeProfile(profile = {}) {
   const holders = collectRoleHolders(profile);
   const trusteeAdvisory = trusteeBeneficiaryAdvisory(profile);
-  const prAdvisory = personalRepresentativeSpouseMismatchAdvisory(profile);
 
   return [
     ...interestedWitnessAdvisories(profile, holders),
     ...multipleRoleAdvisories(holders),
     ...(trusteeAdvisory ? [trusteeAdvisory] : []),
     ...missingAlternateAdvisories(profile),
-    ...(prAdvisory ? [prAdvisory] : []),
     ...completenessAdvisories(profile),
   ];
 }

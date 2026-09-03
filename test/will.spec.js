@@ -233,6 +233,41 @@ test.describe("Will Template Engine & Rendering", () => {
     expect(text).not.toContain("each other's presence");
   });
 
+  test("naming a non-spouse Personal Representative drops the spouse apposition from Article 7.2", async ({
+    page,
+  }) => {
+    await page.fill("#input-pr-primary", "Jordan Rivera");
+
+    const sheet = page.locator("#document-sheet");
+    await expect(sheet).toContainText(
+      "I appoint Jordan Rivera as Personal Representative"
+    );
+    await expect(sheet).toContainText("If Jordan Rivera is unable");
+
+    const text = await sheet.innerText();
+    expect(text).not.toContain("my spouse, Jordan Rivera");
+  });
+
+  test("resetting the active profile renders ruled blanks and they/them pronouns", async ({
+    page,
+  }) => {
+    await page.click("#btn-reset-profile");
+
+    const sheet = page.locator("#document-sheet");
+    const prClause = sheet.locator("p.clause", {
+      hasText: "Personal Representative Appointment",
+    });
+    await expect(prClause.locator(".fill-in").first()).toBeVisible();
+
+    const trusteeClause = sheet.locator("p.clause", {
+      hasText: "Trustee Appointment",
+    });
+    await expect(trusteeClause.locator(".fill-in").first()).toBeVisible();
+
+    const article1 = sheet.locator(".clause").first();
+    await expect(article1).toContainText("are to them");
+  });
+
   test("template registry provides valid registered templates", async ({
     page,
   }) => {
