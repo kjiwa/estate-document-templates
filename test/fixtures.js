@@ -14,6 +14,7 @@ const PROFILE_1 = {
     county: "Pierce",
     state: "Washington",
   },
+  maritalStatus: "married",
   spouse: {
     name: "Morgan T. Ramos",
     gender: "female",
@@ -76,6 +77,7 @@ const PROFILE_2 = {
     county: "Pierce",
     state: "Washington",
   },
+  maritalStatus: "married",
   spouse: {
     name: "Avery Q. Ramos",
     gender: "male",

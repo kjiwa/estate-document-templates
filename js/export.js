@@ -93,6 +93,7 @@ export function generateAttorneyMemo(profile) {
   lines.push("");
 
   lines.push("CHOICES MADE");
+  lines.push(formatChoice("Marital status", profile.maritalStatus));
   lines.push(formatChoice("Spousal gift structure", profile.spousalGift));
   lines.push(
     formatChoice("Survivorship period (days)", profile.survivorshipDays)

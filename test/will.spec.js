@@ -248,6 +248,29 @@ test.describe("Will Template Engine & Rendering", () => {
     expect(text).not.toContain("my spouse, Jordan Rivera");
   });
 
+  test("switching to unmarried renumbers Article 3 and removes every spousal reference", async ({
+    page,
+  }) => {
+    await page.selectOption("#select-marital-status", "unmarried");
+
+    const sheet = page.locator("#document-sheet");
+    await expect(sheet.locator(".article-header")).toHaveCount(10);
+    await expect(sheet.locator(".clause").first()).toContainText(
+      "I am not married."
+    );
+
+    const article3Labels = await sheet
+      .locator("p.clause > strong")
+      .allInnerTexts();
+    const clauseNumbers = article3Labels
+      .filter((label) => label.startsWith("3."))
+      .map((label) => label.split(" ")[0]);
+    expect(clauseNumbers).toEqual(["3.1", "3.2", "3.3"]);
+
+    const text = await sheet.innerText();
+    expect(text).not.toMatch(/spouse/i);
+  });
+
   test("resetting the active profile renders ruled blanks and they/them pronouns", async ({
     page,
   }) => {

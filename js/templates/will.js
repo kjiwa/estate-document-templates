@@ -25,11 +25,21 @@ function formatList(items) {
   return `${items.slice(0, -1).join(", ")}, and ${items[items.length - 1]}`;
 }
 
-// "my spouse, NAME" is only true when NAME is in fact the spouse. The field
-// takes any name, so the apposition is derived, never assumed.
+// Tested against "unmarried" rather than for "married" so an absent or
+// unrecognized value renders as married — today's only behavior.
+function isMarried(data) {
+  return data.maritalStatus !== "unmarried";
+}
+
+// "my spouse, NAME" is only true when NAME is in fact the spouse and the
+// testator declares a spouse at all — an unmarried testator's spouse field
+// may still hold a stale name (e.g. after a status change), and that name
+// must not resurrect the apposition.
 function isSpouse(data, name) {
   const n = normalizeName(name);
-  return Boolean(n) && n === normalizeName(data.spouse?.name);
+  return (
+    isMarried(data) && Boolean(n) && n === normalizeName(data.spouse?.name)
+  );
 }
 
 // Builds a "<articleNum>.<n> Title." numbered clause list from an array that
@@ -71,26 +81,33 @@ function renderTitleAndPreamble(data, v, fill) {
 }
 
 function renderArticle1(data, v, fill) {
+  const married = isMarried(data);
   const spousePronouns = getPronouns(data.spouse?.gender);
   const children = (data.children || []).filter(Boolean);
   const childrenSentence = children.length
     ? `I have ${countWord(children.length)} ${children.length === 1 ? "child" : "children"}, ${v(formatList(children))}.`
     : "I have no children as of the date of this Will.";
+  const familyBody = married
+    ? `I declare that I am married to ${fill(data.spouse?.name, 16)}, and all references in this Will to &ldquo;my spouse&rdquo; are to ${v(spousePronouns.objective)}. ${childrenSentence} All references in this Will to &ldquo;my children&rdquo; include these children and any children hereafter born to or adopted by me.`
+    : `I am not married. ${childrenSentence} All references in this Will to &ldquo;my children&rdquo; include these children and any children hereafter born to or adopted by me.`;
+  const survivorPreface = married
+    ? "If my spouse does not survive me, or is unable or unwilling to act, "
+    : "";
 
   return `
     <h2 class="article-header">Article 1: Family, Guardians, and Conservators</h2>
     ${renderClauses(1, [
       {
         title: "Family",
-        body: `I declare that I am married to ${fill(data.spouse?.name, 16)}, and all references in this Will to &ldquo;my spouse&rdquo; are to ${v(spousePronouns.objective)}. ${childrenSentence} All references in this Will to &ldquo;my children&rdquo; include these children and any children hereafter born to or adopted by me.`,
+        body: familyBody,
       },
       {
         title: "Guardian of the Person",
-        body: `If my spouse does not survive me, or is unable or unwilling to act, I appoint ${fill(data.guardians?.primary, 16)} as Guardian of the person of any minor child of mine, pursuant to chapter 11.130 RCW. If ${fill(data.guardians?.primary, 16)} is unable or unwilling to serve, I appoint ${fill(data.guardians?.alternate, 16)} as alternate Guardian.`,
+        body: `${survivorPreface}I appoint ${fill(data.guardians?.primary, 16)} as Guardian of the person of any minor child of mine, pursuant to chapter 11.130 RCW. If ${fill(data.guardians?.primary, 16)} is unable or unwilling to serve, I appoint ${fill(data.guardians?.alternate, 16)} as alternate Guardian.`,
       },
       {
         title: "Conservator of the Estate",
-        body: `If my spouse does not survive me, or is unable or unwilling to act, I appoint ${fill(data.conservators?.primary, 16)} as Conservator of the estate of any minor child of mine, pursuant to chapter 11.130 RCW, to manage such child's property and financial affairs. If ${fill(data.conservators?.primary, 16)} is unable or unwilling to serve, I appoint ${fill(data.conservators?.alternate, 16)} as alternate Conservator.`,
+        body: `${survivorPreface}I appoint ${fill(data.conservators?.primary, 16)} as Conservator of the estate of any minor child of mine, pursuant to chapter 11.130 RCW, to manage such child's property and financial affairs. If ${fill(data.conservators?.primary, 16)} is unable or unwilling to serve, I appoint ${fill(data.conservators?.alternate, 16)} as alternate Conservator.`,
       },
     ])}
   `;
@@ -117,6 +134,7 @@ function renderArticle2(data, v, fill) {
 }
 
 function renderArticle3(data, v, fill) {
+  const married = isMarried(data);
   const beneficiary = data.ultimateBeneficiary || {};
   const beneficiaryPronouns = getPronouns(beneficiary.gender);
 
@@ -131,31 +149,40 @@ function renderArticle3(data, v, fill) {
           body: `I give, devise, and bequeath all of my estate, of every nature and wheresoever situated, to my spouse, if my spouse survives me.`,
         };
 
+  const giftToDescendantsClause = {
+    title: "Gift to Descendants",
+    body: `I give, devise, and bequeath all of my estate, of every nature and wheresoever situated, to my then-surviving descendants, by right of representation pursuant to RCW 11.02.005(18), subject to the trust provisions of Article 4 of this Will for any beneficiary under the age of twenty-five (25) years.`,
+  };
+
   return `
     <h2 class="article-header">Article 3: Disposition of Property</h2>
     ${renderClauses(3, [
-      {
-        title: "Community Property Characterization",
-        body: `To the extent any property comprising my estate constitutes community property under the laws of the State of Washington, I dispose by this Will of not more than my one-half interest in such community property, pursuant to RCW 26.16.030. My spouse's one-half interest in our community property is not affected by this Will.`,
-      },
-      data.communityPropertyAgreement?.exists
+      married
+        ? {
+            title: "Community Property Characterization",
+            body: `To the extent any property comprising my estate constitutes community property under the laws of the State of Washington, I dispose by this Will of not more than my one-half interest in such community property, pursuant to RCW 26.16.030. My spouse's one-half interest in our community property is not affected by this Will.`,
+          }
+        : null,
+      married && data.communityPropertyAgreement?.exists
         ? {
             title: "Community Property Agreement",
             body: `I acknowledge that my spouse and I have entered into, or intend to enter into, a Community Property Agreement dated ${fill(data.communityPropertyAgreement?.date, 10)}, pursuant to RCW 26.16.120. To the extent such an Agreement is valid and effective at my death, it governs the disposition of the community property described therein notwithstanding any contrary provision of this Will; this Will governs my estate only to the extent the Agreement does not apply.`,
           }
         : null,
-      spousalGiftClause,
+      married ? spousalGiftClause : giftToDescendantsClause,
       {
         title: "Separate Writing",
         body: `Pursuant to RCW 11.12.260, I may dispose of tangible personal property by a separate written list or memorandum referenced in this Will.`,
       },
-      {
-        title: "Residue and Contingent Gift to Descendants",
-        body: `If my spouse does not survive me, I give the rest, residue, and remainder of my estate to my then-surviving descendants, by right of representation pursuant to RCW 11.02.005(18), subject to the trust provisions of Article 4 of this Will for any beneficiary under the age of twenty-five (25) years.`,
-      },
+      married
+        ? {
+            title: "Residue and Contingent Gift to Descendants",
+            body: `If my spouse does not survive me, I give the rest, residue, and remainder of my estate to my then-surviving descendants, by right of representation pursuant to RCW 11.02.005(18), subject to the trust provisions of Article 4 of this Will for any beneficiary under the age of twenty-five (25) years.`,
+          }
+        : null,
       {
         title: "Ultimate Contingent Beneficiary",
-        body: `If neither my spouse nor any of my descendants survive me, my estate shall be distributed to my ${fill(beneficiary.relationship, 12)}, ${fill(beneficiary.name, 16)}, or if ${v(beneficiaryPronouns.subjective)} does not survive me, to my heirs at law determined under the laws of the State of Washington.`,
+        body: `${married ? "If neither my spouse nor any of my descendants survive me" : "If none of my descendants survive me"}, my estate shall be distributed to my ${fill(beneficiary.relationship, 12)}, ${fill(beneficiary.name, 16)}, or if ${v(beneficiaryPronouns.subjective)} does not survive me, to my heirs at law determined under the laws of the State of Washington.`,
       },
     ])}
   `;

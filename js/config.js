@@ -13,6 +13,7 @@ export const BLANK_PROFILE = {
     county: "",
     state: "Washington",
   },
+  maritalStatus: "married",
   spouse: {
     name: "",
     gender: "",

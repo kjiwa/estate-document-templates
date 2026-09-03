@@ -78,10 +78,18 @@
             <fieldset class="control-group">
               <legend>Family</legend>
               <div class="form-field">
+                <label for="select-marital-status">Marital Status</label>
+                <select id="select-marital-status" class="form-select">
+                  <option value="married">Married</option>
+                  <option value="unmarried">Unmarried</option>
+                </select>
+              </div>
+              <div class="guidance-slot" data-guidance-id="maritalStatus"></div>
+              <div class="form-field" id="field-spouse-name">
                 <label for="input-spouse-name">Spouse Name</label>
                 <input type="text" id="input-spouse-name" class="form-input" />
               </div>
-              <div class="form-field">
+              <div class="form-field" id="field-spouse-gender">
                 <label for="select-spouse-gender"
                   >Spouse Gender / Pronouns</label
                 >
@@ -176,7 +184,7 @@
               <div class="guidance-slot" data-guidance-id="remains"></div>
             </fieldset>
 
-            <fieldset class="control-group">
+            <fieldset class="control-group" id="group-property">
               <legend>Disposition of Property (Article 3)</legend>
               <div class="form-field">
                 <label for="select-spousal-gift">Spousal Gift Structure</label>

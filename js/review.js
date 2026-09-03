@@ -149,6 +149,19 @@ function completenessAdvisories(profile) {
     });
   }
 
+  if (
+    profile.maritalStatus !== "unmarried" &&
+    !normalizeName(profile.spouse?.name)
+  ) {
+    advisories.push({
+      id: "married-no-spouse-name",
+      severity: "warning",
+      title: "Married with no spouse named",
+      message:
+        "Marital status is married, but no spouse name is set. Article 1.1 and every spousal gift clause will render against a blank until one is entered.",
+    });
+  }
+
   if (profile.spousalGift === "disclaimerTrust" && !profile.trustees?.primary) {
     advisories.push({
       id: "disclaimer-trust-no-trustee",

@@ -169,6 +169,7 @@ export function syncFormInputs() {
   setVal("input-state", profile.testator?.state);
   setVal("input-city", profile.city);
 
+  setVal("select-marital-status", profile.maritalStatus);
   setVal("input-spouse-name", profile.spouse?.name);
   setVal("select-spouse-gender", profile.spouse?.gender);
 
@@ -229,6 +230,21 @@ export function syncFormInputs() {
   }
 
   renderChildrenFields();
+  syncConditionalFields();
+}
+
+const MARRIED_ONLY_ELEMENT_IDS = [
+  "field-spouse-name",
+  "field-spouse-gender",
+  "group-property",
+];
+
+function syncConditionalFields() {
+  const unmarried = getActiveProfile()?.maritalStatus === "unmarried";
+  MARRIED_ONLY_ELEMENT_IDS.forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.hidden = unmarried;
+  });
 }
 
 const ZOOM_BUTTON_IDS = ["zoom-75", "zoom-100", "zoom-fit"];
@@ -346,6 +362,7 @@ const FIELD_BINDINGS = {
   "input-county": "testator.county",
   "input-state": "testator.state",
   "input-city": "city",
+  "select-marital-status": "maritalStatus",
   "input-spouse-name": "spouse.name",
   "select-spouse-gender": "spouse.gender",
   "input-guardian-primary": "guardians.primary",
@@ -573,6 +590,7 @@ function init() {
     renderReviewPanel();
     if (eventType === "fieldUpdate") {
       renderProfileIdentity();
+      syncConditionalFields();
     } else {
       syncFormInputs();
     }

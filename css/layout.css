@@ -20,6 +20,12 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* .form-field and .control-group both set display: flex, which otherwise
+   outranks the UA stylesheet's [hidden] rule. */
+[hidden] {
+  display: none !important;
+}
+
 /* ==========================================================================
    Accessibility & Focus Ring
    ========================================================================== */

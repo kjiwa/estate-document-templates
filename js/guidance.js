@@ -4,6 +4,20 @@
 // the toggle, no ARIA to get wrong. This is editor content: it must never
 // reach #document-sheet or the standalone export.
 export const GUIDANCE = {
+  maritalStatus: {
+    title: "Marital Status",
+    whatItDoes:
+      "Tells the document whether you have a spouse — every clause that mentions “my spouse” depends on this answer.",
+    options: [
+      "Married — the spouse name and gender fields, and the Disposition of Property fieldset, apply.",
+      "Unmarried — those fields are hidden, and the Will names your descendants directly instead.",
+    ],
+    typical:
+      "Most testators using this template are married, which is why it is the default.",
+    impact:
+      "Unmarried removes the community property characterization (RCW 26.16.030), the Community Property Agreement acknowledgment, and the spousal gift clause outright; the estate passes directly to your then-surviving descendants instead of first to a spouse.",
+    statutes: ["RCW 26.16.030"],
+  },
   children: {
     title: "Children",
     whatItDoes:

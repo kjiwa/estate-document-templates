@@ -58,6 +58,7 @@ test.describe("Application Shell, Layout & Accessibility", () => {
       "input-testator-name",
       "input-county",
       "input-state",
+      "select-marital-status",
       "input-spouse-name",
       "input-guardian-primary",
       "input-guardian-alt",
@@ -77,6 +78,32 @@ test.describe("Application Shell, Layout & Accessibility", () => {
       const label = page.locator(`label[for="${id}"]`);
       await expect(label).toBeAttached();
     }
+  });
+
+  test("selecting unmarried hides the spouse fields and the property fieldset", async ({
+    page,
+  }) => {
+    await page.goto("/");
+
+    const fieldSpouseName = page.locator("#field-spouse-name");
+    const fieldSpouseGender = page.locator("#field-spouse-gender");
+    const groupProperty = page.locator("#group-property");
+
+    await expect(fieldSpouseName).toBeVisible();
+    await expect(fieldSpouseGender).toBeVisible();
+    await expect(groupProperty).toBeVisible();
+
+    await page.selectOption("#select-marital-status", "unmarried");
+
+    await expect(fieldSpouseName).toBeHidden();
+    await expect(fieldSpouseGender).toBeHidden();
+    await expect(groupProperty).toBeHidden();
+
+    await page.selectOption("#select-marital-status", "married");
+
+    await expect(fieldSpouseName).toBeVisible();
+    await expect(fieldSpouseGender).toBeVisible();
+    await expect(groupProperty).toBeVisible();
   });
 
   test("#document-sheet ships empty in the HTML source — JS renders the document, not the markup", async ({
