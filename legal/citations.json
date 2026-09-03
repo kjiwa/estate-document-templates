@@ -1,6 +1,6 @@
 {
   "_comment": "Snapshot of each cited RCW section's history note, fetched from app.leg.wa.gov. The monthly citation-check workflow (.github/workflows/citation-check.yml) diffs this against a fresh fetch and fails the build if a line changed, naming which statute moved.",
-  "checkedAt": "2026-09-01",
+  "checkedAt": "2026-09-02",
   "citations": {
     "11.02.005": "2026 c 204 s 15; 2021 c 140 s 1012; 2020 c 312 s 708; 2018 c 22 s 6; 2014 c 58 s 18. Prior: 2011 c 327 s 1; 2008 c 6 s 901; 2007 c 475 s 1; 2005 c 97 s 1; 2001 c 320 s 1; 2000 c 130 s 1; 1999 c 358 s 20; 1998 c 292 s 117; 1997 c 252 s 1; 1994 c 221 s 1; 1993 c 73 s 1; 1985 c 30 s 4; prior: 1984 c 149 s 4; 1977 ex.s. c 80 s 14; 1975-'76 2nd ex.s. c 42 s 23; 1965 c 145 s 11.02.005. Former RCW sections: Subd. (3), RCW 11.04.110; subd. (4), RCW 11.04.010; subd. (5), RCW 11.04.100; subd. (6), RCW 11.04.280; subd. (7), RCW 11.04.010; subd. (8) and (9), RCW 11.12.240; subd. (14) and (15), RCW 11.02.040.",
     "11.12.020": "2021 c 140 s 1013; 1990 c 79 s 1; 1965 c 145 s 11.12.020. Prior: 1929 c 21 s 1; 1917 c 156 s 25; RRS s 1395; prior: Code 1881 s 1319; 1863 p 207 ss 53, 54; 1860 p 170 ss 20, 21. FORMER PART OF SECTION; re nuncupative wills, now codified as RCW 11.12.025.",
@@ -10,8 +10,11 @@
     "11.120.070": "2016 c 140 s 7.",
     "11.130.010": "2022 c 243 s 5; 2020 c 312 s 301; 2019 c 437 s 102.",
     "11.20.020": "2021 c 140 s 1015; 2010 c 8 s 2016; 1977 ex.s. c 234 s 2; 1974 ex.s. c 117 s 27; 1969 ex.s. c 126 s 1; 1965 c 145 s 11.20.020. Prior: 1917 c 156 s 10; RRS s 1380; prior: 1863 p 212 ss 85, 86; 1860 p 175 ss 52, 53.",
+    "11.28.120": "2026 c 204 s 2; 2020 c 312 s 405; 2019 c 215 s 5; 2007 c 156 s 28; 1995 1st sp.s. c 18 s 61; 1994 c 221 s 23; 1985 c 133 s 1; 1965 c 145 s 11.28.120. Prior: 1927 c 76 s 1; 1917 c 156 s 61; RRS s 1431; prior: Code 1881 s 1388; 1863 p 219 s 122; 1860 p 181 s 89.",
+    "11.36.010": "2026 c 204 s 5; 2013 c 272 s 1; 1983 c 51 s 1; 1983 c 3 s 14; 1965 c 145 s 11.36.010. Prior: 1959 c 43 s 1; 1917 c 156 s 87; RRS s 1457; prior: Code 1881 s 1409; 1863 p 227 s 164; 1860 p 189 s 131.",
     "11.68.011": "2026 c 204 s 9; 2008 c 6 s 925; 1997 c 252 s 59.",
     "11.86.031": "2011 c 113 s 3; 1995 c 292 s 4; 1989 c 34 s 3.",
+    "11.98.039": "2013 c 272 s 12; 2011 c 327 s 21; 2005 c 97 s 13; 1999 c 42 s 618; 1985 c 30 s 44. Prior: 1984 c 149 s 72; 1959 c 124 s 5. Formerly RCW 30.99.050.",
     "11.98.070": "2015 c 115 s 2; 2011 c 327 s 26; 2010 c 8 s 2091; 2002 c 66 s 1; 1997 c 252 s 75; 1989 c 40 s 7; 1985 c 30 s 50. Prior: 1984 c 149 s 80; 1959 c 124 s 7. Formerly RCW 30.99.070.",
     "26.16.030": "2008 c 6 s 604; 1981 c 304 s 1; 1972 ex.s. c 108 s 3; Code 1881 s 2409; RRS s 6892.",
     "26.16.120": "2009 c 525 s 18; 2008 c 6 s 612; 1998 c 292 s 505; Code 1881 s 2416; RRS s 6894.",

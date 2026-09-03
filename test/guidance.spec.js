@@ -19,6 +19,17 @@ test.describe("Guidance Layer: disclosures, review advisories, and leak preventi
     await expect(guardianGuidance).toContainText("RCW 11.130.010");
   });
 
+  test("Personal Representative guidance renders as a <details> disclosure in the sidebar", async ({
+    page,
+  }) => {
+    const prGuidance = page.locator(
+      '[data-guidance-id="personalRepresentatives"] details.guidance'
+    );
+    await expect(prGuidance).toBeAttached();
+    await expect(prGuidance.locator("summary")).toBeVisible();
+    await expect(prGuidance).toContainText("RCW 11.28.120");
+  });
+
   test("no .guidance element appears inside #document-sheet, and the standalone export contains no guidance text", async ({
     page,
   }) => {

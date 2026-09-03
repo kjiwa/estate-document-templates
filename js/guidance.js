@@ -113,6 +113,34 @@ export const GUIDANCE = {
       "Because this Will sets its own period, it overrides rather than tracks the statutory default — the number you choose here is the number that controls.",
     statutes: [],
   },
+  personalRepresentatives: {
+    title: "Personal Representative",
+    whatItDoes:
+      "Names who probates your estate — inventories the assets, pays debts and taxes, and distributes what remains under this Will.",
+    options: [
+      "Name a primary and a different alternate; the alternate is what keeps the office from falling to the statutory order.",
+      "A nonresident may serve, but must appoint an agent who resides in the county where the estate is probated.",
+    ],
+    typical:
+      "Most testators name their spouse as primary and an adult child or sibling as alternate. Article 7.2 waives bond for every fiduciary nominated here, and Article 7.5 requests nonintervention powers under RCW 11.68.011 so the estate can be administered with the least court involvement.",
+    impact:
+      "If no one is named, or everyone named declines, RCW 11.28.120 supplies the order instead: the surviving spouse or the person they nominate, then next of kin — children, then parents, then siblings, then grandchildren, then nieces and nephews. RCW 11.36.010 separately disqualifies minors, persons of unsound mind, anyone convicted of a felony or a crime involving moral turpitude, and anyone whose letters were revoked for cause within the last 24 months.",
+    statutes: ["RCW 11.28.120", "RCW 11.36.010", "RCW 11.68.011"],
+  },
+  trustees: {
+    title: "Trustee",
+    whatItDoes:
+      "Names who holds and administers any trust this Will creates — a share for a beneficiary under twenty-five, or a portion your spouse disclaims into trust.",
+    options: [
+      "Name a primary and an alternate, even though the trust may never come into existence.",
+      "The same person can hold both this office and Personal Representative, but the two jobs are different — probate administration ends; a trust share can run for years.",
+    ],
+    typical:
+      "Many testators name the same person for both offices. The trust here arises only for a beneficiary under twenty-five or through a spousal disclaimer, so in many estates this office is never filled.",
+    impact:
+      "Article 6 grants the Trustee the full statutory power set under RCW 11.98.070 in addition to the specific powers listed there. If the office falls vacant and no successor was named, RCW 11.98.039 requires either the agreement of every party with an interest in the trust or a petition to superior court — naming an alternate here avoids both.",
+    statutes: ["RCW 11.98.070", "RCW 11.98.039"],
+  },
   witnesses: {
     title: "Witnesses",
     whatItDoes:
