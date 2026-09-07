@@ -4,3 +4,4 @@ playwright-report/
 .last-run.json
 package-lock.json
 profiles.local.json
+test/golden/

@@ -1,0 +1,24 @@
+ATTORNEY MEMORANDUM
+Draft prepared for: (unnamed testator)
+
+CHOICES MADE
+- Marital status: married
+- Spousal gift structure: outright
+- Survivorship period (days): 60
+- Guardian of the person (primary / alternate): (unset) / (unset)
+- Conservator of the estate (primary / alternate): (unset) / (unset)
+- Personal Representative (primary / alternate): (unset) / (unset)
+- Trustee (primary / alternate): (unset) / (unset)
+- Disposition of remains (agent / alternate): (unset) / (unset)
+- Ultimate contingent beneficiary: (unset)
+- Community property agreement on file: no
+
+ADVISORIES RAISED
+- [info] Execution date unset: The execution date is not fully set. Expected before signing, but confirm it is completed at execution.
+- [info] No children listed: No children are listed. Confirm this is accurate before execution.
+- [warning] Married with no spouse named: Marital status is married, but no spouse name is set. Article 1.1 and every spousal gift clause will render against a blank until one is entered.
+
+OPEN QUESTIONS FOR COUNSEL
+- Credit shelter / QTIP formula funding under chapter 11.108 RCW, if the disclaimer approach proves insufficient — deliberately out of scope for this template.
+- The estate tax exclusion figures used in guidance are point-in-time and indexed annually; confirm the current-year figure before relying on them.
+- No-contest clause enforceability is subject to judicially developed limits, not a statute this template can check.

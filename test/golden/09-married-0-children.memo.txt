@@ -1,0 +1,25 @@
+ATTORNEY MEMORANDUM
+Draft prepared for: Jordan A. Whitfield
+
+CHOICES MADE
+- Marital status: married
+- Spousal gift structure: outright
+- Survivorship period (days): 60
+- Guardian of the person (primary / alternate): Casey E. Nolan / Priya F. Iyer
+- Conservator of the estate (primary / alternate): Casey E. Nolan / Priya F. Iyer
+- Personal Representative (primary / alternate): Taylor B. Whitfield / Devin G. Osei
+- Trustee (primary / alternate): Casey E. Nolan / Priya F. Iyer
+- Disposition of remains (agent / alternate): (unset) / (unset)
+- Ultimate contingent beneficiary: Robin H. Whitfield (sister)
+- Community property agreement on file: no
+
+ADVISORIES RAISED
+- [info] Multiple roles held by one person: Taylor B. Whitfield holds 2 roles: spouse, primary personal representative. This is lawful and common, but worth confirming it is intentional.
+- [info] Multiple roles held by one person: Casey E. Nolan holds 3 roles: primary guardian, primary conservator, primary trustee. This is lawful and common, but worth confirming it is intentional.
+- [info] Multiple roles held by one person: Priya F. Iyer holds 3 roles: alternate guardian, alternate conservator, alternate trustee. This is lawful and common, but worth confirming it is intentional.
+- [info] No children listed: No children are listed. Confirm this is accurate before execution.
+
+OPEN QUESTIONS FOR COUNSEL
+- Credit shelter / QTIP formula funding under chapter 11.108 RCW, if the disclaimer approach proves insufficient — deliberately out of scope for this template.
+- The estate tax exclusion figures used in guidance are point-in-time and indexed annually; confirm the current-year figure before relying on them.
+- No-contest clause enforceability is subject to judicially developed limits, not a statute this template can check.

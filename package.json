@@ -12,7 +12,8 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check:citations": "node scripts/check-citations.mjs"
+    "check:citations": "node scripts/check-citations.mjs",
+    "capture:goldens": "node scripts/capture-goldens.mjs"
   },
   "repository": {
     "type": "git",
