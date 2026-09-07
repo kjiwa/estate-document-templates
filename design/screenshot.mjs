@@ -1,7 +1,9 @@
-// Phase 2 screenshot sweep: every mockup x {393x852, 1280x900} x {light, dark}.
-// Fails the run on any console error/warning or any non-file:// request —
-// the runtime proof that standing invariant 6 (no third-party network
-// requests, fonts self-hosted) already holds for the design layer.
+// Phase 2 screenshot sweep: each mockup at only the viewports it actually
+// claims (see VIEWPORTS_BY_SLUG), both themes. Fails the run on any console
+// error/warning, any non-file:// request — the runtime proof that standing
+// invariant 6 (no third-party network requests, fonts self-hosted) already
+// holds for the design layer — or any horizontal overflow, since `fullPage`
+// would otherwise silently widen the shot instead of reporting it.
 import { chromium } from "@playwright/test";
 import { readdirSync, mkdirSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -16,10 +18,26 @@ const files = readdirSync(mockupsDir)
   .filter((f) => f.endsWith(".html"))
   .sort();
 
-const viewports = [
-  { label: "393", width: 393, height: 852 },
-  { label: "1280", width: 1280, height: 900 },
-];
+const VIEWPORTS = {
+  393: { width: 393, height: 852 },
+  1280: { width: 1280, height: 900 },
+};
+
+// Every mockup must have an entry — a file with none fails the run rather
+// than being silently skipped, so adding a mockup cannot bypass the sweep.
+const VIEWPORTS_BY_SLUG = {
+  "00-tokens": ["393", "1280"],
+  "01-desktop-draft": ["1280"],
+  "02-desktop-reading": ["1280"],
+  "03-desktop-paper": ["1280"],
+  "04-mobile-reading-sheet": ["393"],
+  "05-mobile-paper": ["393"],
+  "06-signing-day": ["393", "1280"],
+  "07-preprint-checklist": ["393", "1280"],
+  "08-plan-management": ["393", "1280"],
+  "09-review-advisories": ["1280"],
+};
+
 const themes = ["light", "dark"];
 
 let failed = false;
@@ -29,7 +47,17 @@ const browser = await chromium.launch();
 
 for (const file of files) {
   const slug = file.replace(/\.html$/, "");
-  for (const viewport of viewports) {
+  const viewportLabels = VIEWPORTS_BY_SLUG[slug];
+  if (!viewportLabels) {
+    failed = true;
+    console.error(
+      `NO VIEWPORTS DECLARED: ${file} has no entry in VIEWPORTS_BY_SLUG`
+    );
+    continue;
+  }
+
+  for (const label of viewportLabels) {
+    const viewport = VIEWPORTS[label];
     for (const theme of themes) {
       const page = await browser.newPage({
         viewport: { width: viewport.width, height: viewport.height },
@@ -53,22 +81,32 @@ for (const file of files) {
       await page.goto(url);
       await page.evaluate(() => document.fonts.ready);
 
-      const outName = `${slug}-${viewport.label}-${theme}.png`;
+      const overflow = await page.evaluate(
+        () => document.documentElement.scrollWidth - window.innerWidth
+      );
+
+      const outName = `${slug}-${label}-${theme}.png`;
       await page.screenshot({
         path: join(shotsDir, outName),
         fullPage: true,
       });
-      shots.push({ slug, viewport: viewport.label, theme, file: outName });
+      shots.push({ slug, viewport: label, theme, file: outName });
 
       if (consoleIssues.length) {
         failed = true;
-        console.error(`CONSOLE ISSUES: ${file} @${viewport.label} ${theme}`);
+        console.error(`CONSOLE ISSUES: ${file} @${label} ${theme}`);
         consoleIssues.forEach((m) => console.error("  " + m));
       }
       if (badRequests.length) {
         failed = true;
-        console.error(`NON-FILE REQUESTS: ${file} @${viewport.label} ${theme}`);
+        console.error(`NON-FILE REQUESTS: ${file} @${label} ${theme}`);
         badRequests.forEach((u) => console.error("  " + u));
+      }
+      if (overflow > 0) {
+        failed = true;
+        console.error(
+          `OVERFLOW: ${file} @${label} ${theme} — scrollWidth exceeds viewport by ${overflow}px`
+        );
       }
 
       await page.close();

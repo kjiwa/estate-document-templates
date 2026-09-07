@@ -30,6 +30,45 @@ const themeScript = `<script>
   })();
 </script>`;
 
+// Wraps the document sheet so its layout box — not just its paint — shrinks
+// to fit the viewport. Shared by every mockup that shows paper (01, 03, 05)
+// so the fit-to-width markup exists once.
+const paperSheet = () => `<div class="paper-viewport">
+      <div class="paper-fit"><article id="document-sheet" class="paged-sheet" data-highlights="true">
+        ${doc}
+      </article></div>
+    </div>`;
+
+// Measures the sheet's unscaled height and the viewport's available width,
+// then sets --paper-scale/--paper-height so document-paper.css's fit-to-width
+// rule has real numbers instead of the CSS-only default. The 0.4 floor is a
+// legibility judgment call, verified by eye at 393px, not derived
+// arithmetically — see the Phase 2 review-fixes plan.
+const paperFitScript = `<script>
+  (function () {
+    var SHEET_WIDTH_PX = 816; // 8.5in at 96dpi — var(--sheet-width)
+    function fit() {
+      document.querySelectorAll(".paper-viewport").forEach(function (viewport) {
+        var fitEl = viewport.querySelector(".paper-fit");
+        var sheet = viewport.querySelector(".paged-sheet");
+        if (!fitEl || !sheet) return;
+        var scale = Math.min(1, Math.max(0.4, viewport.clientWidth / SHEET_WIDTH_PX));
+        fitEl.style.setProperty("--paper-scale", String(scale));
+        fitEl.style.setProperty("--paper-height", sheet.scrollHeight + "px");
+      });
+    }
+    window.addEventListener("DOMContentLoaded", function () {
+      var ro = new ResizeObserver(fit);
+      document.querySelectorAll(".paper-viewport").forEach(function (v) {
+        ro.observe(v);
+        var s = v.querySelector(".paged-sheet");
+        if (s) ro.observe(s);
+      });
+      fit();
+    });
+  })();
+</script>`;
+
 const header = (activeToggle) => `
 <header class="app-header">
   <div class="header-brand">
@@ -98,12 +137,12 @@ write(
   "Token sheet",
   `<div class="mockup-page">
 ${header()}
-<main class="mockup-content" style="padding:var(--space-8);max-width:1100px;margin:0 auto">
+<main class="mockup-content" style="padding:var(--space-8);max-width:1100px;width:100%;margin:0 auto">
   <h1>Design tokens</h1>
   <p style="color:var(--ink-muted)">Warm ink on paper. Roles redefine under <code>prefers-color-scheme</code> and <code>[data-theme]</code>; nothing is defined only inside a media block.</p>
 
   <h2>Surfaces</h2>
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-4)">
+  <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-4)">
     ${swatch("surface-0", "App ground")}
     ${swatch("surface-1", "Rail / panel")}
     ${swatch("surface-2", "Cards, sheet, inputs")}
@@ -111,7 +150,7 @@ ${header()}
   </div>
 
   <h2>Ink</h2>
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-4)">
+  <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-4)">
     ${swatch("ink-strong", "Strong (headings) — AA on surface-2")}
     ${swatch("ink-body", "Body — AA on surface-2")}
     ${swatch("ink-muted", "Muted — AA large text on surface-2")}
@@ -119,7 +158,7 @@ ${header()}
   </div>
 
   <h2>Accent &amp; state</h2>
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-4)">
+  <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-4)">
     ${swatch("accent", "Accent — AA on accent-on")}
     ${swatch("accent-ink", "Accent tint")}
     ${swatch("blank-unfilled-bg", "Unfilled blank")}
@@ -179,11 +218,7 @@ ${header("paper")}
 <div class="app-body with-panel">
   ${rail(0)}
   <main class="doc-surface">
-    <div class="paper-viewport">
-      <article id="document-sheet" class="paged-sheet" data-highlights="true">
-        ${doc}
-      </article>
-    </div>
+    ${paperSheet()}
   </main>
   <aside class="context-panel" aria-label="Edit field">
     <div class="panel-heading">
@@ -209,6 +244,7 @@ ${header("paper")}
     </div>
   </aside>
 </div>
+${paperFitScript}
 </div>`,
   { extraCss: ["../document-content.css", "../document-paper.css"] }
 );
@@ -244,13 +280,10 @@ ${header("paper")}
 <div class="app-body">
   ${rail(2)}
   <main class="doc-surface">
-    <div class="paper-viewport">
-      <article id="document-sheet" class="paged-sheet" data-highlights="true">
-        ${doc}
-      </article>
-    </div>
+    ${paperSheet()}
   </main>
 </div>
+${paperFitScript}
 </div>`,
   { extraCss: ["../document-content.css", "../document-paper.css"] }
 );
@@ -263,7 +296,7 @@ write(
   "Mobile — reading + bottom sheet",
   `<div class="mockup-page">
 ${header("reading")}
-<main class="doc-surface" style="padding-bottom:280px">
+<main class="doc-surface with-bottom-sheet">
   <article id="document-sheet" class="reading-sheet" data-highlights="true">
     ${doc}
   </article>
@@ -297,13 +330,10 @@ write(
   `<div class="mockup-page">
 ${header("paper")}
 <main class="doc-surface" style="padding:var(--space-4)">
-  <div class="paper-viewport">
-    <article id="document-sheet" class="paged-sheet" data-highlights="true">
-      ${doc}
-    </article>
-  </div>
+  ${paperSheet()}
   <p style="text-align:center;color:var(--ink-muted);font-size:var(--font-size-xs);margin-top:var(--space-2)">Pinch or double-tap to zoom — the sheet keeps its true 8.5″ proportions.</p>
 </main>
+${paperFitScript}
 </div>`,
   { extraCss: ["../document-content.css", "../document-paper.css"] }
 );
@@ -366,15 +396,11 @@ ${header()}
   <div class="card">
     <div class="checklist-item">
       <input type="checkbox" checked style="width:20px;height:20px;margin-top:2px" />
-      <div><strong>Turn off headers and footers</strong><div class="field-hint">Chromium adds its own page headers/footers by default — disable them in the print dialog's "More settings." They collide with the document's own footer.</div></div>
+      <div><strong>Turn off headers and footers</strong><div class="field-hint">Chromium adds its own page headers/footers by default — disable them in the print dialog's "More settings." They collide with the document's own footer. Page footers print in Chrome, Edge, and Safari; Firefox does not render them yet.</div></div>
     </div>
     <div class="checklist-item">
       <input type="checkbox" checked style="width:20px;height:20px;margin-top:2px" />
       <div><strong>Letter, portrait, single-sided</strong><div class="field-hint">Confirm paper size is Letter (8.5 × 11in), orientation Portrait, and one-sided printing.</div></div>
-    </div>
-    <div class="checklist-item">
-      <input type="checkbox" style="width:20px;height:20px;margin-top:2px" />
-      <div><strong>Using Firefox?</strong><div class="field-hint">Firefox does not yet render the document's page footers (Chromium 131+ and Safari 18.2+ do). Print from Chrome or Safari if the footer matters.</div></div>
     </div>
   </div>
   <div style="display:flex;gap:var(--space-3);margin-top:var(--space-6)">
@@ -399,24 +425,24 @@ ${header()}
     <button class="btn btn-primary">+ New plan</button>
   </div>
   <div class="card-list">
-    <div class="card" style="display:flex;justify-content:space-between;align-items:center">
+    <div class="card plan-card">
       <div>
         <strong>Jordan's Will</strong>
         <div class="field-hint">Last edited 2 days ago — 62% complete</div>
       </div>
-      <div style="display:flex;gap:var(--space-2)">
+      <div class="plan-card-actions">
         <button class="btn">Rename</button>
         <button class="btn">Duplicate</button>
         <button class="btn">Create reciprocal spouse plan</button>
         <button class="btn btn-danger">Delete</button>
       </div>
     </div>
-    <div class="card" style="display:flex;justify-content:space-between;align-items:center">
+    <div class="card plan-card">
       <div>
         <strong>Taylor's Will</strong>
         <div class="field-hint">Created from Jordan's Will (reciprocal) — 40% complete</div>
       </div>
-      <div style="display:flex;gap:var(--space-2)">
+      <div class="plan-card-actions">
         <button class="btn">Rename</button>
         <button class="btn">Duplicate</button>
         <button class="btn btn-danger">Delete</button>

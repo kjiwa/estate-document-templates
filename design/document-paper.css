@@ -58,20 +58,22 @@
   break-inside: avoid;
 }
 
-/* At 393px, paper fits-to-width and scales as a unit; pinch/double-tap to
-   zoom past the scaled size. The sheet's own geometry never changes — only
-   the viewport transform does. */
-@media (max-width: 900px) {
-  .paper-viewport {
-    overflow: auto;
-    touch-action: pinch-zoom pan-x pan-y;
-  }
+/* Paper fits-to-width at every viewport, not just below 900px: the sheet's
+   own geometry never changes, but the layout box it occupies shrinks with
+   the visual one, so centering the viewport around it is never a clip.
+   `--paper-scale` is measured by the inline script in the mockup shell
+   (build-mockups.mjs's paperFitScript); this default keeps the CSS correct
+   with that script absent, and leaves print — which uses no wrapper —
+   untouched. */
+.paper-fit {
+  --paper-scale: 1;
+  width: calc(var(--sheet-width) * var(--paper-scale));
+  height: calc(
+    var(--paper-height, var(--sheet-min-height)) * var(--paper-scale)
+  );
+}
 
-  .paper-viewport .paged-sheet {
-    transform-origin: top left;
-    /* 4a computes the real scale from the viewport's measured width;
-       this mockup hardcodes a representative value for 393px. */
-    transform: scale(0.44);
-    margin-bottom: calc(-1 * var(--sheet-min-height) * 0.56);
-  }
+.paper-fit > .paged-sheet {
+  transform: scale(var(--paper-scale));
+  transform-origin: top left;
 }

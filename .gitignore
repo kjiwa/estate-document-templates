@@ -4,3 +4,4 @@ test-results/
 playwright-report/
 profiles.local.json
 dist/
+.DS_Store

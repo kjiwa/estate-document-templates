@@ -72,7 +72,7 @@
 </aside>
   <main class="doc-surface">
     <div class="paper-viewport">
-      <article id="document-sheet" class="paged-sheet" data-highlights="true">
+      <div class="paper-fit"><article id="document-sheet" class="paged-sheet" data-highlights="true">
         <!-- Source fragment for every document mockup: the rendered clause markup
      from test/golden/03-baseline.html (married, outright, no CPA, two
      children), extracted verbatim — no legal text retyped or paraphrased.
@@ -520,7 +520,7 @@
   </div>
 </div>
 
-      </article>
+      </article></div>
     </div>
   </main>
   <aside class="context-panel" aria-label="Edit field">
@@ -547,6 +547,30 @@
     </div>
   </aside>
 </div>
+<script>
+  (function () {
+    var SHEET_WIDTH_PX = 816; // 8.5in at 96dpi — var(--sheet-width)
+    function fit() {
+      document.querySelectorAll(".paper-viewport").forEach(function (viewport) {
+        var fitEl = viewport.querySelector(".paper-fit");
+        var sheet = viewport.querySelector(".paged-sheet");
+        if (!fitEl || !sheet) return;
+        var scale = Math.min(1, Math.max(0.4, viewport.clientWidth / SHEET_WIDTH_PX));
+        fitEl.style.setProperty("--paper-scale", String(scale));
+        fitEl.style.setProperty("--paper-height", sheet.scrollHeight + "px");
+      });
+    }
+    window.addEventListener("DOMContentLoaded", function () {
+      var ro = new ResizeObserver(fit);
+      document.querySelectorAll(".paper-viewport").forEach(function (v) {
+        ro.observe(v);
+        var s = v.querySelector(".paged-sheet");
+        if (s) ro.observe(s);
+      });
+      fit();
+    });
+  })();
+</script>
 </div>
 </body>
 </html>

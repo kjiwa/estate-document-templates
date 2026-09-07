@@ -129,6 +129,12 @@
     0 4px 6px -1px rgba(27, 25, 23, 0.12), 0 2px 4px -2px rgba(27, 25, 23, 0.1),
     0 0 0 1px rgba(27, 25, 23, 0.06);
 
+  /* Highlights drawn on paper are scoped to paper's own white/black palette,
+     never the themed --blank-unfilled-* pair — paper is not themed, so
+     nothing painted on it may be either. */
+  --paper-highlight-bg: #fbe6b8;
+  --paper-highlight-border: #b45309;
+
   /* ----------------------------------------------------------------------
      Paper geometry (US Letter) — unchanged from css/tokens.css
      ---------------------------------------------------------------------- */

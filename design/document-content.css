@@ -81,6 +81,14 @@ mark.dynamic-var {
   border-radius: var(--radius-sm);
   font-style: inherit;
 }
+
+/* Paper is never themed, so highlights drawn on it use the paper-scoped
+   tokens instead of the themed --blank-unfilled-* pair, which goes dark
+   under dark mode and reads as dark-on-dark against the always-white sheet. */
+.paged-sheet mark.dynamic-var {
+  background-color: var(--paper-highlight-bg);
+  border-bottom-color: var(--paper-highlight-border);
+}
 [data-highlights="false"] mark.dynamic-var,
 .no-highlights mark.dynamic-var {
   background-color: transparent !important;

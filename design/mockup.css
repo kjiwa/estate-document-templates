@@ -204,7 +204,11 @@ a {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
+}
+
+.doc-surface.with-bottom-sheet {
+  padding-bottom: 280px;
 }
 
 .presentation-toggle {
@@ -235,6 +239,7 @@ a {
 .paper-viewport {
   display: flex;
   justify-content: center;
+  overflow-x: auto;
 }
 
 /* ----------------------------------------------------------------------
@@ -257,15 +262,16 @@ a {
 
 .bottom-sheet {
   position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset-inline: var(--space-3);
+  bottom: var(--space-3);
+  margin-inline: auto;
+  max-width: 34rem;
   background: var(--surface-1);
   border-top: 1px solid var(--rule-hairline);
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  border-radius: var(--radius-lg);
   box-shadow: 0 -8px 24px -8px rgba(27, 25, 23, 0.25);
-  padding: var(--space-4);
-  max-height: 60vh;
+  padding: var(--space-4) var(--space-5);
+  max-height: min(70vh, 32rem);
   overflow-y: auto;
 }
 
@@ -457,6 +463,26 @@ button {
 }
 .checklist-item:last-child {
   border-bottom: none;
+}
+
+.plan-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.plan-card-actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .plan-card-actions {
+    flex-basis: 100%;
+  }
 }
 
 /* ----------------------------------------------------------------------
