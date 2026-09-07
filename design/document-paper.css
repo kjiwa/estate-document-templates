@@ -1,0 +1,77 @@
+/* ==========================================================================
+   Paper presentation — the 8.5in sheet. Geometry lifted unchanged from
+   css/document.css's .paged-sheet rule and its page-break-inside/-after
+   rules; deliberately out of the visual refresh's scope. Times New Roman,
+   fixed point sizes, white always (paper is not themed).
+   ========================================================================== */
+
+.paged-sheet {
+  width: var(--sheet-width);
+  min-height: var(--sheet-min-height);
+  padding: var(--sheet-padding);
+  background-color: var(--paper-bg);
+  box-shadow: var(--paper-shadow);
+  color: var(--paper-ink);
+  font-family: var(--font-paper);
+  font-size: var(--doc-size-body);
+  line-height: var(--line-height-legal);
+  box-sizing: border-box;
+  text-rendering: optimizeLegibility;
+}
+
+.paged-sheet .doc-title {
+  font-size: 14pt;
+}
+
+.paged-sheet .article-header,
+.paged-sheet .doc-subtitle {
+  font-size: var(--doc-size-heading);
+}
+
+.paged-sheet .sig-line {
+  font-size: var(--doc-size-caption);
+}
+
+.paged-sheet .sig-caption,
+.paged-sheet .sig-field-label,
+.paged-sheet .notary-seal-box {
+  font-size: var(--doc-size-fine);
+}
+
+.paged-sheet .notary-heading {
+  font-size: var(--doc-size-body);
+}
+
+/* Break rules only matter once content is paginated. */
+.paged-sheet .article-header {
+  page-break-after: avoid;
+  break-after: avoid;
+}
+
+.paged-sheet .testimonium,
+.paged-sheet .sig-block-principal,
+.paged-sheet .witness-block,
+.paged-sheet .sig-grid,
+.paged-sheet .affidavit-sig-row,
+.paged-sheet .notary-block {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+/* At 393px, paper fits-to-width and scales as a unit; pinch/double-tap to
+   zoom past the scaled size. The sheet's own geometry never changes — only
+   the viewport transform does. */
+@media (max-width: 900px) {
+  .paper-viewport {
+    overflow: auto;
+    touch-action: pinch-zoom pan-x pan-y;
+  }
+
+  .paper-viewport .paged-sheet {
+    transform-origin: top left;
+    /* 4a computes the real scale from the viewport's measured width;
+       this mockup hardcodes a representative value for 393px. */
+    transform: scale(0.44);
+    margin-bottom: calc(-1 * var(--sheet-min-height) * 0.56);
+  }
+}

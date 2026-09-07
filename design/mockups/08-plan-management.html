@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Plan management</title>
+<link rel="stylesheet" href="../tokens.css" />
+<link rel="stylesheet" href="../mockup.css" />
+
+</head>
+<body>
+<script>
+  (function () {
+    var t = new URLSearchParams(location.search).get("theme");
+    if (t) document.documentElement.setAttribute("data-theme", t);
+  })();
+</script>
+<div class="mockup-page">
+
+<header class="app-header">
+  <div class="header-brand">
+    <strong class="app-title">Estate Document Templates</strong>
+  </div>
+  <div class="header-controls">
+    <div class="presentation-toggle" role="group" aria-label="Presentation">
+      <button class="" type="button">Reading</button>
+      <button class="" type="button">Paper</button>
+    </div>
+  </div>
+</header>
+<main class="mockup-content" style="max-width:680px;margin:0 auto;padding:var(--space-8) var(--space-4)">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-4)">
+    <h1 style="font-size:var(--font-size-xl);margin:0">Plans</h1>
+    <button class="btn btn-primary">+ New plan</button>
+  </div>
+  <div class="card-list">
+    <div class="card" style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <strong>Jordan's Will</strong>
+        <div class="field-hint">Last edited 2 days ago — 62% complete</div>
+      </div>
+      <div style="display:flex;gap:var(--space-2)">
+        <button class="btn">Rename</button>
+        <button class="btn">Duplicate</button>
+        <button class="btn">Create reciprocal spouse plan</button>
+        <button class="btn btn-danger">Delete</button>
+      </div>
+    </div>
+    <div class="card" style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <strong>Taylor's Will</strong>
+        <div class="field-hint">Created from Jordan's Will (reciprocal) — 40% complete</div>
+      </div>
+      <div style="display:flex;gap:var(--space-2)">
+        <button class="btn">Rename</button>
+        <button class="btn">Duplicate</button>
+        <button class="btn btn-danger">Delete</button>
+      </div>
+    </div>
+  </div>
+</main>
+</div>
+</body>
+</html>

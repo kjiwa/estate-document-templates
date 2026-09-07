@@ -18,7 +18,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "check:citations": "node scripts/check-citations.mjs",
-    "capture:goldens": "node scripts/capture-goldens.mjs"
+    "capture:goldens": "node scripts/capture-goldens.mjs",
+    "design:shots": "node design/screenshot.mjs"
   },
   "repository": {
     "type": "git",
