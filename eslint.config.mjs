@@ -1,5 +1,6 @@
 import js from "@eslint/js";
 import globals from "globals";
+import tseslint from "typescript-eslint";
 
 export default [
   js.configs.recommended,
@@ -32,7 +33,24 @@ export default [
       },
     },
   },
+  ...tseslint.config({
+    files: ["src/**/*.{ts,tsx}"],
+    extends: [...tseslint.configs.recommended],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+      },
+    },
+    rules: {
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_" },
+      ],
+    },
+  }),
   {
-    ignores: ["node_modules/", "test-results/", "playwright-report/"],
+    ignores: ["node_modules/", "test-results/", "playwright-report/", "dist/"],
   },
 ];
