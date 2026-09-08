@@ -5,43 +5,54 @@ import { DOCUMENTS } from "../documents/registry";
 import { activeDocumentId } from "../store/index";
 
 interface FieldGuidanceProps {
-  guidanceId?: string;
+  guidanceId?: string | readonly string[];
 }
 
 export function FieldGuidance({ guidanceId }: FieldGuidanceProps) {
   const document = DOCUMENTS.find((d) => d.id === activeDocumentId.value);
-  const entry = guidanceId ? document?.guidance[guidanceId] : undefined;
-  if (!entry) return null;
+  const ids = guidanceId
+    ? Array.isArray(guidanceId)
+      ? guidanceId
+      : [guidanceId as string]
+    : [];
+  const entries = ids
+    .map((id) => document?.guidance[id])
+    .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
+  if (entries.length === 0) return null;
 
   return (
-    <div class="field-guidance">
-      <p>{entry.whatItDoes}</p>
-      <details>
-        <summary>{entry.title} — what this means</summary>
-        {entry.options.length > 0 ? (
-          <>
+    <>
+      {entries.map((entry) => (
+        <div class="field-guidance" key={entry.title}>
+          <p>{entry.whatItDoes}</p>
+          <details>
+            <summary>{entry.title} — what this means</summary>
+            {entry.options.length > 0 ? (
+              <>
+                <p>
+                  <strong>Options:</strong>
+                </p>
+                <ul>
+                  {entry.options.map((option) => (
+                    <li key={option}>{option}</li>
+                  ))}
+                </ul>
+              </>
+            ) : null}
             <p>
-              <strong>Options:</strong>
+              <strong>Typical:</strong> {entry.typical}
             </p>
-            <ul>
-              {entry.options.map((option) => (
-                <li key={option}>{option}</li>
-              ))}
-            </ul>
-          </>
-        ) : null}
-        <p>
-          <strong>Typical:</strong> {entry.typical}
-        </p>
-        <p>
-          <strong>Impact:</strong> {entry.impact}
-        </p>
-        {entry.statutes.length > 0 ? (
-          <p>
-            <strong>Statutes:</strong> {entry.statutes.join(", ")}
-          </p>
-        ) : null}
-      </details>
-    </div>
+            <p>
+              <strong>Impact:</strong> {entry.impact}
+            </p>
+            {entry.statutes.length > 0 ? (
+              <p>
+                <strong>Statutes:</strong> {entry.statutes.join(", ")}
+              </p>
+            ) : null}
+          </details>
+        </div>
+      ))}
+    </>
   );
 }

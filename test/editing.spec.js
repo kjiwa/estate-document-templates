@@ -152,6 +152,64 @@ test.describe("Contextual editing", () => {
     ).toHaveText("2026");
   });
 
+  test("desktop: Next never scrolls the window", async ({ page }, testInfo) => {
+    test.skip(
+      testInfo.project.name !== "desktop-chrome",
+      "window scroll is a desktop layout defect"
+    );
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto("/");
+
+    const node = page.locator('[data-path="party.testator.name"]').first();
+    await node.click();
+
+    const scrollYBefore = await page.evaluate(() => window.scrollY);
+    for (let i = 0; i < 3; i++) {
+      await page.getByRole("button", { name: "Next →" }).click();
+      const scrollYAfter = await page.evaluate(() => window.scrollY);
+      expect(scrollYAfter).toBe(scrollYBefore);
+    }
+  });
+
+  test("Guardians and Conservators shows both guidance entries", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto("/");
+    await page
+      .locator(".rail-item", { hasText: "Guardians and Conservators" })
+      .click();
+
+    const surface = await openSurfaceLocator(page);
+    await expect(surface.locator(".field-guidance")).toHaveCount(2);
+    await expect(surface).toContainText("Conservator of the Estate");
+  });
+
+  test("children list rows lay out horizontally on the mobile bottom sheet", async ({
+    page,
+  }) => {
+    // Rail navigation needs the desktop breakpoint (app.css:102); open the
+    // section there, then narrow to the mobile bottom sheet to check the
+    // row layout the fix targets.
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto("/");
+    await page.locator(".rail-item", { hasText: "Children" }).click();
+    await page
+      .locator(".context-panel")
+      .getByRole("button", { name: "Add Child" })
+      .click();
+
+    await page.setViewportSize({ width: 393, height: 852 });
+
+    const row = page.locator(".bottom-sheet .field-list-row").first();
+    const input = row.locator("input");
+    const button = row.locator("button");
+
+    const inputBox = await input.boundingBox();
+    const buttonBox = await button.boundingBox();
+    expect(Math.abs(inputBox.y - buttonBox.y)).toBeLessThan(5);
+  });
+
   test("console clean, no non-localhost requests", async ({ page }) => {
     const consoleErrors = [];
     page.on("console", (msg) => {

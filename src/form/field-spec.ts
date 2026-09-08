@@ -29,7 +29,7 @@ export interface Section {
   id: string;
   legend: string;
   article?: string;
-  guidance?: GuidanceId;
+  guidance?: GuidanceId | readonly GuidanceId[];
   fields: FieldSpec[];
   hidden?: (plan: Plan) => boolean;
   complete?: (plan: Plan) => boolean;
