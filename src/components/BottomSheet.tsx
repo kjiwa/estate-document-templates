@@ -1,6 +1,7 @@
 import { useRef } from "preact/hooks";
 
 import { Field } from "../form/Field";
+import { advisoriesByPath } from "../ui/advisories";
 import {
   activeEntryIndex,
   activeSection,
@@ -28,6 +29,8 @@ export function BottomSheet() {
 
   if (!entry) return null;
 
+  const fieldAdvisories = advisoriesByPath.value.get(entry.field.path) ?? [];
+
   return (
     <div
       class="bottom-sheet"
@@ -49,6 +52,11 @@ export function BottomSheet() {
         </button>
       </div>
       <FieldGuidance guidanceId={activeSection.value?.guidance} />
+      {fieldAdvisories.map((advisory) => (
+        <div class="advisory" key={advisory.id}>
+          {advisory.message}
+        </div>
+      ))}
       <Field field={entry.field} />
       <div class="field-nav">
         <button

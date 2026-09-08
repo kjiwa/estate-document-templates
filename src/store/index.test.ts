@@ -1,11 +1,29 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
-import { activePlanId, parsePersisted, plans, setField } from "./index";
+import {
+  activePlanId,
+  createPlan,
+  createReciprocalPlan,
+  deletePlan,
+  duplicatePlan,
+  nextPlanId,
+  parsePersisted,
+  plans,
+  renamePlan,
+  setActivePlan,
+  setField,
+} from "./index";
+
+// Captured once, before any test mutates `plans.value["profile-1"]` (or, in
+// "plan mutations" below, deletes it outright) — the fixture every describe
+// block below rebuilds from, so one test's mutation can't corrupt another's
+// starting state.
+const BASE_PLAN = plans.value["profile-1"]!;
 
 describe("store", () => {
   beforeEach(() => {
     plans.value = {
-      "profile-1": plans.value["profile-1"]!,
+      "profile-1": BASE_PLAN,
     };
     activePlanId.value = "profile-1";
   });
@@ -25,6 +43,74 @@ describe("store", () => {
     const plan = plans.value["profile-1"]!;
     expect(plan.execution.witnesses[0]?.name).toBe("Alex");
     expect(plan.execution.witnesses[1]?.name).toBe("");
+  });
+});
+
+describe("plan mutations", () => {
+  beforeEach(() => {
+    plans.value = {
+      "profile-1": { ...BASE_PLAN, id: "profile-1", label: "Profile 1" },
+      "profile-2": { ...BASE_PLAN, id: "profile-2", label: "Profile 2" },
+    };
+    activePlanId.value = "profile-1";
+  });
+
+  it("nextPlanId skips ids already present", () => {
+    plans.value = { ...plans.value, "plan-1": plans.value["profile-1"]! };
+    expect(nextPlanId()).toBe("plan-2");
+  });
+
+  it("setActivePlan switches the active plan when it exists", () => {
+    setActivePlan("profile-2");
+    expect(activePlanId.value).toBe("profile-2");
+  });
+
+  it("setActivePlan ignores an unknown id", () => {
+    setActivePlan("does-not-exist");
+    expect(activePlanId.value).toBe("profile-1");
+  });
+
+  it("createPlan adds a new blank plan and makes it active", () => {
+    const id = createPlan("New Plan");
+    expect(plans.value[id]?.label).toBe("New Plan");
+    expect(plans.value[id]?.party.testator.name).toBe("");
+    expect(activePlanId.value).toBe(id);
+  });
+
+  it("renamePlan updates only the label", () => {
+    renamePlan("profile-1", "Renamed");
+    expect(plans.value["profile-1"]?.label).toBe("Renamed");
+  });
+
+  it("duplicatePlan copies the plan under a new id with a (copy) label and makes it active", () => {
+    setField("party.testator.name", "Jordan");
+    const id = duplicatePlan("profile-1")!;
+    expect(plans.value[id]?.party.testator.name).toBe("Jordan");
+    expect(plans.value[id]?.label).toBe("Profile 1 (copy)");
+    expect(activePlanId.value).toBe(id);
+  });
+
+  it("deletePlan removes a plan and reassigns activePlanId if it was active", () => {
+    deletePlan("profile-1");
+    expect(plans.value["profile-1"]).toBeUndefined();
+    expect(activePlanId.value).toBe("profile-2");
+  });
+
+  it("deletePlan refuses when only one plan remains", () => {
+    plans.value = { "profile-1": plans.value["profile-1"]! };
+    deletePlan("profile-1");
+    expect(plans.value["profile-1"]).toBeDefined();
+  });
+
+  it("createReciprocalPlan clones the reciprocal plan and makes it active", () => {
+    setField("party.testator.name", "Jordan");
+    setField("party.spouse.name", "Taylor");
+    setField("party.maritalStatus", "married");
+    const id = createReciprocalPlan("profile-1")!;
+    expect(plans.value[id]?.party.testator.name).toBe("Taylor");
+    expect(plans.value[id]?.party.spouse.name).toBe("Jordan");
+    expect(plans.value[id]?.label).toBe("Taylor");
+    expect(activePlanId.value).toBe(id);
   });
 });
 

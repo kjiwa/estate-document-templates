@@ -179,7 +179,7 @@ a {
   background: var(--surface-3);
 }
 
-.rail-item.active {
+.rail-item[aria-current="true"] {
   background: var(--accent-ink);
   color: var(--accent);
   font-weight: var(--font-weight-medium);
@@ -474,6 +474,12 @@ button {
 }
 .checklist-item:last-child {
   border-bottom: none;
+}
+
+.plans-view {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-4);
 }
 
 .plan-card {

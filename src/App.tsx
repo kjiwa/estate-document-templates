@@ -2,11 +2,13 @@ import { AppHeader } from "./components/AppHeader";
 import { BottomSheet } from "./components/BottomSheet";
 import { ContextPanel } from "./components/ContextPanel";
 import { DocumentSurface } from "./components/DocumentSurface";
+import { PlansView } from "./components/PlansView";
 import { Rail } from "./components/Rail";
 import { DOCUMENTS } from "./documents/registry";
 import { PlanContext } from "./documents/shared/PlanContext";
 import { activeDocumentId, activePlan } from "./store/index";
 import { activeFieldPath } from "./ui/editing";
+import { view } from "./ui/view";
 import { isNarrow } from "./ui/viewport";
 
 export function App() {
@@ -15,6 +17,7 @@ export function App() {
   const editorOpen = activeFieldPath.value !== null;
   const showPanel = editorOpen && !isNarrow.value;
   const showSheet = editorOpen && isNarrow.value;
+  const showPlans = view.value === "plans";
 
   return (
     <>
@@ -22,7 +25,9 @@ export function App() {
         Skip to document
       </a>
       <AppHeader />
-      {document && plan ? (
+      {showPlans ? (
+        <PlansView />
+      ) : document && plan ? (
         // `Field` (used by both `ContextPanel` and `BottomSheet`, siblings
         // of `DocumentSurface` rather than its children) reads the plan via
         // `usePlan()`, so the provider has to sit above all three, not just

@@ -3,6 +3,7 @@ import { computed, effect, signal } from "@preact/signals";
 import { migrateProfile, CURRENT_SCHEMA_VERSION } from "../model/migrate";
 import type { Plan } from "../model/plan";
 import { getPath, setPath, type Path } from "../model/paths";
+import { reciprocalPlan } from "../model/reciprocal";
 
 const STORAGE_KEY = "estate_templates_state_v1";
 const UNDO_LIMIT = 50;
@@ -63,6 +64,74 @@ export function setField(path: Path<Plan>, value: unknown): void {
     ...plans.value,
     [id]: setPath(plan, path, value),
   };
+}
+
+// `plan-<n>`, skipping ids already present — the shipped plans are
+// `profile-1`/`profile-2`, not `plan-*`, so this never collides with them.
+export function nextPlanId(): string {
+  const existing = new Set(Object.keys(plans.value));
+  let n = 1;
+  while (existing.has(`plan-${n}`)) n++;
+  return `plan-${n}`;
+}
+
+export function setActivePlan(id: string): void {
+  if (!plans.value[id]) return;
+  activePlanId.value = id;
+}
+
+export function createPlan(label = "New plan"): string {
+  const id = nextPlanId();
+  plans.value = { ...plans.value, [id]: blankPlan(id, label) };
+  activePlanId.value = id;
+  return id;
+}
+
+export function renamePlan(id: string, label: string): void {
+  const plan = plans.value[id];
+  if (!plan) return;
+  plans.value = { ...plans.value, [id]: { ...plan, label } };
+}
+
+export function duplicatePlan(id: string): string | undefined {
+  const plan = plans.value[id];
+  if (!plan) return undefined;
+  const newId = nextPlanId();
+  plans.value = {
+    ...plans.value,
+    [newId]: { ...plan, id: newId, label: `${plan.label} (copy)` },
+  };
+  activePlanId.value = newId;
+  return newId;
+}
+
+// Refuses when only one plan remains — there is always an active plan.
+// Reassigns `activePlanId` to some other remaining plan when the deleted
+// plan was the active one.
+export function deletePlan(id: string): void {
+  const ids = Object.keys(plans.value);
+  if (ids.length <= 1 || !plans.value[id]) return;
+
+  const rest = { ...plans.value };
+  delete rest[id];
+  plans.value = rest;
+
+  if (activePlanId.value === id) {
+    activePlanId.value = Object.keys(rest)[0]!;
+  }
+}
+
+export function createReciprocalPlan(id: string): string | undefined {
+  const plan = plans.value[id];
+  if (!plan) return undefined;
+  const newId = nextPlanId();
+  const label = plan.party.spouse.name || `${plan.label} (reciprocal)`;
+  plans.value = {
+    ...plans.value,
+    [newId]: reciprocalPlan(plan, newId, label),
+  };
+  activePlanId.value = newId;
+  return newId;
 }
 
 export function undo(): void {

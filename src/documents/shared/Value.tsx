@@ -2,7 +2,29 @@ import { useContext } from "preact/hooks";
 
 import { getPath, type Path } from "../../model/paths";
 import type { Plan } from "../../model/plan";
+import type { Advisory } from "../will/review";
+import { showAdvisory } from "../../ui/advisories";
 import { EditingContext, HighlightContext, PlanContext } from "./PlanContext";
+
+// Sits outside the `<mark>`/`[data-path]` element so `DocumentSurface`'s
+// `closest("[data-path]")` click delegation does not also fire and open the
+// field editor underneath it.
+function AdvisoryMarker({ advisories }: { advisories: Advisory[] }) {
+  const advisory = advisories[0]!;
+  return (
+    <button
+      type="button"
+      class="advisory-inline"
+      aria-label={`${advisory.title}: ${advisory.message}`}
+      onClick={(event) => {
+        event.stopPropagation();
+        showAdvisory(advisory, event.currentTarget as HTMLElement);
+      }}
+    >
+      ⚠
+    </button>
+  );
+}
 
 interface ValueProps {
   path?: Path<Plan>;
@@ -41,14 +63,22 @@ export function Value({ path, value }: ValueProps) {
           "aria-label": `Edit ${editing.labelFor(path as string)}`,
         }
       : {};
+    const pathAdvisories = interactive
+      ? editing.advisoriesFor(path as string)
+      : [];
     return (
-      <mark
-        class={`dynamic-var${activeClass}`}
-        data-path={path}
-        {...editingProps}
-      >
-        {text}
-      </mark>
+      <>
+        <mark
+          class={`dynamic-var${activeClass}`}
+          data-path={path}
+          {...editingProps}
+        >
+          {text}
+        </mark>
+        {pathAdvisories.length > 0 ? (
+          <AdvisoryMarker advisories={pathAdvisories} />
+        ) : null}
+      </>
     );
   }
   return <>{text}</>;

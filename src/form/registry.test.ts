@@ -7,6 +7,7 @@ import {
   findFieldByPath,
   isKnownPath,
   orderedFields,
+  resolveFieldPath,
   sectionFields,
 } from "./registry";
 
@@ -47,6 +48,12 @@ const sectionB: Section = {
   legend: "Section B",
   fields: [
     { kind: "number", path: "documents.will.survivorshipDays", label: "Days" },
+    {
+      kind: "list",
+      path: "party.children",
+      label: "Children",
+      addLabel: "Add",
+    },
   ],
 };
 
@@ -61,8 +68,9 @@ describe("orderedFields", () => {
       "party.testator.county",
       "party.testator.state",
       "documents.will.survivorshipDays",
+      "party.children",
     ]);
-    expect(entries.map((e) => e.index)).toEqual([0, 1, 2, 3]);
+    expect(entries.map((e) => e.index)).toEqual([0, 1, 2, 3, 4]);
   });
 
   it("skips hidden sections entirely", () => {
@@ -96,6 +104,28 @@ describe("findFieldByPath / isKnownPath", () => {
   it("narrows a known path", () => {
     const plan = planWith();
     expect(isKnownPath(plan, SECTIONS, "party.testator.name")).toBe(true);
+  });
+});
+
+describe("resolveFieldPath", () => {
+  it("resolves a path present verbatim, same as findFieldByPath", () => {
+    const plan = planWith();
+    const entry = resolveFieldPath(plan, SECTIONS, "party.testator.county");
+    expect(entry?.section.id).toBe("a");
+  });
+
+  it("falls back to a shorter dotted prefix when the full path has no entry, e.g. an array element under a list field", () => {
+    const plan = planWith();
+    const entry = resolveFieldPath(plan, SECTIONS, "party.children.0");
+    expect(entry?.field.path).toBe("party.children");
+    expect(entry?.section.id).toBe("b");
+  });
+
+  it("returns undefined when no prefix resolves", () => {
+    const plan = planWith();
+    expect(
+      resolveFieldPath(plan, SECTIONS, "not.a.real.path.at.all")
+    ).toBeUndefined();
   });
 });
 

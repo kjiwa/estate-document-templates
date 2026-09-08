@@ -41,6 +41,28 @@ export function findFieldByPath(
   );
 }
 
+// `collectRoleHolders` emits paths like `party.children.0` for a child role
+// holder, one level deeper than the section registry's declared list field
+// (`party.children`) goes. Tries the full path first, then each shorter
+// dotted prefix, so an advisory on an array element still resolves to the
+// field that renders it.
+export function resolveFieldPath(
+  plan: Plan,
+  sections: Section[],
+  path: string
+): FieldEntry | undefined {
+  const parts = path.split(".");
+  for (let length = parts.length; length > 0; length--) {
+    const entry = findFieldByPath(
+      plan,
+      sections,
+      parts.slice(0, length).join(".")
+    );
+    if (entry) return entry;
+  }
+  return undefined;
+}
+
 // The narrowing step between a DOM-sourced `data-path` string and
 // `setField(path: Path<Plan>, …)`; an unrecognised path opens nothing
 // rather than being cast.

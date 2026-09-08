@@ -8,6 +8,7 @@ import {
 } from "../documents/shared/PlanContext";
 import { orderedFields } from "../form/registry";
 import type { Plan } from "../model/plan";
+import { advisoriesByPath } from "../ui/advisories";
 import { activeFieldPath, openField } from "../ui/editing";
 import { presentation } from "../ui/presentation";
 import { usePaperFit } from "../ui/usePaperFit";
@@ -45,6 +46,8 @@ export function DocumentSurface({ document, plan }: DocumentSurfaceProps) {
   }, [plan, document.sections]);
 
   const activePath = activeFieldPath.value;
+  const advisoryMap = advisoriesByPath.value;
+  const advisoriesFor = (path: string) => advisoryMap.get(path) ?? [];
 
   // Scrolls the tapped clause above the sheet/panel, per the parent plan.
   useEffect(() => {
@@ -82,7 +85,7 @@ export function DocumentSurface({ document, plan }: DocumentSurfaceProps) {
       <PlanContext.Provider value={plan}>
         <HighlightContext.Provider value={true}>
           <EditingContext.Provider
-            value={{ activePath, interactive: true, labelFor }}
+            value={{ activePath, interactive: true, labelFor, advisoriesFor }}
           >
             {isPaper ? (
               <div class="paper-viewport" ref={viewportRef}>

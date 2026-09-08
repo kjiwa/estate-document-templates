@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "preact/hooks";
 
 import { Field, fieldId } from "../form/Field";
+import { advisoriesByPath } from "../ui/advisories";
 import {
   activeFieldPath,
   activeSection,
@@ -33,6 +34,8 @@ export function ContextPanel() {
 
   if (!section) return null;
 
+  const fieldAdvisories = path ? (advisoriesByPath.value.get(path) ?? []) : [];
+
   return (
     <aside class="context-panel" aria-label="Edit field">
       <div class="panel-heading">
@@ -47,6 +50,11 @@ export function ContextPanel() {
         </button>
       </div>
       <FieldGuidance guidanceId={section.guidance} />
+      {fieldAdvisories.map((advisory) => (
+        <div class="advisory" key={advisory.id}>
+          {advisory.message}
+        </div>
+      ))}
       <div class="panel-field-group" ref={groupRef}>
         {activeSectionFieldList.value.map((field) => (
           <Field field={field} key={field.path} />

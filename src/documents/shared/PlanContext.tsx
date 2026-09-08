@@ -1,6 +1,7 @@
 import { createContext } from "preact";
 import { useContext } from "preact/hooks";
 
+import type { Advisory } from "../will/review";
 import { getPath, type Path } from "../../model/paths";
 import type { Plan } from "../../model/plan";
 
@@ -20,12 +21,17 @@ export interface EditingState {
   // which mount `<Value>`/`<Blank>` with no provider, on plain markup.
   interactive: boolean;
   labelFor: (path: string) => string;
+  // Advisories concerning a path — defaulting to a no-op keeps
+  // `standaloneHtml.ts` and every golden render, which mount
+  // `<Value>`/`<Blank>` with no provider, on plain markup.
+  advisoriesFor: (path: string) => Advisory[];
 }
 
 export const EditingContext = createContext<EditingState>({
   activePath: null,
   interactive: false,
   labelFor: (path) => path,
+  advisoriesFor: () => [],
 });
 
 export function usePlan(): Plan {
