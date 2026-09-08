@@ -34,7 +34,7 @@
   "homepage": "https://github.com/kjiwa/estate-document-templates#readme",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@playwright/test": "^1.62.1",
+    "@playwright/test": "^1.63.0",
     "@preact/preset-vite": "^2.10.6",
     "@preact/signals": "^2.11.2",
     "@types/node": "^26.4.1",
