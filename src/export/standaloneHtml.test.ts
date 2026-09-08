@@ -5,9 +5,12 @@ import { fileURLToPath } from "node:url";
 import { parseHTML } from "linkedom";
 import { describe, expect, it } from "vitest";
 
+import { DOCUMENTS } from "../documents/registry";
 import { GOLDEN_CASES, buildV2Profile } from "../documents/will/goldenFixtures";
 import { migrateProfile } from "../model/migrate";
 import { generateStandaloneHtml } from "./standaloneHtml";
+
+const WILL = DOCUMENTS.find((d) => d.id === "will")!;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const GOLDEN_DIR = path.resolve(__dirname, "../../test/golden");
@@ -54,7 +57,7 @@ describe("generateStandaloneHtml", () => {
     expect(migrated.success).toBe(true);
     if (!migrated.success) return;
 
-    const html = generateStandaloneHtml(migrated.plan);
+    const html = generateStandaloneHtml(migrated.plan, WILL);
     const golden = await readFile(
       path.join(GOLDEN_DIR, "standalone.html"),
       "utf8"
@@ -80,7 +83,7 @@ describe("generateStandaloneHtml", () => {
     expect(migrated.success).toBe(true);
     if (!migrated.success) return;
 
-    const html = generateStandaloneHtml(migrated.plan);
+    const html = generateStandaloneHtml(migrated.plan, WILL);
     const styleContents = html.match(/<style>([\s\S]*?)<\/style>/)?.[1] ?? "";
     expect(styleContents).not.toContain("url(");
   });
@@ -92,7 +95,7 @@ describe("generateStandaloneHtml", () => {
     expect(migrated.success).toBe(true);
     if (!migrated.success) return;
 
-    const html = generateStandaloneHtml(migrated.plan);
+    const html = generateStandaloneHtml(migrated.plan, WILL);
     const titleTag = html.match(/<title>(.*?)<\/title>/)?.[1] ?? "";
     expect(titleTag).not.toContain("<script>");
     expect(titleTag).toContain("&lt;script&gt;");

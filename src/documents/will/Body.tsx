@@ -670,9 +670,9 @@ export function Body() {
       {"\n"}
       <Article10 />
       {"\n"}
-      <Testimonium />
+      <Testimonium instrument="Last Will and Testament" />
       {"\n"}
-      <SignatureBlock />
+      <SignatureBlock role="Testator" />
       {"\n"}
       <WitnessAttestation />
       {"\n"}

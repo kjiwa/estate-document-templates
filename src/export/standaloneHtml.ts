@@ -1,9 +1,14 @@
 import { h } from "preact";
 import { render } from "preact-render-to-string";
 
-import { Body } from "../documents/will/Body";
+import type { DocumentDefinition } from "../documents/registry";
 import { HighlightContext, PlanContext } from "../documents/shared/PlanContext";
 import type { Plan } from "../model/plan";
+import {
+  escapeCssString,
+  printDocLabel,
+  printInitialsLabel,
+} from "../ui/printLabels";
 
 // `?inline` returns processed CSS as a string without injecting it — see
 // https://vite.dev/guide/features.html — replacing `js/export.js`'s runtime
@@ -23,14 +28,11 @@ function escapeHtml(value: string): string {
     .replace(/'/g, "&#39;");
 }
 
-function escapeCssString(value: string): string {
-  return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
-}
-
-function buildPrintDocLabel(plan: Plan): string {
-  const name = plan.party.testator.name || "";
-  const label = `Last Will and Testament — ${name}`;
-  return `:root { --print-doc-label: "${escapeCssString(label)}"; }`;
+function buildPrintDocLabel(plan: Plan, document: DocumentDefinition): string {
+  return `:root {
+  --print-doc-label: "${escapeCssString(printDocLabel(plan, document))}";
+  --print-initials-label: "${escapeCssString(printInitialsLabel(document))}";
+}`;
 }
 
 // Minimal screen-only chrome for the standalone file: the sheet itself is
@@ -49,16 +51,19 @@ body {
 }
 `;
 
-export function generateStandaloneHtml(plan: Plan): string {
+export function generateStandaloneHtml(
+  plan: Plan,
+  document: DocumentDefinition
+): string {
   const renderedBody = render(
     h(
       PlanContext.Provider,
       { value: plan },
-      h(HighlightContext.Provider, { value: false }, h(Body, {}))
+      h(HighlightContext.Provider, { value: false }, h(document.Body, {}))
     )
   );
   // Escaped, unlike `js/export.js`'s unescaped `<title>` interpolation.
-  const title = `Last Will and Testament - ${escapeHtml(plan.party.testator.name || "Document")}`;
+  const title = `${document.title} - ${escapeHtml(plan.party.testator.name || "Document")}`;
   const css = [tokensCss, documentContentCss, documentPaperCss, printCss].join(
     "\n\n"
   );
@@ -71,7 +76,7 @@ export function generateStandaloneHtml(plan: Plan): string {
   <title>${title}</title>
   <style>
 ${css}
-${buildPrintDocLabel(plan)}
+${buildPrintDocLabel(plan, document)}
 ${GENERATED_SCREEN_STYLES}
   </style>
 </head>

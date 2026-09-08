@@ -74,9 +74,7 @@ export const WILL_SECTIONS: Section[] = [
     id: "guardians-conservators",
     legend: "Guardians and Conservators (Article 1.2–1.3)",
     article: "1.2–1.3",
-    // Section carries one guidance slot; the form has two (guardians,
-    // conservators) inline in this fieldset — "guardians" is primary.
-    guidance: "guardians",
+    guidance: ["guardians", "conservators"],
     fields: [
       {
         kind: "text",
@@ -127,10 +125,7 @@ export const WILL_SECTIONS: Section[] = [
     id: "property",
     legend: "Disposition of Property (Article 3)",
     article: "3",
-    // Section carries one guidance slot; the form has two (spousalGift,
-    // communityPropertyAgreement) inline in this fieldset — "spousalGift"
-    // is primary.
-    guidance: "spousalGift",
+    guidance: ["spousalGift", "communityPropertyAgreement"],
     fields: [
       {
         kind: "select",
@@ -195,10 +190,7 @@ export const WILL_SECTIONS: Section[] = [
     id: "fiduciaries",
     legend: "Fiduciaries (Article 6–7)",
     article: "6–7",
-    // Section carries one guidance slot; the form has two
-    // (personalRepresentatives, trustees) inline in this fieldset —
-    // "personalRepresentatives" is primary.
-    guidance: "personalRepresentatives",
+    guidance: ["personalRepresentatives", "trustees"],
     fields: [
       {
         kind: "text",

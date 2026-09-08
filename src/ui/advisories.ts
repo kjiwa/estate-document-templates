@@ -4,8 +4,8 @@
 import { computed } from "@preact/signals";
 
 import { DOCUMENTS } from "../documents/registry";
-import type { Advisory } from "../documents/will/review";
 import { resolveFieldPath } from "../form/registry";
+import type { Advisory } from "../model/advisory";
 import type { Section } from "../form/field-spec";
 import { activeDocumentId, activePlan } from "../store/index";
 import { openField } from "./editing";

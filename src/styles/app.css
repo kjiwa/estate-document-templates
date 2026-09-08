@@ -109,6 +109,22 @@ a {
   }
 }
 
+@media (min-width: 901px) {
+  #app {
+    height: 100dvh;
+    display: grid;
+    grid-template-rows: auto 1fr;
+  }
+  .app-body {
+    min-height: 0;
+  }
+  .plans-view,
+  .execute-flow,
+  .print-checklist {
+    overflow-y: auto;
+  }
+}
+
 /* ----------------------------------------------------------------------
    Rail — table of contents + progress, hairline-separated
    ---------------------------------------------------------------------- */
@@ -320,6 +336,24 @@ a {
   margin-bottom: var(--space-3);
 }
 
+.field-guidance p,
+.field-guidance ul,
+.field-guidance details {
+  margin: var(--space-3) 0;
+}
+
+.field-guidance > :first-child {
+  margin-top: 0;
+}
+
+.field-guidance > :last-child {
+  margin-bottom: 0;
+}
+
+.field-guidance ul {
+  padding-left: var(--space-5);
+}
+
 .field-nav {
   display: flex;
   justify-content: space-between;
@@ -369,6 +403,27 @@ a {
 .field-hint {
   font-size: var(--font-size-xs);
   color: var(--ink-muted);
+}
+
+.field-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.field-list-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.field-list-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.field-list > .btn {
+  align-self: flex-start;
 }
 
 button {

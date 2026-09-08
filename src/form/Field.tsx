@@ -148,38 +148,40 @@ export function Field({ field }: FieldProps) {
       return (
         <div class="field">
           <label>{field.label}</label>
-          {items.map((item, i) => (
-            <div class="field-list-row" key={i}>
-              <input
-                type="text"
-                aria-label={`${field.label} ${i + 1}`}
-                value={item}
-                onInput={(event) => {
-                  const next = items.slice();
-                  next[i] = (event.target as HTMLInputElement).value;
-                  setField(field.path, next);
-                }}
-              />
-              <button
-                type="button"
-                class="btn"
-                onClick={() => {
-                  const next = items.slice();
-                  next.splice(i, 1);
-                  setField(field.path, next);
-                }}
-              >
-                Remove
-              </button>
-            </div>
-          ))}
-          <button
-            type="button"
-            class="btn"
-            onClick={() => setField(field.path, [...items, ""])}
-          >
-            {field.addLabel}
-          </button>
+          <div class="field-list">
+            {items.map((item, i) => (
+              <div class="field-list-row" key={i}>
+                <input
+                  type="text"
+                  aria-label={`${field.label} ${i + 1}`}
+                  value={item}
+                  onInput={(event) => {
+                    const next = items.slice();
+                    next[i] = (event.target as HTMLInputElement).value;
+                    setField(field.path, next);
+                  }}
+                />
+                <button
+                  type="button"
+                  class="btn"
+                  onClick={() => {
+                    const next = items.slice();
+                    next.splice(i, 1);
+                    setField(field.path, next);
+                  }}
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              class="btn"
+              onClick={() => setField(field.path, [...items, ""])}
+            >
+              {field.addLabel}
+            </button>
+          </div>
         </div>
       );
     }

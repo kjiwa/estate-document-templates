@@ -1,8 +1,33 @@
+import { DOCUMENTS } from "../documents/registry";
+import { activeDocumentId, setActiveDocument } from "../store/index";
 import { closeEditor } from "../ui/editing";
 import { startExecuteFlow } from "../ui/execute";
 import { view } from "../ui/view";
 import { PresentationToggle } from "./PresentationToggle";
 import { ThemeToggle } from "./ThemeToggle";
+
+// A single document reduces to today's fixed title — the picker only earns
+// its place once a second document exists.
+function DocumentPicker() {
+  if (DOCUMENTS.length < 2) return null;
+  return (
+    <select
+      class="btn"
+      aria-label="Active document"
+      value={activeDocumentId.value}
+      onChange={(event) => {
+        closeEditor();
+        setActiveDocument((event.target as HTMLSelectElement).value);
+      }}
+    >
+      {DOCUMENTS.map((doc) => (
+        <option value={doc.id} key={doc.id}>
+          {doc.title}
+        </option>
+      ))}
+    </select>
+  );
+}
 
 export function AppHeader() {
   const onPlansView = view.value === "plans";
@@ -25,6 +50,7 @@ export function AppHeader() {
         <strong class="app-title">Estate Document Templates</strong>
       </div>
       <div class="header-controls">
+        <DocumentPicker />
         <button
           type="button"
           class="btn"
