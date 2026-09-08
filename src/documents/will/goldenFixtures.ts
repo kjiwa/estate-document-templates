@@ -3,7 +3,69 @@
 // exact same 23 v2 profiles the goldens were captured from. Not itself a
 // test file — imported by `Body.golden.test.tsx` and
 // `../../export/attorneyMemo.golden.test.ts`.
-import { BLANK_PROFILE } from "../../../js/config.js";
+//
+// BLANK_PROFILE below is inlined from the retired js/config.js (Phase 0's
+// v2 shape) rather than imported, now that js/ no longer exists.
+const BLANK_PROFILE = {
+  testator: {
+    name: "",
+    gender: "",
+    county: "",
+    state: "Washington",
+  },
+  maritalStatus: "married",
+  spouse: {
+    name: "",
+    gender: "",
+  },
+  children: [],
+  guardians: {
+    primary: "",
+    alternate: "",
+  },
+  conservators: {
+    primary: "",
+    alternate: "",
+  },
+  personalRepresentatives: {
+    primary: "",
+    alternate: "",
+  },
+  trustees: {
+    primary: "",
+    alternate: "",
+  },
+  ultimateBeneficiary: {
+    relationship: "",
+    name: "",
+    gender: "",
+  },
+  survivorshipDays: 60,
+  spousalGift: "outright",
+  communityPropertyAgreement: {
+    exists: false,
+    date: "",
+  },
+  remains: {
+    agent: "",
+    alternate: "",
+    preference: "",
+  },
+  witnesses: [
+    { name: "", address: "", cityStateZip: "" },
+    { name: "", address: "", cityStateZip: "" },
+  ],
+  notary: {
+    name: "",
+    commissionExpires: "",
+  },
+  city: "",
+  executionDate: {
+    day: "",
+    month: "",
+    year: "",
+  },
+};
 
 export const BASE_OVERLAY = {
   testator: {

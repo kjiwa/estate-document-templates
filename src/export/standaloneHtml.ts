@@ -7,10 +7,12 @@ import type { Plan } from "../model/plan";
 
 // `?inline` returns processed CSS as a string without injecting it — see
 // https://vite.dev/guide/features.html — replacing `js/export.js`'s runtime
-// `fetch("css/…")`.
-import tokensCss from "../../css/tokens.css?inline";
-import documentCss from "../../css/document.css?inline";
-import printCss from "../../css/print.css?inline";
+// `fetch("css/…")`. tokens.css carries no `url()`, so it is safe to inline
+// here; fonts.css (which does) is deliberately not included.
+import tokensCss from "../styles/tokens.css?inline";
+import documentContentCss from "../styles/document-content.css?inline";
+import documentPaperCss from "../styles/document-paper.css?inline";
+import printCss from "../styles/print.css?inline";
 
 function escapeHtml(value: string): string {
   return value
@@ -38,8 +40,8 @@ function buildPrintDocLabel(plan: Plan): string {
 // the app shell.
 const GENERATED_SCREEN_STYLES = `
 body {
-  font-family: var(--font-serif);
-  background-color: var(--color-bg-app);
+  font-family: var(--font-paper);
+  background-color: var(--surface-0);
   padding: var(--space-8) var(--space-4);
 }
 .paged-sheet {
@@ -57,7 +59,9 @@ export function generateStandaloneHtml(plan: Plan): string {
   );
   // Escaped, unlike `js/export.js`'s unescaped `<title>` interpolation.
   const title = `Last Will and Testament - ${escapeHtml(plan.party.testator.name || "Document")}`;
-  const css = [tokensCss, documentCss, printCss].join("\n\n");
+  const css = [tokensCss, documentContentCss, documentPaperCss, printCss].join(
+    "\n\n"
+  );
 
   return `<!DOCTYPE html>
 <html lang="en">

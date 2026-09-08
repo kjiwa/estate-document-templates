@@ -83,32 +83,69 @@ interface PersistedState {
   plans: Record<string, Plan>;
 }
 
+interface ParsedPersisted {
+  plans: Record<string, Plan>;
+  activePlanId: string;
+}
+
+/**
+ * Accepts both the current persisted shape (`plans` / `activePlanId`, written
+ * by `persist()`) and the legacy v2 shape (`profiles` / `activeProfileId`),
+ * running every stored plan through `migrateProfile` either way.
+ */
+export function parsePersisted(raw: unknown): ParsedPersisted | null {
+  if (!raw || typeof raw !== "object") return null;
+  const obj = raw as Record<string, unknown>;
+
+  const isV3 = Boolean(obj.plans && typeof obj.plans === "object");
+  const rawProfiles = isV3
+    ? (obj.plans as Record<string, unknown>)
+    : obj.profiles && typeof obj.profiles === "object"
+      ? (obj.profiles as Record<string, unknown>)
+      : null;
+  if (!rawProfiles) return null;
+
+  const rawActiveId = obj.activePlanId ?? obj.activeProfileId;
+
+  const storedIds = Object.keys(rawProfiles);
+  if (storedIds.length === 0) return null;
+
+  const migratedPlans: Record<string, Plan> = {};
+  for (const id of storedIds) {
+    const rawPlan = rawProfiles[id];
+    // A persisted v3 `Plan` carries no `schemaVersion` field of its own —
+    // only the envelope around `plans` does — so `migrateProfile` cannot
+    // tell it apart from a v2 profile without this tag, and would otherwise
+    // re-run it through `mapV2ToV3`, reading fields (`v2.testator`, …) that
+    // don't exist at the v3 shape's top level and silently blanking them.
+    const taggedPlan =
+      isV3 && rawPlan && typeof rawPlan === "object"
+        ? { ...rawPlan, schemaVersion: CURRENT_SCHEMA_VERSION }
+        : rawPlan;
+    const result = migrateProfile(id, taggedPlan);
+    if (result.success) migratedPlans[id] = result.plan;
+  }
+  if (Object.keys(migratedPlans).length === 0) return null;
+
+  return {
+    plans: migratedPlans,
+    activePlanId:
+      typeof rawActiveId === "string" && rawActiveId in migratedPlans
+        ? rawActiveId
+        : Object.keys(migratedPlans)[0]!,
+  };
+}
+
 export function loadFromStorage(): boolean {
   if (typeof window === "undefined" || !window.localStorage) return false;
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return false;
-    const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== "object" || !parsed.profiles) {
-      return false;
-    }
+    const parsed = parsePersisted(JSON.parse(raw));
+    if (!parsed) return false;
 
-    const storedIds = Object.keys(parsed.profiles);
-    if (storedIds.length === 0) return false;
-
-    const migratedPlans: Record<string, Plan> = {};
-    for (const id of storedIds) {
-      const result = migrateProfile(id, parsed.profiles[id]);
-      if (result.success) migratedPlans[id] = result.plan;
-    }
-    if (Object.keys(migratedPlans).length === 0) return false;
-
-    plans.value = migratedPlans;
-    activePlanId.value =
-      typeof parsed.activeProfileId === "string" &&
-      parsed.activeProfileId in migratedPlans
-        ? parsed.activeProfileId
-        : Object.keys(migratedPlans)[0];
+    plans.value = parsed.plans;
+    activePlanId.value = parsed.activePlanId;
     return true;
   } catch {
     return false;

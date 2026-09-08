@@ -8,23 +8,25 @@
   margin: 0.85in 0.8in 1.05in 0.8in;
   @bottom-left {
     content: var(--print-doc-label, "");
-    font: 9pt var(--font-serif);
+    font: 9pt var(--font-paper);
   }
   @bottom-center {
     content: "Page " counter(page) " of " counter(pages);
-    font: 9pt var(--font-serif);
+    font: 9pt var(--font-paper);
   }
   @bottom-right {
     content: "Testator initials: ________";
-    font: 9pt var(--font-serif);
+    font: 9pt var(--font-paper);
   }
 }
 
 @media print {
-  /* Hide non-printable app shell and navigation */
+  /* Hide the app shell and navigation; print is always the paper sheet. */
   .app-header,
-  .app-sidebar,
-  .toolbar,
+  .app-rail,
+  .context-panel,
+  .bottom-sheet,
+  .presentation-toggle,
   .skip-link,
   .no-print {
     display: none !important;
@@ -39,10 +41,9 @@
     font-size: 11pt !important;
   }
 
-  .app-container,
   .app-body,
-  .document-viewport,
-  .sheet-container {
+  .doc-surface,
+  .paper-viewport {
     display: block !important;
     background: transparent !important;
     padding: 0 !important;
@@ -51,6 +52,14 @@
     height: auto !important;
     overflow: visible !important;
     transform: none !important;
+  }
+
+  /* Fit-to-width never reaches paper: printing always uses the sheet's own
+     unscaled geometry. */
+  .paper-fit {
+    transform: none;
+    width: auto;
+    height: auto;
   }
 
   .paged-sheet {
@@ -62,6 +71,7 @@
     min-height: auto !important;
     padding: 0 !important;
     margin: 0 !important;
+    transform: none !important;
   }
 
   /* Remove highlight markers for formal clean print output */

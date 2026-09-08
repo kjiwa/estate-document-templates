@@ -17,7 +17,8 @@ const head = (title, extraCss = []) => `<!doctype html>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>${title}</title>
-<link rel="stylesheet" href="../tokens.css" />
+<link rel="stylesheet" href="../../src/styles/fonts.css" />
+<link rel="stylesheet" href="../../src/styles/tokens.css" />
 <link rel="stylesheet" href="../mockup.css" />
 ${extraCss.map((h) => `<link rel="stylesheet" href="${h}" />`).join("\n")}
 </head>
@@ -246,7 +247,12 @@ ${header("paper")}
 </div>
 ${paperFitScript}
 </div>`,
-  { extraCss: ["../document-content.css", "../document-paper.css"] }
+  {
+    extraCss: [
+      "../../src/styles/document-content.css",
+      "../../src/styles/document-paper.css",
+    ],
+  }
 );
 
 // ---------------------------------------------------------------------
@@ -266,7 +272,12 @@ ${header("reading")}
   </main>
 </div>
 </div>`,
-  { extraCss: ["../document-content.css", "../document-reading.css"] }
+  {
+    extraCss: [
+      "../../src/styles/document-content.css",
+      "../../src/styles/document-reading.css",
+    ],
+  }
 );
 
 // ---------------------------------------------------------------------
@@ -285,7 +296,12 @@ ${header("paper")}
 </div>
 ${paperFitScript}
 </div>`,
-  { extraCss: ["../document-content.css", "../document-paper.css"] }
+  {
+    extraCss: [
+      "../../src/styles/document-content.css",
+      "../../src/styles/document-paper.css",
+    ],
+  }
 );
 
 // ---------------------------------------------------------------------
@@ -318,7 +334,12 @@ ${header("reading")}
   </div>
 </div>
 </div>`,
-  { extraCss: ["../document-content.css", "../document-reading.css"] }
+  {
+    extraCss: [
+      "../../src/styles/document-content.css",
+      "../../src/styles/document-reading.css",
+    ],
+  }
 );
 
 // ---------------------------------------------------------------------
@@ -335,7 +356,12 @@ ${header("paper")}
 </main>
 ${paperFitScript}
 </div>`,
-  { extraCss: ["../document-content.css", "../document-paper.css"] }
+  {
+    extraCss: [
+      "../../src/styles/document-content.css",
+      "../../src/styles/document-paper.css",
+    ],
+  }
 );
 
 // ---------------------------------------------------------------------
@@ -485,7 +511,12 @@ ${header("reading")}
   </main>
 </div>
 </div>`,
-  { extraCss: ["../document-content.css", "../document-reading.css"] }
+  {
+    extraCss: [
+      "../../src/styles/document-content.css",
+      "../../src/styles/document-reading.css",
+    ],
+  }
 );
 
 console.log("Built 10 mockups in design/mockups/");

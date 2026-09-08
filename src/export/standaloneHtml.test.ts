@@ -74,6 +74,17 @@ describe("generateStandaloneHtml", () => {
     );
   });
 
+  it("inlines CSS with no url() — fonts are never referenced", async () => {
+    const v2Profile = buildV2Profile(baseline.slug, baseline.overlay);
+    const migrated = migrateProfile("profile-1", v2Profile);
+    expect(migrated.success).toBe(true);
+    if (!migrated.success) return;
+
+    const html = generateStandaloneHtml(migrated.plan);
+    const styleContents = html.match(/<style>([\s\S]*?)<\/style>/)?.[1] ?? "";
+    expect(styleContents).not.toContain("url(");
+  });
+
   it("escapes the testator name in the title", async () => {
     const escapingCase = GOLDEN_CASES.find((c) => c.slug === "18-escaping")!;
     const v2Profile = buildV2Profile(escapingCase.slug, escapingCase.overlay);
