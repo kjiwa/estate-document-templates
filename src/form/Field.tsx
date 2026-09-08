@@ -128,7 +128,7 @@ export function Field({ field }: FieldProps) {
 
     case "checkbox":
       return (
-        <div class="field">
+        <div class="field field-checkbox">
           <label for={id}>
             <input
               id={id}
@@ -138,7 +138,7 @@ export function Field({ field }: FieldProps) {
                 setField(field.path, (event.target as HTMLInputElement).checked)
               }
             />
-            {" " + field.label}
+            <span>{field.label}</span>
           </label>
         </div>
       );
