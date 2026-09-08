@@ -2,7 +2,7 @@ import { useContext } from "preact/hooks";
 
 import { getPath, type Path } from "../../model/paths";
 import type { Plan } from "../../model/plan";
-import { HighlightContext, PlanContext } from "./PlanContext";
+import { EditingContext, HighlightContext, PlanContext } from "./PlanContext";
 
 interface ValueProps {
   path?: Path<Plan>;
@@ -21,6 +21,7 @@ function toText(raw: unknown): string {
 export function Value({ path, value }: ValueProps) {
   const highlight = useContext(HighlightContext);
   const plan = useContext(PlanContext);
+  const editing = useContext(EditingContext);
   const fieldValue =
     value !== undefined
       ? value
@@ -30,8 +31,22 @@ export function Value({ path, value }: ValueProps) {
   const text = toText(fieldValue);
 
   if (highlight) {
+    const interactive = editing.interactive && path !== undefined;
+    const activeClass =
+      interactive && editing.activePath === path ? " field-active" : "";
+    const editingProps = interactive
+      ? {
+          tabindex: 0,
+          role: "button" as const,
+          "aria-label": `Edit ${editing.labelFor(path as string)}`,
+        }
+      : {};
     return (
-      <mark class="dynamic-var" data-path={path}>
+      <mark
+        class={`dynamic-var${activeClass}`}
+        data-path={path}
+        {...editingProps}
+      >
         {text}
       </mark>
     );

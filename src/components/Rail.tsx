@@ -1,6 +1,7 @@
 import type { DocumentDefinition } from "../documents/registry";
 import type { Plan } from "../model/plan";
 import { documentCompletion, sectionCompletion } from "../ui/completion";
+import { activeSectionId, openSection } from "../ui/editing";
 
 interface RailProps {
   document: DocumentDefinition;
@@ -29,9 +30,20 @@ export function Rail({ document, plan }: RailProps) {
           {visibleSections.map((section) => {
             const { complete } = sectionCompletion(plan, section);
             return (
-              <li key={section.id} class="rail-item">
-                <span class={`rail-check ${complete ? "done" : ""}`} />
-                <span>{section.legend}</span>
+              <li key={section.id}>
+                <button
+                  type="button"
+                  class="rail-item"
+                  aria-current={
+                    activeSectionId.value === section.id ? "true" : undefined
+                  }
+                  onClick={(event) =>
+                    openSection(section.id, event.currentTarget as HTMLElement)
+                  }
+                >
+                  <span class={`rail-check ${complete ? "done" : ""}`} />
+                  <span>{section.legend}</span>
+                </button>
               </li>
             );
           })}

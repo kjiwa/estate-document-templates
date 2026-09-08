@@ -2,7 +2,7 @@ import { useContext } from "preact/hooks";
 
 import { getPath, type Path } from "../../model/paths";
 import type { Plan } from "../../model/plan";
-import { PlanContext } from "./PlanContext";
+import { EditingContext, PlanContext } from "./PlanContext";
 import { Value } from "./Value";
 
 interface BlankProps {
@@ -17,6 +17,7 @@ interface BlankProps {
 // otherwise defers to `<Value>`.
 export function Blank({ path, value, chars = 10 }: BlankProps) {
   const plan = useContext(PlanContext);
+  const editing = useContext(EditingContext);
   const raw =
     value !== undefined
       ? value
@@ -25,8 +26,23 @@ export function Blank({ path, value, chars = 10 }: BlankProps) {
         : undefined;
 
   if (raw === null || raw === undefined || raw === "") {
+    const interactive = editing.interactive && path !== undefined;
+    const activeClass =
+      interactive && editing.activePath === path ? " field-active" : "";
+    const editingProps = interactive
+      ? {
+          tabindex: 0,
+          role: "button" as const,
+          "aria-label": `Edit ${editing.labelFor(path as string)}`,
+        }
+      : {};
     return (
-      <span class="fill-in" data-path={path} style={{ width: `${chars}ch` }} />
+      <span
+        class={`fill-in${activeClass}`}
+        data-path={path}
+        style={{ width: `${chars}ch` }}
+        {...editingProps}
+      />
     );
   }
   return <Value path={path} value={value} />;

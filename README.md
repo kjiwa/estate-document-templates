@@ -87,13 +87,19 @@ No account beyond GitHub is required.
 
 ### Local Development
 
-Serve the root directory using any static file server:
+This is a Vite app; `index.html` loads `/src/main.tsx` as a module, which a plain
+static file server hands to the browser unprocessed. Use Vite's dev server instead:
 
 ```sh
-python3 -m http.server 8080
+npm install
+npm run dev
 ```
 
-Open `http://127.0.0.1:8080` in your web browser.
+Open the printed local URL in your web browser. To check a production build instead:
+
+```sh
+npm run build && npm run preview
+```
 
 ### Testing
 

@@ -161,10 +161,15 @@ a {
 .rail-item {
   display: flex;
   align-items: center;
+  width: 100%;
   gap: var(--space-2);
   padding: var(--space-2) var(--space-3);
+  border: none;
   border-radius: var(--radius-md);
+  background: transparent;
+  font: inherit;
   font-size: var(--font-size-sm);
+  text-align: left;
   color: var(--ink-body);
   min-height: var(--tap-target);
   cursor: pointer;
@@ -224,8 +229,6 @@ a {
   border: 1px solid var(--rule-hairline);
   border-radius: var(--radius-md);
   overflow: hidden;
-  margin-bottom: var(--space-4);
-  align-self: flex-start;
 }
 
 .presentation-toggle button {
@@ -505,6 +508,8 @@ button {
   background: var(--surface-1);
   color: var(--ink-muted);
   padding: var(--space-2) var(--space-3);
+  font: inherit;
+  font-size: var(--font-size-sm);
   cursor: pointer;
   min-height: var(--tap-target);
 }

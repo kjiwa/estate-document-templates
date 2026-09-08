@@ -13,6 +13,21 @@ export const PlanContext = createContext<Plan | null>(null);
 // Mirrors `renderWill`'s `options.highlightVariables`.
 export const HighlightContext = createContext<boolean>(true);
 
+export interface EditingState {
+  activePath: string | null;
+  // Whether click/keyboard editing affordances should render at all —
+  // false (the default) keeps `standaloneHtml.ts` and every golden render,
+  // which mount `<Value>`/`<Blank>` with no provider, on plain markup.
+  interactive: boolean;
+  labelFor: (path: string) => string;
+}
+
+export const EditingContext = createContext<EditingState>({
+  activePath: null,
+  interactive: false,
+  labelFor: (path) => path,
+});
+
 export function usePlan(): Plan {
   const plan = useContext(PlanContext);
   if (!plan) {

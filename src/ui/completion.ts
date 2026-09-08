@@ -2,7 +2,7 @@ import type { FieldSpec, Section } from "../form/field-spec";
 import { getPath } from "../model/paths";
 import type { Plan } from "../model/plan";
 
-function flattenFields(fields: FieldSpec[]): FieldSpec[] {
+export function flattenFields(fields: FieldSpec[]): FieldSpec[] {
   return fields.flatMap((field) =>
     field.kind === "group" ? flattenFields(field.fields) : [field]
   );

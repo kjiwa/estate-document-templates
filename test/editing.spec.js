@@ -1,0 +1,149 @@
+// @ts-check
+const { test, expect } = require("@playwright/test");
+
+// Whichever surface (desktop context panel or mobile bottom sheet) the
+// running project renders — the two never render at once (app.css:102's
+// breakpoint), so exactly one of these is visible whenever a field is open.
+async function openSurfaceLocator(page) {
+  const panel = page.locator(".context-panel");
+  const sheet = page.locator(".bottom-sheet");
+  if (await panel.count()) return panel;
+  return sheet;
+}
+
+test.describe("Contextual editing", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto("/");
+  });
+
+  test("clicking a [data-path] node opens the surface for that path and marks it active", async ({
+    page,
+  }) => {
+    const node = page.locator('[data-path="party.testator.name"]').first();
+    await node.click();
+
+    const surface = await openSurfaceLocator(page);
+    await expect(surface).toBeVisible();
+    await expect(node).toHaveClass(/field-active/);
+  });
+
+  test("typing in the opened field changes the rendered document text at that path", async ({
+    page,
+  }) => {
+    const node = page.locator('[data-path="party.testator.name"]').first();
+    await node.click();
+
+    const input = page.locator("#field-party-testator-name");
+    await input.fill("Jordan Whitfield");
+
+    await expect(
+      page.locator('[data-path="party.testator.name"]').first()
+    ).toHaveText("Jordan Whitfield");
+  });
+
+  test("Prev/Next traverses orderedFields and reaches a field with no ruled blank", async ({
+    page,
+  }) => {
+    const node = page.locator('[data-path="party.testator.name"]').first();
+    await node.click();
+
+    // testator: name (active), gender, county, state, execution.city — then
+    // family: maritalStatus. Five "Next" presses from name lands there.
+    for (let i = 0; i < 5; i++) {
+      await page.getByRole("button", { name: "Next →" }).click();
+    }
+
+    await expect(page.locator("#field-party-maritalStatus")).toBeVisible();
+  });
+
+  test("a rail item opens its section", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto("/");
+
+    await page.locator(".rail-item", { hasText: "Family" }).click();
+
+    const surface = await openSurfaceLocator(page);
+    await expect(surface).toBeVisible();
+    await expect(surface).toContainText("Family");
+  });
+
+  test("keyboard-only: Tab to a field, Enter opens it, Tab cycles inside the sheet, Escape closes and restores focus", async ({
+    page,
+  }, testInfo) => {
+    // The focus trap (and Escape-to-close) is `BottomSheet`'s alone — the
+    // desktop `ContextPanel` is explicitly not modal (no `role="dialog"`,
+    // no trap), per the plan's mockup 01 reading.
+    test.skip(
+      testInfo.project.name !== "mobile-chrome",
+      "focus trap is the mobile bottom sheet's alone"
+    );
+    const node = page.locator('[data-path="party.testator.name"]').first();
+    await node.focus();
+    await expect(node).toBeFocused();
+
+    await page.keyboard.press("Enter");
+
+    const surface = await openSurfaceLocator(page);
+    await expect(surface).toBeVisible();
+
+    const surfaceHandle = await surface.elementHandle();
+    const focusablesInSurface = await surface
+      .locator("button, input, select, textarea, [tabindex]")
+      .count();
+    expect(focusablesInSurface).toBeGreaterThan(0);
+
+    // Tab enough times to have wrapped at least once within the surface.
+    for (let i = 0; i < focusablesInSurface + 2; i++) {
+      await page.keyboard.press("Tab");
+      const stillInSurface = await page.evaluate(
+        (el) => el.contains(document.activeElement),
+        surfaceHandle
+      );
+      expect(stillInSurface).toBe(true);
+    }
+
+    await page.keyboard.press("Escape");
+    await expect(surface).toBeHidden();
+    await expect(node).toBeFocused();
+  });
+
+  test("desktop: opening a field grows the app body to three columns without overflow", async ({
+    page,
+  }, testInfo) => {
+    test.skip(
+      testInfo.project.name !== "desktop-chrome",
+      "panel layout is desktop-only"
+    );
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto("/");
+
+    await page.locator('[data-path="party.testator.name"]').first().click();
+
+    await expect(page.locator(".app-body.with-panel")).toBeVisible();
+    const overflowsX = await page.evaluate(
+      () => document.documentElement.scrollWidth > window.innerWidth + 1
+    );
+    expect(overflowsX).toBe(false);
+  });
+
+  test("console clean, no non-localhost requests", async ({ page }) => {
+    const consoleErrors = [];
+    page.on("console", (msg) => {
+      if (msg.type() === "error") consoleErrors.push(msg.text());
+    });
+    const externalRequests = [];
+    page.on("request", (request) => {
+      const url = new URL(request.url());
+      if (url.hostname !== "127.0.0.1" && url.hostname !== "localhost") {
+        externalRequests.push(request.url());
+      }
+    });
+
+    await page.goto("/");
+    await page.locator('[data-path="party.testator.name"]').first().click();
+    await page.getByRole("button", { name: "Close" }).click();
+
+    expect(consoleErrors).toEqual([]);
+    expect(externalRequests).toEqual([]);
+  });
+});

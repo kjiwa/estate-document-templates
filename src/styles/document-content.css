@@ -111,6 +111,16 @@ mark.dynamic-var {
   border-radius: var(--radius-sm);
 }
 
+/* A `5ch` ruled blank is too narrow to reliably tap on a phone — widen the
+   hit area without widening the visible rule. Scoped to `.fill-in` alone
+   (never bare `[data-path]`, which also matches `mark.dynamic-var` inline
+   with sentence text) and to Reading only: paper and print both keep the
+   exact ruled width the mockups and goldens fixed. */
+.reading-sheet .fill-in[data-path] {
+  padding-inline: var(--space-1);
+  min-width: var(--tap-target);
+}
+
 /* ==========================================================================
    Execution & signature blocks
    ========================================================================== */
