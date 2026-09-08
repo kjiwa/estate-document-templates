@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// Regexes every RCW citation out of js/templates/will.js and js/guidance.js
-// (the only two places citations live), fetches each section from
+// Regexes every RCW citation out of src/documents/**/*.{ts,tsx} (the only
+// place citations live now that js/ is retired), fetches each section from
 // app.leg.wa.gov, and diffs its history note against the checked-in
 // legal/citations.json snapshot. Run monthly by
 // .github/workflows/citation-check.yml, or by hand via
@@ -11,20 +11,20 @@
 // renumbered section is detected by the page containing the literal text
 // "Citation not found" instead.
 
-import { readFile } from "node:fs/promises";
+import { glob, readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 
-const SOURCE_FILES = ["js/templates/will.js", "js/guidance.js"];
+const SOURCE_GLOB = "src/documents/**/*.{ts,tsx}";
 const CITATIONS_SNAPSHOT_PATH = path.join(ROOT, "legal/citations.json");
 const CITATION_PATTERN = /RCW\s+(\d+\.\d+(?:\.\d+)?)/g;
 
 async function extractCitations() {
   const citations = new Set();
-  for (const relativePath of SOURCE_FILES) {
+  for await (const relativePath of glob(SOURCE_GLOB, { cwd: ROOT })) {
     const text = await readFile(path.join(ROOT, relativePath), "utf8");
     for (const match of text.matchAll(CITATION_PATTERN)) {
       citations.add(match[1]);

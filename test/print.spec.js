@@ -1,10 +1,11 @@
 // @ts-check
 const { test, expect } = require("@playwright/test");
-const { seedProfiles } = require("./fixtures");
+const { seedPlans, PLAN_1 } = require("./fixtures");
+const { generateStandaloneHtml } = require("./helpers/standaloneHtml");
 
-test.describe("Screen-to-Print Fidelity, Responsive Widths & PDF Generation", () => {
+test.describe("Screen-to-Print Fidelity & PDF Generation", () => {
   test.beforeEach(async ({ page }) => {
-    await seedProfiles(page);
+    await seedPlans(page);
     await page.goto("/");
   });
 
@@ -34,15 +35,17 @@ test.describe("Screen-to-Print Fidelity, Responsive Widths & PDF Generation", ()
     expect(pageRuleProps.cssText).toContain("1.05in");
   });
 
-  test("verifies print media emulation removes app shell, review panel, margins, and variable highlights", async ({
+  test("verifies print media emulation removes app shell and neutralises variable highlights", async ({
     page,
   }) => {
+    await page
+      .locator('[aria-label="Presentation"] button:has-text("Paper")')
+      .click();
     await page.emulateMedia({ media: "print" });
 
     await expect(page.locator(".app-header")).toBeHidden();
-    await expect(page.locator(".app-sidebar")).toBeHidden();
-    await expect(page.locator(".review-panel")).toBeHidden();
-    await expect(page.locator(".toolbar")).toBeHidden();
+    await expect(page.locator(".app-rail")).toBeHidden();
+    await expect(page.locator(".presentation-toggle")).toBeHidden();
     await expect(page.locator(".skip-link")).toBeHidden();
 
     const sheet = page.locator("#document-sheet");
@@ -135,24 +138,9 @@ test.describe("Screen-to-Print Fidelity, Responsive Widths & PDF Generation", ()
     expect(pageObjectCount).toBeGreaterThanOrEqual(1);
   });
 
-  test("generates valid headless PDF for profile-1", async ({ page }) => {
-    const pdfBuffer = await page.pdf({
-      format: "Letter",
-      printBackground: true,
-    });
-
-    expect(pdfBuffer).toBeDefined();
-    expect(pdfBuffer.length).toBeGreaterThan(5000);
-    expect(pdfBuffer.subarray(0, 4).toString()).toBe("%PDF");
-  });
-
-  test("generates valid headless PDF for profile-2 after inversion", async ({
+  test("generates a valid headless PDF for the active plan", async ({
     page,
   }) => {
-    await page.selectOption("#select-profile", "profile-2");
-    const sheet = page.locator("#document-sheet");
-    await expect(sheet.locator(".doc-title")).toContainText("Morgan T. Ramos");
-
     const pdfBuffer = await page.pdf({
       format: "Letter",
       printBackground: true,
@@ -164,14 +152,9 @@ test.describe("Screen-to-Print Fidelity, Responsive Widths & PDF Generation", ()
   });
 
   test("renders standalone HTML export and generates valid PDF from exported HTML", async ({
-    page,
     context,
   }) => {
-    const standaloneHtml = await page.evaluate(async () => {
-      // @ts-ignore
-      const { generateStandaloneHtml } = await import("./js/export.js");
-      return generateStandaloneHtml("will");
-    });
+    const standaloneHtml = await generateStandaloneHtml(PLAN_1);
 
     const newPage = await context.newPage();
     await newPage.setContent(standaloneHtml, { waitUntil: "load" });
@@ -193,64 +176,5 @@ test.describe("Screen-to-Print Fidelity, Responsive Widths & PDF Generation", ()
     expect(standalonePdfBuffer.length).toBeGreaterThan(5000);
     expect(standalonePdfBuffer.subarray(0, 4).toString()).toBe("%PDF");
     await newPage.close();
-  });
-
-  test("verifies responsive rendering and interactions at mobile viewport (393px)", async ({
-    page,
-  }) => {
-    await page.setViewportSize({ width: 393, height: 852 });
-    await page.reload();
-
-    const header = page.locator(".app-header");
-    await expect(header).toBeVisible();
-
-    const sidebar = page.locator(".app-sidebar");
-    await expect(sidebar).toBeVisible();
-
-    const toolbar = page.locator(".toolbar");
-    await expect(toolbar).toBeVisible();
-
-    const sheet = page.locator("#document-sheet");
-    await expect(sheet).toBeVisible();
-
-    await page.fill("#input-testator-name", "Mobile Testator");
-    await expect(sheet.locator(".doc-title")).toContainText("Mobile Testator");
-
-    await page.click("#zoom-75");
-    const container = page.locator("#sheet-container");
-    await expect(container).toHaveAttribute("data-zoom", "75");
-
-    await page.click("#zoom-fit");
-    await expect(container).toHaveAttribute("data-zoom", "fit");
-  });
-
-  test("verifies zoom mode transitions apply matching --zoom scroll geometry", async ({
-    page,
-  }) => {
-    // Below 900px the initial default is "fit" rather than "100" (defect 5),
-    // so force a known starting state instead of asserting the raw default.
-    const container = page.locator("#sheet-container");
-    await page.click("#zoom-100");
-    await expect(container).toHaveAttribute("data-zoom", "100");
-
-    await page.click("#zoom-75");
-    await expect(container).toHaveAttribute("data-zoom", "75");
-
-    const scrollVsDrawn = await page.evaluate(() => {
-      const sheet = document.querySelector(".paged-sheet");
-      const rect = sheet.getBoundingClientRect();
-      return {
-        drawnHeight: rect.height,
-        scrollHeight: sheet.scrollHeight * 0.75,
-      };
-    });
-    // With `zoom` (not `transform: scale`), the drawn box and the scroll
-    // geometry agree — no dead scroll area.
-    expect(
-      Math.abs(scrollVsDrawn.drawnHeight - scrollVsDrawn.scrollHeight)
-    ).toBeLessThan(2);
-
-    await page.click("#zoom-100");
-    await expect(container).toHaveAttribute("data-zoom", "100");
   });
 });

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Signing day</title>
+<link rel="stylesheet" href="../../src/styles/fonts.css" />
+<link rel="stylesheet" href="../../src/styles/tokens.css" />
+<link rel="stylesheet" href="../mockup.css" />
+
+</head>
+<body>
+<script>
+  (function () {
+    var t = new URLSearchParams(location.search).get("theme");
+    if (t) document.documentElement.setAttribute("data-theme", t);
+  })();
+</script>
+<div class="mockup-page">
+
+<header class="app-header">
+  <div class="header-brand">
+    <strong class="app-title">Estate Document Templates</strong>
+  </div>
+  <div class="header-controls">
+    <div class="presentation-toggle" role="group" aria-label="Presentation">
+      <button class="" type="button">Reading</button>
+      <button class="" type="button">Paper</button>
+    </div>
+  </div>
+</header>
+<main class="mockup-content" style="max-width:560px;margin:0 auto;padding:var(--space-8) var(--space-4)">
+  <div class="rail-progress" style="border-bottom:none;margin-bottom:var(--space-6)">
+    <div class="rail-progress-bar"><div class="rail-progress-fill" style="width:50%"></div></div>
+    <span class="rail-progress-label">Group 2 of 4 — Witnesses</span>
+  </div>
+  <h1 style="font-size:var(--font-size-xl);margin-bottom:var(--space-1)">Witness one</h1>
+  <p style="color:var(--ink-muted);margin-top:0">Have your first witness fill in their own name and address.</p>
+  <div class="panel-field-group">
+    <div class="field">
+      <label for="w1-name">Full legal name</label>
+      <input id="w1-name" type="text" value="Alex I. Kowalski" style="outline:2px solid var(--focus-ring);outline-offset:1px" />
+    </div>
+    <div class="field">
+      <label for="w1-addr">Residence address</label>
+      <input id="w1-addr" type="text" value="100 Main St" />
+    </div>
+    <div class="field">
+      <label for="w1-csz">City, state, ZIP</label>
+      <input id="w1-csz" type="text" value="Tacoma, WA 98402" />
+    </div>
+  </div>
+  <div class="field-nav" style="margin-top:var(--space-8)">
+    <button class="btn">← Back</button>
+    <button class="btn btn-primary">Continue →</button>
+  </div>
+  <hr style="border:none;border-top:1px solid var(--rule-hairline);margin:var(--space-8) 0" />
+  <h2 style="font-size:var(--font-size-base);color:var(--ink-muted)">Also in this flow</h2>
+  <ul class="card-list" style="list-style:none;padding:0">
+    <li class="checklist-item"><span class="rail-check done"></span> City of execution</li>
+    <li class="checklist-item"><span class="rail-check"></span> Witness one <em style="color:var(--ink-muted);margin-left:auto">in progress</em></li>
+    <li class="checklist-item"><span class="rail-check"></span> Witness two</li>
+    <li class="checklist-item"><span class="rail-check"></span> Notary</li>
+  </ul>
+</main>
+</div>
+</body>
+</html>

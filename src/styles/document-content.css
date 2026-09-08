@@ -1,0 +1,248 @@
+/* ==========================================================================
+   Document content — clause and article semantics shared by both
+   presentations. Structural rules only; type size, family, and color come
+   from whichever of document-paper.css / document-reading.css is loaded
+   alongside this file.
+   ========================================================================== */
+
+.doc-title {
+  text-align: center;
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: var(--space-6);
+  line-height: var(--line-height-tight);
+}
+
+.doc-title-line {
+  display: block;
+}
+
+.doc-subtitle {
+  text-align: center;
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-6);
+}
+
+.doc-preamble {
+  text-align: justify;
+  margin-bottom: var(--space-6);
+  text-indent: 0;
+}
+
+.article-header {
+  font-weight: var(--font-weight-bold);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: var(--space-6);
+  margin-bottom: var(--space-3);
+}
+
+.clause {
+  text-align: justify;
+  margin-bottom: var(--space-4);
+}
+
+/* A visible ruled blank for an unset field, sized in `ch` by fillIn(). */
+.fill-in {
+  display: inline-block;
+  border-bottom: 1px solid var(--rule-on-paper);
+  height: 1em;
+  vertical-align: -0.15em;
+}
+
+.reading-sheet .fill-in {
+  border-bottom-color: var(--blank-unfilled-border);
+  background-color: var(--blank-unfilled-bg);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+
+.powers-list {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: var(--space-4);
+}
+
+.powers-list > li {
+  margin-bottom: var(--space-3);
+  padding-left: var(--space-6);
+  text-indent: calc(-1 * var(--space-6));
+  text-align: justify;
+}
+
+mark.dynamic-var {
+  background-color: var(--blank-unfilled-bg);
+  color: inherit;
+  border-bottom: 1px dashed var(--blank-unfilled-border);
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-sm);
+  font-style: inherit;
+}
+
+/* Paper is never themed, so highlights drawn on it use the paper-scoped
+   tokens instead of the themed --blank-unfilled-* pair, which goes dark
+   under dark mode and reads as dark-on-dark against the always-white sheet. */
+.paged-sheet mark.dynamic-var {
+  background-color: var(--paper-highlight-bg);
+  border-bottom-color: var(--paper-highlight-border);
+}
+[data-highlights="false"] mark.dynamic-var,
+.no-highlights mark.dynamic-var {
+  background-color: transparent !important;
+  border-bottom: none !important;
+  padding: 0 !important;
+}
+
+/* Contextual editing: a data-path target reads as an activation affordance
+   in Reading, and gains an active outline when its panel/sheet is open. */
+[data-path] {
+  cursor: pointer;
+}
+.reading-sheet [data-path]:hover {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
+}
+[data-path].field-active {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* A `5ch` ruled blank is too narrow to reliably tap on a phone — widen the
+   hit area without widening the visible rule. Scoped to `.fill-in` alone
+   (never bare `[data-path]`, which also matches `mark.dynamic-var` inline
+   with sentence text) and to Reading only: paper and print both keep the
+   exact ruled width the mockups and goldens fixed. */
+.reading-sheet .fill-in[data-path] {
+  padding-inline: var(--space-1);
+  min-width: var(--tap-target);
+}
+
+/* ==========================================================================
+   Execution & signature blocks
+   ========================================================================== */
+
+.testimonium {
+  text-align: justify;
+  margin-top: var(--space-6);
+  margin-bottom: var(--space-4);
+}
+
+.sig-block-principal {
+  margin-top: var(--space-6);
+  margin-bottom: var(--space-8);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.sig-lines-principal {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+}
+
+.sig-line {
+  border-top: 1px solid var(--rule-on-paper);
+  margin-top: var(--space-12);
+  padding-top: var(--space-1);
+  text-align: left;
+}
+
+.sig-caption {
+  color: var(--ink-muted);
+}
+
+.witness-block {
+  margin-top: var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+.witness-declaration {
+  text-align: justify;
+  margin-bottom: var(--space-6);
+}
+
+.sig-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-6);
+  margin-top: var(--space-4);
+}
+
+.sig-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.sig-field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: var(--space-2);
+}
+
+.sig-field-line {
+  border-bottom: 1px solid var(--rule-on-paper);
+  height: 1.5rem;
+}
+
+.sig-field-label {
+  color: var(--ink-muted);
+  margin-top: var(--space-1);
+}
+
+.affidavit-sig-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+.notary-jurat {
+  margin-top: var(--space-4);
+  text-align: justify;
+}
+
+.notary-block {
+  margin-top: var(--space-8);
+  padding: var(--space-4);
+  border: 1px solid var(--rule-on-paper);
+}
+
+.notary-heading {
+  font-weight: var(--font-weight-bold);
+  text-align: center;
+  text-transform: uppercase;
+  margin-bottom: var(--space-3);
+}
+
+.notary-venue {
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-3);
+}
+
+.notary-body {
+  text-align: justify;
+  margin-bottom: var(--space-4);
+}
+
+.notary-sig-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-6);
+  margin-top: var(--space-6);
+}
+
+.notary-seal-box {
+  border: 1px dashed var(--rule-on-paper);
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}

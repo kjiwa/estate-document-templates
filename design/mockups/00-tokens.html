@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Token sheet</title>
+<link rel="stylesheet" href="../../src/styles/fonts.css" />
+<link rel="stylesheet" href="../../src/styles/tokens.css" />
+<link rel="stylesheet" href="../mockup.css" />
+
+</head>
+<body>
+<script>
+  (function () {
+    var t = new URLSearchParams(location.search).get("theme");
+    if (t) document.documentElement.setAttribute("data-theme", t);
+  })();
+</script>
+<div class="mockup-page">
+
+<header class="app-header">
+  <div class="header-brand">
+    <strong class="app-title">Estate Document Templates</strong>
+  </div>
+  <div class="header-controls">
+    <div class="presentation-toggle" role="group" aria-label="Presentation">
+      <button class="" type="button">Reading</button>
+      <button class="" type="button">Paper</button>
+    </div>
+  </div>
+</header>
+<main class="mockup-content" style="padding:var(--space-8);max-width:1100px;width:100%;margin:0 auto">
+  <h1>Design tokens</h1>
+  <p style="color:var(--ink-muted)">Warm ink on paper. Roles redefine under <code>prefers-color-scheme</code> and <code>[data-theme]</code>; nothing is defined only inside a media block.</p>
+
+  <h2>Surfaces</h2>
+  <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-4)">
+    <div class="card" style="padding:var(--space-3)">
+    <div style="height:48px;border-radius:var(--radius-md);background:var(--surface-0);border:1px solid var(--rule-hairline)"></div>
+    <div style="margin-top:var(--space-2);font-size:var(--font-size-xs)"><code>--surface-0</code><br>App ground</div>
+  </div>
+    <div class="card" style="padding:var(--space-3)">
+    <div style="height:48px;border-radius:var(--radius-md);background:var(--surface-1);border:1px solid var(--rule-hairline)"></div>
+    <div style="margin-top:var(--space-2);font-size:var(--font-size-xs)"><code>--surface-1</code><br>Rail / panel</div>
+  </div>
+    <div class="card" style="padding:var(--space-3)">
+    <div style="height:48px;border-radius:var(--radius-md);background:var(--surface-2);border:1px solid var(--rule-hairline)"></div>
+    <div style="margin-top:var(--space-2);font-size:var(--font-size-xs)"><code>--surface-2</code><br>Cards, sheet, inputs</div>
+  </div>
+    <div class="card" style="padding:var(--space-3)">
+    <div style="height:48px;border-radius:var(--radius-md);background:var(--surface-3);border:1px solid var(--rule-hairline)"></div>
+    <div style="margin-top:var(--space-2);font-size:var(--font-size-xs)"><code>--surface-3</code><br>Pressed / selected tint</div>
+  </div>
+  </div>
+
+  <h2>Ink</h2>
+  <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-4)">
+    <div class="card" style="padding:var(--space-3)">
+    <div style="height:48px;border-radius:var(--radius-md);background:var(--ink-strong);border:1px solid var(--rule-hairline)"></div>
+    <div style="margin-top:var(--space-2);font-size:var(--font-size-xs)"><code>--ink-strong</code><br>Strong (headings) — AA on surface-2</div>
+  </div>
+    <div class="card" style="padding:var(--space-3)">
+    <div style="height:48px;border-radius:var(--radius-md);background:var(--ink-body);border:1px solid var(--rule-hairline)"></div>
+    <div style="margin-top:var(--space-2);font-size:var(--font-size-xs)"><code>--ink-body</code><br>Body — AA on surface-2</div>
+  </div>
+    <div class="card" style="padding:var(--space-3)">
+    <div style="height:48px;border-radius:var(--radius-md);background:var(--ink-muted);border:1px solid var(--rule-hairline)"></div>
+    <div style="margin-top:var(--space-2);font-size:var(--font-size-xs)"><code>--ink-muted</code><br>Muted — AA large text on surface-2</div>
+  </div>
+    <div class="card" style="padding:var(--space-3)">
+    <div style="height:48px;border-radius:var(--radius-md);background:var(--rule-hairline);border:1px solid var(--rule-hairline)"></div>
+    <div style="margin-top:var(--space-2);font-size:var(--font-size-xs)"><code>--rule-hairline</code><br>Hairline rule</div>
+  </div>
+  </div>
+
+  <h2>Accent &amp; state</h2>
+  <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-4)">
+    <div class="card" style="padding:var(--space-3)">
+    <div style="height:48px;border-radius:var(--radius-md);background:var(--accent);border:1px solid var(--rule-hairline)"></div>
+    <div style="margin-top:var(--space-2);font-size:var(--font-size-xs)"><code>--accent</code><br>Accent — AA on accent-on</div>
+  </div>
+    <div class="card" style="padding:var(--space-3)">
+    <div style="height:48px;border-radius:var(--radius-md);background:var(--accent-ink);border:1px solid var(--rule-hairline)"></div>
+    <div style="margin-top:var(--space-2);font-size:var(--font-size-xs)"><code>--accent-ink</code><br>Accent tint</div>
+  </div>
+    <div class="card" style="padding:var(--space-3)">
+    <div style="height:48px;border-radius:var(--radius-md);background:var(--blank-unfilled-bg);border:1px solid var(--rule-hairline)"></div>
+    <div style="margin-top:var(--space-2);font-size:var(--font-size-xs)"><code>--blank-unfilled-bg</code><br>Unfilled blank</div>
+  </div>
+    <div class="card" style="padding:var(--space-3)">
+    <div style="height:48px;border-radius:var(--radius-md);background:var(--advisory-bg);border:1px solid var(--rule-hairline)"></div>
+    <div style="margin-top:var(--space-2);font-size:var(--font-size-xs)"><code>--advisory-bg</code><br>Advisory</div>
+  </div>
+  </div>
+
+  <h2>Type scale (fluid, 393–1280px)</h2>
+  <div class="card-list">
+    <div style="font-size:var(--font-size-3xl)">3xl — clamp(1.8rem, …, 2.25rem)</div>
+    <div style="font-size:var(--font-size-2xl)">2xl — clamp(1.44rem, …, 1.75rem)</div>
+    <div style="font-size:var(--font-size-xl)">xl — clamp(1.2rem, …, 1.375rem)</div>
+    <div style="font-size:var(--font-size-lg)">lg — clamp(1.08rem, …, 1.2rem)</div>
+    <div style="font-size:var(--font-size-base)">base — clamp(0.95rem, …, 1.0625rem)</div>
+    <div style="font-size:var(--font-size-sm)">sm — clamp(0.83rem, …, 0.925rem)</div>
+    <div style="font-size:var(--font-size-xs)">xs — clamp(0.72rem, …, 0.8rem)</div>
+  </div>
+
+  <h2>Reading typeface — Source Serif 4 Variable</h2>
+  <p style="font-family:var(--font-reading);font-size:var(--reading-size-body);max-width:var(--measure)">The quick brown fox jumps over the lazy dog. Pursuant to RCW 11.12.260, I may dispose of tangible personal property by a separate written list.</p>
+
+  <h2>Spacing (8pt grid)</h2>
+  <div style="display:flex;align-items:flex-end;gap:var(--space-2)">
+    <div style="width:var(--space-1);height:var(--space-1);background:var(--accent)" title="--space-1"></div>
+<div style="width:var(--space-2);height:var(--space-2);background:var(--accent)" title="--space-2"></div>
+<div style="width:var(--space-3);height:var(--space-3);background:var(--accent)" title="--space-3"></div>
+<div style="width:var(--space-4);height:var(--space-4);background:var(--accent)" title="--space-4"></div>
+<div style="width:var(--space-5);height:var(--space-5);background:var(--accent)" title="--space-5"></div>
+<div style="width:var(--space-6);height:var(--space-6);background:var(--accent)" title="--space-6"></div>
+<div style="width:var(--space-8);height:var(--space-8);background:var(--accent)" title="--space-8"></div>
+<div style="width:var(--space-10);height:var(--space-10);background:var(--accent)" title="--space-10"></div>
+<div style="width:var(--space-12);height:var(--space-12);background:var(--accent)" title="--space-12"></div>
+<div style="width:var(--space-16);height:var(--space-16);background:var(--accent)" title="--space-16"></div>
+  </div>
+
+  <h2>Controls</h2>
+  <div style="display:flex;gap:var(--space-4);flex-wrap:wrap;align-items:center">
+    <button class="btn">Rest</button>
+    <button class="btn" style="background:var(--surface-3)">Hover</button>
+    <button class="btn" disabled>Disabled</button>
+    <button class="btn" style="outline:2px solid var(--focus-ring);outline-offset:2px">Focus</button>
+    <button class="btn btn-primary">Primary</button>
+    <button class="btn btn-danger">Danger</button>
+  </div>
+  <div class="field" style="max-width:320px;margin-top:var(--space-4)">
+    <label for="tok-demo">Text input</label>
+    <input id="tok-demo" type="text" value="Jordan A. Whitfield" />
+    <span class="field-hint">44px minimum tap target below 900px</span>
+  </div>
+</main>
+</div>
+</body>
+</html>

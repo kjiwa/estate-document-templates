@@ -1,0 +1,201 @@
+/* ==========================================================================
+   Design tokens — semantic roles only. No url() here: this file is inlined
+   verbatim into the standalone export, which cannot resolve a hashed asset
+   path. Fonts live in fonts.css.
+   Light-first on bare :root; dark redefines the same custom properties,
+   never introduces a color with no light-mode definition.
+   ========================================================================== */
+
+:root {
+  /* ----------------------------------------------------------------------
+     Typography
+     ---------------------------------------------------------------------- */
+  --font-sans: "Inter Variable", system-ui, -apple-system, sans-serif;
+  --font-reading: "Source Serif 4 Variable", Georgia, serif;
+  --font-paper:
+    "Times New Roman", Times, Georgia, Cambria, serif; /* out of scope, unchanged */
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-legal: 1.6;
+  --line-height-reading: 1.65;
+
+  /* Fluid UI type scale, clamp(min, preferred, max) between 393px and 1280px */
+  --font-size-xs: clamp(0.72rem, 0.69rem + 0.16vw, 0.8rem);
+  --font-size-sm: clamp(0.83rem, 0.79rem + 0.19vw, 0.925rem);
+  --font-size-base: clamp(0.95rem, 0.9rem + 0.22vw, 1.0625rem);
+  --font-size-lg: clamp(1.08rem, 1.02rem + 0.27vw, 1.2rem);
+  --font-size-xl: clamp(1.2rem, 1.12rem + 0.35vw, 1.375rem);
+  --font-size-2xl: clamp(1.44rem, 1.32rem + 0.55vw, 1.75rem);
+  --font-size-3xl: clamp(1.8rem, 1.6rem + 0.9vw, 2.25rem);
+
+  /* The paper presentation is a fixed-size instrument, not fluid UI. */
+  --doc-size-body: 11pt;
+  --doc-size-heading: 12pt;
+  --doc-size-caption: 10.5pt;
+  --doc-size-fine: 9pt;
+
+  /* Reading presentation: comfortably larger than paper, still print-adjacent */
+  --reading-size-body: 1.125rem;
+  --reading-size-heading: 1.25rem;
+  --measure: 68ch;
+
+  /* ----------------------------------------------------------------------
+     Spacing (8pt grid) — unchanged from css/tokens.css
+     ---------------------------------------------------------------------- */
+  --space-0: 0;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  --tap-target: 44px;
+
+  /* ----------------------------------------------------------------------
+     Color roles — warm ink on paper, light
+     ---------------------------------------------------------------------- */
+  --surface-0: #f5f1ea; /* app ground */
+  --surface-1: #faf9f7; /* rail / panel */
+  --surface-2: #ffffff; /* cards, sheet, inputs */
+  --surface-3: #efe9df; /* pressed / selected tint */
+
+  --ink-strong: #1b1917;
+  --ink-body: #35312b;
+  --ink-muted: #6b6459;
+  --ink-inverse: #faf9f7;
+
+  --rule-hairline: #e4ddd0;
+  --rule-strong: #c9bfab;
+  --rule-on-paper: #1b1917; /* signature/rule lines on the white sheet — always dark */
+
+  --accent: #1f3d6e;
+  --accent-hover: #17305a;
+  --accent-ink: #eef2fa;
+  --accent-on: #ffffff;
+
+  --blank-unfilled-bg: #fbe6b8;
+  --blank-unfilled-border: #b45309;
+
+  --advisory-bg: #fdf1e2;
+  --advisory-border: #b45309;
+  --advisory-text: #7c3a0a;
+
+  --danger-bg: #fbeae7;
+  --danger-border: #c0402c;
+  --danger-text: #8a2c1c;
+
+  --focus-ring: #2f6fed;
+
+  /* Paper is always white — deliberately not themed. */
+  --paper-bg: #ffffff;
+  --paper-ink: #111111;
+  --paper-shadow:
+    0 4px 6px -1px rgba(27, 25, 23, 0.12), 0 2px 4px -2px rgba(27, 25, 23, 0.1),
+    0 0 0 1px rgba(27, 25, 23, 0.06);
+
+  /* Highlights drawn on paper are scoped to paper's own white/black palette,
+     never the themed --blank-unfilled-* pair — paper is not themed, so
+     nothing painted on it may be either. */
+  --paper-highlight-bg: #fbe6b8;
+  --paper-highlight-border: #b45309;
+
+  /* ----------------------------------------------------------------------
+     Paper geometry (US Letter) — unchanged from css/tokens.css
+     ---------------------------------------------------------------------- */
+  --sheet-width: 8.5in;
+  --sheet-min-height: 11in;
+  --sheet-footer-space: 0.2in;
+  --sheet-margin-top: 0.85in;
+  --sheet-margin-bottom: calc(0.85in + var(--sheet-footer-space));
+  --sheet-margin-left: 0.8in;
+  --sheet-margin-right: 0.8in;
+  --sheet-padding: var(--sheet-margin-top) var(--sheet-margin-right)
+    var(--sheet-margin-bottom) var(--sheet-margin-left);
+
+  --header-height: 3.5rem;
+  --sidebar-width: 22rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+}
+
+/* System dark preference, unless an explicit light choice overrides it. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --surface-0: #141311;
+    --surface-1: #1c1a17;
+    --surface-2: #24211d;
+    --surface-3: #2f2b25;
+
+    --ink-strong: #f3efe7;
+    --ink-body: #d9d2c5;
+    --ink-muted: #a89f8f;
+    --ink-inverse: #1b1917;
+
+    --rule-hairline: #35312a;
+    --rule-strong: #47412f;
+
+    --accent: #a9c1ef;
+    --accent-hover: #c3d5f5;
+    --accent-ink: #1b2a45;
+    --accent-on: #10192b;
+
+    --blank-unfilled-bg: #3a2c14;
+    --blank-unfilled-border: #d99a3f;
+
+    --advisory-bg: #33230f;
+    --advisory-border: #d99a3f;
+    --advisory-text: #f0c07f;
+
+    --danger-bg: #3a1c16;
+    --danger-border: #e07356;
+    --danger-text: #f3a48c;
+
+    --focus-ring: #7aa2f7;
+  }
+}
+
+/* Explicit theme toggle wins over system preference in both directions. */
+:root[data-theme="dark"] {
+  --surface-0: #141311;
+  --surface-1: #1c1a17;
+  --surface-2: #24211d;
+  --surface-3: #2f2b25;
+
+  --ink-strong: #f3efe7;
+  --ink-body: #d9d2c5;
+  --ink-muted: #a89f8f;
+  --ink-inverse: #1b1917;
+
+  --rule-hairline: #35312a;
+  --rule-strong: #47412f;
+
+  --accent: #a9c1ef;
+  --accent-hover: #c3d5f5;
+  --accent-ink: #1b2a45;
+  --accent-on: #10192b;
+
+  --blank-unfilled-bg: #3a2c14;
+  --blank-unfilled-border: #d99a3f;
+
+  --advisory-bg: #33230f;
+  --advisory-border: #d99a3f;
+  --advisory-text: #f0c07f;
+
+  --danger-bg: #3a1c16;
+  --danger-border: #e07356;
+  --danger-text: #f3a48c;
+
+  --focus-ring: #7aa2f7;
+}

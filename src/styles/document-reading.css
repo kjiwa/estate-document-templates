@@ -1,0 +1,51 @@
+/* ==========================================================================
+   Reading presentation — fluid width, ~68ch measure, Source Serif 4,
+   themed (light and dark). Not the paper metaphor: this is what gets read
+   on a phone.
+   ========================================================================== */
+
+.reading-sheet {
+  max-width: var(--measure);
+  margin-inline: auto;
+  padding: var(--space-8) var(--space-4);
+  background-color: var(--surface-2);
+  color: var(--ink-body);
+  font-family: var(--font-reading);
+  font-size: var(--reading-size-body);
+  line-height: var(--line-height-reading);
+}
+
+.reading-sheet .doc-title {
+  color: var(--ink-strong);
+  font-size: var(--font-size-2xl);
+}
+
+.reading-sheet .article-header,
+.reading-sheet .doc-subtitle {
+  color: var(--ink-strong);
+  font-size: var(--reading-size-heading);
+}
+
+.reading-sheet .sig-caption,
+.reading-sheet .sig-field-label,
+.reading-sheet .notary-seal-box {
+  font-size: var(--font-size-xs);
+}
+
+.reading-sheet .sig-line,
+.reading-sheet .notary-heading {
+  font-size: var(--font-size-sm);
+}
+
+.reading-sheet .sig-line,
+.reading-sheet .sig-field-line,
+.reading-sheet .notary-block {
+  border-color: var(--rule-strong);
+}
+
+@media (max-width: 900px) {
+  .reading-sheet {
+    padding: var(--space-6) var(--space-4);
+    font-size: var(--font-size-base);
+  }
+}

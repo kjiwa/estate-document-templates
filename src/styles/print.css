@@ -1,0 +1,110 @@
+/* ==========================================================================
+   Print & Paged Media Styling
+   Governed by Washington State legal filing standards & Letter geometry
+   ========================================================================== */
+
+@page {
+  size: letter portrait;
+  margin: 0.85in 0.8in 1.05in 0.8in;
+  @bottom-left {
+    content: var(--print-doc-label, "");
+    font: 9pt var(--font-paper);
+  }
+  @bottom-center {
+    content: "Page " counter(page) " of " counter(pages);
+    font: 9pt var(--font-paper);
+  }
+  @bottom-right {
+    content: "Testator initials: ________";
+    font: 9pt var(--font-paper);
+  }
+}
+
+@media print {
+  /* Hide the app shell and navigation; print is always the paper sheet. */
+  .app-header,
+  .app-rail,
+  .context-panel,
+  .bottom-sheet,
+  .presentation-toggle,
+  .skip-link,
+  .no-print {
+    display: none !important;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    height: auto !important;
+    overflow: visible !important;
+    font-size: 11pt !important;
+  }
+
+  .app-body,
+  .doc-surface,
+  .paper-viewport {
+    display: block !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    transform: none !important;
+  }
+
+  /* Fit-to-width never reaches paper: printing always uses the sheet's own
+     unscaled geometry. */
+  .paper-fit {
+    transform: none;
+    width: auto;
+    height: auto;
+  }
+
+  .paged-sheet {
+    zoom: 1 !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: transparent !important;
+    width: 100% !important;
+    min-height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    transform: none !important;
+  }
+
+  /* Remove highlight markers for formal clean print output */
+  mark.dynamic-var {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    color: inherit !important;
+  }
+
+  /* Orphan & Widow Control */
+  p,
+  .clause,
+  .powers-list > li {
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* Page Break Hardening */
+  .article-header {
+    break-before: auto;
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  .testimonium,
+  .sig-block-principal,
+  .witness-block,
+  .sig-grid,
+  .affidavit-sig-row,
+  .notary-block,
+  .no-break {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}

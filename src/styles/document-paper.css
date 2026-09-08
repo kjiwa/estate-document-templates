@@ -1,0 +1,79 @@
+/* ==========================================================================
+   Paper presentation — the 8.5in sheet. Geometry lifted unchanged from
+   css/document.css's .paged-sheet rule and its page-break-inside/-after
+   rules; deliberately out of the visual refresh's scope. Times New Roman,
+   fixed point sizes, white always (paper is not themed).
+   ========================================================================== */
+
+.paged-sheet {
+  width: var(--sheet-width);
+  min-height: var(--sheet-min-height);
+  padding: var(--sheet-padding);
+  background-color: var(--paper-bg);
+  box-shadow: var(--paper-shadow);
+  color: var(--paper-ink);
+  font-family: var(--font-paper);
+  font-size: var(--doc-size-body);
+  line-height: var(--line-height-legal);
+  box-sizing: border-box;
+  text-rendering: optimizeLegibility;
+}
+
+.paged-sheet .doc-title {
+  font-size: 14pt;
+}
+
+.paged-sheet .article-header,
+.paged-sheet .doc-subtitle {
+  font-size: var(--doc-size-heading);
+}
+
+.paged-sheet .sig-line {
+  font-size: var(--doc-size-caption);
+}
+
+.paged-sheet .sig-caption,
+.paged-sheet .sig-field-label,
+.paged-sheet .notary-seal-box {
+  font-size: var(--doc-size-fine);
+}
+
+.paged-sheet .notary-heading {
+  font-size: var(--doc-size-body);
+}
+
+/* Break rules only matter once content is paginated. */
+.paged-sheet .article-header {
+  page-break-after: avoid;
+  break-after: avoid;
+}
+
+.paged-sheet .testimonium,
+.paged-sheet .sig-block-principal,
+.paged-sheet .witness-block,
+.paged-sheet .sig-grid,
+.paged-sheet .affidavit-sig-row,
+.paged-sheet .notary-block {
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+/* Paper fits-to-width at every viewport, not just below 900px: the sheet's
+   own geometry never changes, but the layout box it occupies shrinks with
+   the visual one, so centering the viewport around it is never a clip.
+   `--paper-scale` is measured by the inline script in the mockup shell
+   (build-mockups.mjs's paperFitScript); this default keeps the CSS correct
+   with that script absent, and leaves print — which uses no wrapper —
+   untouched. */
+.paper-fit {
+  --paper-scale: 1;
+  width: calc(var(--sheet-width) * var(--paper-scale));
+  height: calc(
+    var(--paper-height, var(--sheet-min-height)) * var(--paper-scale)
+  );
+}
+
+.paper-fit > .paged-sheet {
+  transform: scale(var(--paper-scale));
+  transform-origin: top left;
+}

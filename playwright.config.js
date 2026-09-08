@@ -24,9 +24,9 @@ module.exports = defineConfig({
     },
   ],
   webServer: {
-    command: "python3 -m http.server 8080 --bind 127.0.0.1",
+    command: "npm run build && npm run preview",
     url: "http://127.0.0.1:8080",
     reuseExistingServer: !process.env.CI,
-    timeout: 10000,
+    timeout: 60000,
   },
 });

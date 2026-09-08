@@ -24,7 +24,7 @@ A client-side web application for generating, customizing, and printing legally 
 - **State Persistence & Portability**:
   - Auto-persists drafting sessions in browser `localStorage`, deep-merged over the shipped defaults so an older or partial draft never invents a value for a field it doesn't have.
   - Export and import full profile state as structured JSON, validated by shape.
-  - Export standalone, self-contained HTML files ready for offline viewing or printing — styled from the same `css/` files the app uses, with no guidance content.
+  - Export standalone, self-contained HTML files ready for offline viewing or printing — styled from the same source the app uses, with no guidance content.
 - **Accessibility**: Built to WCAG 2.1/2.2 AA standards with semantic landmarks, keyboard navigation, focus indicators, and screen-reader status announcements.
 
 ## Document Structure (Last Will & Testament)
@@ -47,26 +47,24 @@ A client-side web application for generating, customizing, and printing legally 
 
 ```
 .
-├── index.html              # Application entry point and UI markup
-├── css/
-│   ├── tokens.css          # Design tokens (colors, typography, spacing)
-│   ├── layout.css          # Responsive app layout and controls styling
-│   ├── document.css        # Paged document styles and typography
-│   └── print.css           # Print media rules and page-break controls
-├── js/
-│   ├── app.js               # Application bootstrapping and event wiring
-│   ├── config.js             # Blank profile shape and schema constants
-│   ├── state.js              # Reactive state store and persistence
-│   ├── export.js             # Standalone HTML and attorney-memo generation
-│   ├── guidance.js           # Guidance content and <details> rendering
-│   ├── review.js             # analyzeProfile(): pure advisory computation
-│   ├── utils.js               # Pronoun declensions, sanitization, and helpers
-│   └── templates/
-│       ├── registry.js       # Template registry
-│       └── will.js           # Washington Last Will & Testament template
+├── index.html               # Application entry point, loads /src/main.tsx
+├── src/
+│   ├── main.tsx             # Bootstraps the Preact app and store
+│   ├── App.tsx              # Top-level view switch (document/plans/execute/print)
+│   ├── components/          # Header, rail, contextual panel/sheet, plan and execute views
+│   ├── documents/
+│   │   ├── shared/          # Plan context and clauses shared across document types
+│   │   └── will/            # Washington Last Will & Testament: sections, body, guidance, review
+│   ├── export/               # Attorney memo and standalone HTML generation
+│   ├── form/                 # FieldSpec union, <Field> renderer, field registry/traversal
+│   ├── model/                 # Plan schema (zod), paths, migrations, pronouns, dates
+│   ├── store/                # Reactive plan store and persistence (localStorage)
+│   ├── ui/                   # Signals-derived UI state: editing, advisories, execute, files, theme
+│   └── styles/                # Design tokens and app/document/print CSS
 ├── legal/
 │   └── citations.json      # Snapshot of statute history notes, checked by CI
-├── test/                   # Playwright end-to-end and fidelity test suites
+├── design/                  # Frozen Phase 2 mockups and design tokens reference
+├── test/                    # Playwright end-to-end and fidelity test suites
 ├── package.json
 └── playwright.config.js
 ```
@@ -75,25 +73,32 @@ A client-side web application for generating, customizing, and printing legally 
 
 ### Deploy Your Own
 
-This is a zero-build static site with no backend. To run your own copy:
+This is a client-side app with no backend. To run your own copy:
 
 1. Fork this repository.
 2. In the fork's settings, go to **Settings → Pages** and set **Source** to
-   **GitHub Actions**.
-3. Push to `main`. The included workflow builds nothing and deploys the repository
-   as-is; the fork is served at `https://<your-username>.github.io/estate-document-templates/`.
+   **GitHub Actions** — this is required, not a fallback; the deploy job
+   uploads the Vite build output (`dist/`), not the repository root.
+3. Push to `main`. The included workflow builds the app and deploys it; the fork is
+   served at `https://<your-username>.github.io/estate-document-templates/`.
 
 No account beyond GitHub is required.
 
 ### Local Development
 
-Serve the root directory using any static file server:
+This is a Vite app; `index.html` loads `/src/main.tsx` as a module, which a plain
+static file server hands to the browser unprocessed. Use Vite's dev server instead:
 
 ```sh
-python3 -m http.server 8080
+npm install
+npm run dev
 ```
 
-Open `http://127.0.0.1:8080` in your web browser.
+Open the printed local URL in your web browser. To check a production build instead:
+
+```sh
+npm run build && npm run preview
+```
 
 ### Testing
 
@@ -105,7 +110,7 @@ npm test
 
 ### Checking citations
 
-RCW citations in `js/templates/will.js` and `js/guidance.js` are checked monthly by CI against `app.leg.wa.gov` and diffed against `legal/citations.json`. To run the same check by hand:
+RCW citations across `src/documents/**` are checked monthly by CI against `app.leg.wa.gov` and diffed against `legal/citations.json`. To run the same check by hand:
 
 ```sh
 npm run check:citations
