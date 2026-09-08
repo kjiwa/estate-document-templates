@@ -1,17 +1,10 @@
+import type { Advisory } from "../../model/advisory";
 import { normalizeName } from "../../model/names";
 import type { Plan } from "../../model/plan";
 import type { Path } from "../../model/paths";
 
 const RCW_INTERESTED_WITNESS = "RCW 11.12.160";
 const RCW_DISCLAIMER_TRUST = "RCW 11.86.031";
-
-export interface Advisory {
-  id: string;
-  severity: "info" | "warning";
-  title: string;
-  message: string;
-  path: Path<Plan>;
-}
 
 interface RoleHolder {
   name: string;

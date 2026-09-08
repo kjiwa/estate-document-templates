@@ -15,7 +15,7 @@
     font: 9pt var(--font-paper);
   }
   @bottom-right {
-    content: "Testator initials: ________";
+    content: var(--print-initials-label, "Testator initials: ________");
     font: 9pt var(--font-paper);
   }
 }

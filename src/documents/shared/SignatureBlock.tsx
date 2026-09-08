@@ -1,8 +1,14 @@
 import { Blank } from "./Blank";
 
+interface SignatureBlockProps {
+  role: string;
+}
+
 // Reproduces `renderTestimoniumAndSignatures`'s second block — the
-// principal (testator) signature.
-export function SignatureBlock() {
+// principal signer's signature. `role` is the noun the instrument uses for
+// its own signer ("Testator", "Declarant"); the will passes its value
+// explicitly so the goldens stay byte-identical.
+export function SignatureBlock({ role }: SignatureBlockProps) {
   return (
     <div class="sig-block-principal">
       <div class="sig-lines-principal">
@@ -10,7 +16,7 @@ export function SignatureBlock() {
           <strong>
             <Blank path="party.testator.name" chars={20} />
           </strong>
-          , Testator
+          , {role}
         </div>
         {"\n"}
         <div class="sig-caption">

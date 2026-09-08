@@ -125,15 +125,17 @@ function formatLastSaved(date: Date | null): string {
 function DataCard() {
   const [importError, setImportError] = useState<string | null>(null);
 
+  const activeDocument = DOCUMENTS.find((d) => d.id === activeDocumentId.value);
+  const memo = activeDocument?.memo;
+
   function handleMemo() {
     const plan = activePlan.value;
-    const document = DOCUMENTS.find((d) => d.id === activeDocumentId.value);
-    if (!plan || !document) return;
+    if (!plan || !memo) return;
     const name = plan.party.testator.name || "plan";
     void saveFile(
       `${name.replace(/\s+/g, "-").toLowerCase()}-memo.txt`,
       "text/plain",
-      document.memo(plan)
+      memo(plan)
     );
   }
 
@@ -169,15 +171,18 @@ function DataCard() {
     }
     plans.value = parsed.plans;
     activePlanId.value = parsed.activePlanId;
+    activeDocumentId.value = parsed.activeDocumentId;
   }
 
   return (
     <div class="card" style={{ marginTop: "var(--space-6)" }}>
       <strong>Data</strong>
       <div class="card-list" style={{ marginTop: "var(--space-3)" }}>
-        <button type="button" class="btn" onClick={handleMemo}>
-          Attorney memo
-        </button>
+        {memo ? (
+          <button type="button" class="btn" onClick={handleMemo}>
+            Attorney memo
+          </button>
+        ) : null}
         <button type="button" class="btn" onClick={handleSave}>
           Save plans to file
         </button>

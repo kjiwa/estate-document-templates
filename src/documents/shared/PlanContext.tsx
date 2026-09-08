@@ -1,7 +1,7 @@
 import { createContext } from "preact";
 import { useContext } from "preact/hooks";
 
-import type { Advisory } from "../will/review";
+import type { Advisory } from "../../model/advisory";
 import { getPath, type Path } from "../../model/paths";
 import type { Plan } from "../../model/plan";
 

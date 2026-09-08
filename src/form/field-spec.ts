@@ -34,3 +34,12 @@ export interface Section {
   hidden?: (plan: Plan) => boolean;
   complete?: (plan: Plan) => boolean;
 }
+
+// One step of the Execute flow (mockup 06: "signing day") — a title, lead
+// copy, and the field paths it covers, resolved against the active
+// document's sections through `resolveFieldPath`.
+export interface ExecuteGroupDef {
+  title: string;
+  lead: string;
+  paths: string[];
+}

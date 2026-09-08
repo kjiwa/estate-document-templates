@@ -1,6 +1,6 @@
 # Estate Document Templates
 
-A client-side web application for generating, customizing, and printing legally structured estate planning documents compliant with Washington State law (RCW Title 11).
+A client-side web application for generating, customizing, and printing legally structured estate planning documents compliant with Washington State law. Ships two document types today — a Last Will and Testament (RCW Title 11) and a Disposition of Remains Directive (RCW 68.50.160) — switchable from the header picker, drafted from one shared plan.
 
 ## Features
 
@@ -27,7 +27,9 @@ A client-side web application for generating, customizing, and printing legally 
   - Export standalone, self-contained HTML files ready for offline viewing or printing — styled from the same source the app uses, with no guidance content.
 - **Accessibility**: Built to WCAG 2.1/2.2 AA standards with semantic landmarks, keyboard navigation, focus indicators, and screen-reader status announcements.
 
-## Document Structure (Last Will & Testament)
+## Document Structure
+
+### Last Will & Testament
 
 1. **Title & Preamble**: Testator identification, domicile declaration, and revocation of prior wills.
 2. **Article 1: Family, Guardians, and Conservators**: Spouse and children identification; guardian of the person and conservator of the estate nominated independently (RCW 11.130.010).
@@ -43,6 +45,15 @@ A client-side web application for generating, customizing, and printing legally 
 12. **Testimonium & Attestation**: Execution statement, testator signature block, witness declaration, and two-witness signature grid.
 13. **Self-Proving Affidavit**: Testator and witness signature lines plus a dated notarial jurat conforming to RCW 11.20.020 and RCW 42.45.130.
 
+### Disposition of Remains Directive
+
+1. **Title & Declaration**: Declarant identification, domicile declaration, and revocation of prior remains directives.
+2. **Article 1: Designation of Agent**: Agent and alternate to control disposition of remains, with an optional non-binding statement of wishes (RCW 68.50.160(3)(b)).
+3. **Article 2: Effect, Priority, and Revocation**: Priority over the statutory next-of-kin order (RCW 68.50.160(3)(c)-(g)) and revocation of prior designations.
+4. **Article 3: Severability and Governing Law**: Clause independence and choice of Washington law.
+5. **Testimonium & Attestation**: Execution statement, declarant signature block, and a two-witness attestation that the declarant signed and dated the instrument in their presence (RCW 68.50.160(1)).
+6. **Notarial Acknowledgment**: Not required by RCW 68.50.160 — included, and stated as not required in the document's own text, so a funeral establishment or cemetery authority receiving the instrument cold has independent proof of the declarant's signature.
+
 ## Project Structure
 
 ```
@@ -53,8 +64,10 @@ A client-side web application for generating, customizing, and printing legally 
 │   ├── App.tsx              # Top-level view switch (document/plans/execute/print)
 │   ├── components/          # Header, rail, contextual panel/sheet, plan and execute views
 │   ├── documents/
+│   │   ├── registry.ts      # DOCUMENTS: the document-type registry
 │   │   ├── shared/          # Plan context and clauses shared across document types
-│   │   └── will/            # Washington Last Will & Testament: sections, body, guidance, review
+│   │   ├── will/             # Washington Last Will & Testament: sections, body, guidance, review
+│   │   └── remains-directive/ # Disposition of Remains Directive: sections, body, guidance, review
 │   ├── export/               # Attorney memo and standalone HTML generation
 │   ├── form/                 # FieldSpec union, <Field> renderer, field registry/traversal
 │   ├── model/                 # Plan schema (zod), paths, migrations, pronouns, dates

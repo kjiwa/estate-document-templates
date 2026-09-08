@@ -15,11 +15,15 @@ export function PrintChecklist() {
 
   function handleExport() {
     const plan = activePlan.value;
-    if (!plan) return;
     const document = DOCUMENTS.find((d) => d.id === activeDocumentId.value);
+    if (!plan || !document) return;
     const testatorName = plan.party.testator.name || "document";
-    const suggestedName = `${testatorName.replace(/\s+/g, "-").toLowerCase() || document?.id || "document"}.html`;
-    void saveFile(suggestedName, "text/html", generateStandaloneHtml(plan));
+    const suggestedName = `${testatorName.replace(/\s+/g, "-").toLowerCase() || document.id}.html`;
+    void saveFile(
+      suggestedName,
+      "text/html",
+      generateStandaloneHtml(plan, document)
+    );
   }
 
   return (

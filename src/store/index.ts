@@ -1,10 +1,21 @@
 import { computed, effect, signal } from "@preact/signals";
 
+import { DOCUMENTS } from "../documents/registry";
 import { migrateProfile, CURRENT_SCHEMA_VERSION } from "../model/migrate";
 import type { Plan } from "../model/plan";
 import { getPath, setPath, type Path } from "../model/paths";
 import { reciprocalPlan } from "../model/reciprocal";
 
+// `documents/shared/{Blank,Value}.tsx` import `ui/advisories.ts`, which
+// already imported `DOCUMENTS` from `../documents/registry` before this
+// module did — so `registry.ts` -> a document `Body` -> `shared/Blank.tsx`
+// -> `ui/advisories.ts` -> `store/index.ts` -> `documents/registry.ts` is
+// circular. Reading `DOCUMENTS` inside a function body called after the
+// whole module graph has finished loading (every use below) is fine; this
+// module's own top-level code cannot, since `registry.ts` may still be
+// mid-evaluation further up the same import chain — so the initial
+// `activeDocumentId` value below is the literal id of what has always been
+// the first (and, until Phase 5, only) document, not `DOCUMENTS[0]`.
 const STORAGE_KEY = "estate_templates_state_v1";
 const UNDO_LIMIT = 50;
 const UNDO_COALESCE_MS = 500;
@@ -78,6 +89,11 @@ export function nextPlanId(): string {
 export function setActivePlan(id: string): void {
   if (!plans.value[id]) return;
   activePlanId.value = id;
+}
+
+export function setActiveDocument(id: string): void {
+  if (!DOCUMENTS.some((doc) => doc.id === id)) return;
+  activeDocumentId.value = id;
 }
 
 export function createPlan(label = "New plan"): string {
@@ -155,6 +171,7 @@ interface PersistedState {
 interface ParsedPersisted {
   plans: Record<string, Plan>;
   activePlanId: string;
+  activeDocumentId: string;
 }
 
 /**
@@ -208,12 +225,24 @@ export function parsePersisted(raw: unknown): ParsedPersisted | null {
   }
   if (Object.keys(migratedPlans).length === 0) return null;
 
+  // `activeDocumentId` was written by `persist()` since 4d but never read
+  // back here, so a chosen non-default document did not survive a reload —
+  // restored here the same defensive way as `activePlanId`: fall back to
+  // the first registered document when the stored id no longer resolves
+  // (an older export, or a fork with a different document set).
+  const rawDocumentId = obj.activeDocumentId;
+
   return {
     plans: migratedPlans,
     activePlanId:
       typeof rawActiveId === "string" && rawActiveId in migratedPlans
         ? rawActiveId
         : Object.keys(migratedPlans)[0]!,
+    activeDocumentId:
+      typeof rawDocumentId === "string" &&
+      DOCUMENTS.some((doc) => doc.id === rawDocumentId)
+        ? rawDocumentId
+        : (DOCUMENTS[0]?.id ?? "will"),
   };
 }
 
@@ -227,6 +256,7 @@ export function loadFromStorage(): boolean {
 
     plans.value = parsed.plans;
     activePlanId.value = parsed.activePlanId;
+    activeDocumentId.value = parsed.activeDocumentId;
     return true;
   } catch {
     return false;

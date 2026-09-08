@@ -1,15 +1,5 @@
-// Content as data, not markup: one entry per decision the sidebar asks the
-// user to make. Ported from `js/guidance.js`'s `GUIDANCE` with logic
-// untouched — editor-only content, never rendered into the document body or
-// the standalone export.
-export interface GuidanceEntry {
-  title: string;
-  whatItDoes: string;
-  options: string[];
-  typical: string;
-  impact: string;
-  statutes: string[];
-}
+// Ported from `js/guidance.js`'s `GUIDANCE` with logic untouched.
+import type { GuidanceEntry } from "../shared/guidance";
 
 export const GUIDANCE: Record<string, GuidanceEntry> = {
   maritalStatus: {
@@ -191,28 +181,3 @@ export const GUIDANCE: Record<string, GuidanceEntry> = {
     statutes: ["RCW 11.20.020", "RCW 42.45.130"],
   },
 };
-
-export function renderGuidance(sectionId: string): string {
-  const entry = GUIDANCE[sectionId];
-  if (!entry) return "";
-
-  const list =
-    entry.options.length > 0
-      ? `<ul>${entry.options.map((item) => `<li>${item}</li>`).join("")}</ul>`
-      : "";
-  const statutes = entry.statutes.length
-    ? `<p><strong>Statutes:</strong> ${entry.statutes.join(", ")}</p>`
-    : "";
-
-  return `
-    <details class="guidance">
-      <summary>${entry.title} — what this means</summary>
-      <p>${entry.whatItDoes}</p>
-      <p><strong>Options:</strong></p>
-      ${list}
-      <p><strong>Typical:</strong> ${entry.typical}</p>
-      <p><strong>Impact:</strong> ${entry.impact}</p>
-      ${statutes}
-    </details>
-  `.trim();
-}

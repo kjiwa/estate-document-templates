@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
 import {
+  activeDocumentId,
   activePlanId,
   createPlan,
   createReciprocalPlan,
@@ -10,6 +11,7 @@ import {
   parsePersisted,
   plans,
   renamePlan,
+  setActiveDocument,
   setActivePlan,
   setField,
 } from "./index";
@@ -53,6 +55,7 @@ describe("plan mutations", () => {
       "profile-2": { ...BASE_PLAN, id: "profile-2", label: "Profile 2" },
     };
     activePlanId.value = "profile-1";
+    activeDocumentId.value = "will";
   });
 
   it("nextPlanId skips ids already present", () => {
@@ -68,6 +71,18 @@ describe("plan mutations", () => {
   it("setActivePlan ignores an unknown id", () => {
     setActivePlan("does-not-exist");
     expect(activePlanId.value).toBe("profile-1");
+  });
+
+  it("setActiveDocument switches to a registered document", () => {
+    setActiveDocument("remains-directive");
+    expect(activeDocumentId.value).toBe("remains-directive");
+    setActiveDocument("will");
+    expect(activeDocumentId.value).toBe("will");
+  });
+
+  it("setActiveDocument ignores an unknown id", () => {
+    setActiveDocument("does-not-exist");
+    expect(activeDocumentId.value).toBe("will");
   });
 
   it("createPlan adds a new blank plan and makes it active", () => {
@@ -141,6 +156,38 @@ describe("parsePersisted", () => {
     // guards against `migrateProfile` mistaking it for a v2 profile and
     // blanking every field via `mapV2ToV3`.
     expect(result!.plans["profile-1"]?.party.testator.name).toBe("Jordan");
+  });
+
+  it("restores a stored activeDocumentId that resolves against DOCUMENTS", () => {
+    const persisted = {
+      schemaVersion: 3,
+      activePlanId: "profile-1",
+      activeDocumentId: "remains-directive",
+      plans: { "profile-1": plans.value["profile-1"]! },
+    };
+    const result = parsePersisted(persisted);
+    expect(result?.activeDocumentId).toBe("remains-directive");
+  });
+
+  it("falls back to the first document when the stored activeDocumentId no longer resolves", () => {
+    const persisted = {
+      schemaVersion: 3,
+      activePlanId: "profile-1",
+      activeDocumentId: "some-retired-document",
+      plans: { "profile-1": plans.value["profile-1"]! },
+    };
+    const result = parsePersisted(persisted);
+    expect(result?.activeDocumentId).toBe("will");
+  });
+
+  it("falls back to the first document when activeDocumentId is absent (a pre-4d export)", () => {
+    const persisted = {
+      schemaVersion: 3,
+      activePlanId: "profile-1",
+      plans: { "profile-1": plans.value["profile-1"]! },
+    };
+    const result = parsePersisted(persisted);
+    expect(result?.activeDocumentId).toBe("will");
   });
 
   it("reads the legacy v2 shape (profiles / activeProfileId)", () => {

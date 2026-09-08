@@ -1,13 +1,16 @@
-// `Section.guidance` keys `GUIDANCE` (per section, not per field) — content
-// only, never rendered into the document body or the standalone export.
-import { GUIDANCE } from "../documents/will/guidance";
+// `Section.guidance` keys the active document's `DocumentDefinition.guidance`
+// (per section, not per field) — content only, never rendered into the
+// document body or the standalone export.
+import { DOCUMENTS } from "../documents/registry";
+import { activeDocumentId } from "../store/index";
 
 interface FieldGuidanceProps {
   guidanceId?: string;
 }
 
 export function FieldGuidance({ guidanceId }: FieldGuidanceProps) {
-  const entry = guidanceId ? GUIDANCE[guidanceId] : undefined;
+  const document = DOCUMENTS.find((d) => d.id === activeDocumentId.value);
+  const entry = guidanceId ? document?.guidance[guidanceId] : undefined;
   if (!entry) return null;
 
   return (
