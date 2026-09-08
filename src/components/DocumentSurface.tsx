@@ -6,7 +6,7 @@ import {
   HighlightContext,
   PlanContext,
 } from "../documents/shared/PlanContext";
-import { orderedFields } from "../form/registry";
+import { orderedFields, resolveFieldPath } from "../form/registry";
 import type { Plan } from "../model/plan";
 import { advisoriesByPath } from "../ui/advisories";
 import { activeFieldPath, openField } from "../ui/editing";
@@ -61,15 +61,19 @@ export function DocumentSurface({ document, plan }: DocumentSurfaceProps) {
   function handleClick(event: MouseEvent) {
     const path = pathFromEvent(event);
     if (!path) return;
-    openField(path, triggerFromEvent(event));
+    const entry = resolveFieldPath(plan, document.sections, path);
+    if (!entry) return;
+    openField(entry.field.path, triggerFromEvent(event));
   }
 
   function handleKeyDown(event: KeyboardEvent) {
     if (event.key !== "Enter" && event.key !== " ") return;
     const path = pathFromEvent(event);
     if (!path) return;
+    const entry = resolveFieldPath(plan, document.sections, path);
+    if (!entry) return;
     event.preventDefault();
-    openField(path, triggerFromEvent(event));
+    openField(entry.field.path, triggerFromEvent(event));
   }
 
   const sheetOpen = isNarrow.value && activePath !== null;

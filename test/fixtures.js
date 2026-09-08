@@ -179,4 +179,26 @@ async function seedPlans(page) {
   }, FIXTURE_PLANS);
 }
 
-module.exports = { PLAN_1, PLAN_2, FIXTURE_PLANS, seedPlans };
+// `window.showSaveFilePicker`/`showOpenFilePicker` exist as functions on
+// any real HTTP(S) origin in this Playwright/Chromium build (including
+// `127.0.0.1`), but calling either one hangs forever — there is no OS file
+// dialog for Playwright to drive. Deleting them before the app boots forces
+// `src/ui/files.ts`'s feature detection onto the anchor/`<input type=file>`
+// fallback, which download/filechooser specs can actually drive.
+async function disableFilePickers(page) {
+  await page.addInitScript(() => {
+    // @ts-ignore — ambient declarations only, not present at runtime by
+    // default; deleting them is what forces the fallback branch.
+    delete window.showSaveFilePicker;
+    // @ts-ignore
+    delete window.showOpenFilePicker;
+  });
+}
+
+module.exports = {
+  PLAN_1,
+  PLAN_2,
+  FIXTURE_PLANS,
+  seedPlans,
+  disableFilePickers,
+};

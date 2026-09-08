@@ -156,6 +156,24 @@ describe("parsePersisted", () => {
     expect(result!.plans["profile-1"]?.label).toBe("Profile 1");
   });
 
+  it("reads the pre-rewrite exportStateAsJson shape: a bare id-to-profile map with no envelope", () => {
+    // js/state.js:260 (pre-Phase-3 history) wrote `JSON.stringify(state.profiles)`
+    // directly — no `profiles`/`activeProfileId` wrapper. This is the only
+    // "Export JSON" format that ever shipped, so invariant 8 (an export
+    // written by the previous version still imports) requires it here.
+    const persisted = {
+      "profile-1": { label: "Profile 1" },
+      "profile-2": { label: "Profile 2" },
+    };
+    const result = parsePersisted(persisted);
+    expect(result).not.toBeNull();
+    expect(Object.keys(result!.plans).sort()).toEqual([
+      "profile-1",
+      "profile-2",
+    ]);
+    expect(result!.plans["profile-1"]?.label).toBe("Profile 1");
+  });
+
   it("returns null for unknown or garbage shapes", () => {
     expect(parsePersisted({ foo: "bar" })).toBeNull();
     expect(parsePersisted("garbage")).toBeNull();

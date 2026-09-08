@@ -1,19 +1,23 @@
 import { useRef, useState } from "preact/hooks";
 
 import { DOCUMENTS } from "../documents/registry";
+import { CURRENT_SCHEMA_VERSION } from "../model/migrate";
 import type { Plan } from "../model/plan";
 import {
   activeDocumentId,
+  activePlan,
   activePlanId,
   createPlan,
   createReciprocalPlan,
   deletePlan,
   duplicatePlan,
+  parsePersisted,
   plans,
   renamePlan,
   setActivePlan,
 } from "../store/index";
 import { documentCompletion } from "../ui/completion";
+import { lastSavedAt, openFile, saveFile } from "../ui/files";
 import { view } from "../ui/view";
 
 interface PlanCardProps {
@@ -109,6 +113,84 @@ function PlanCard({ plan, canDelete }: PlanCardProps) {
   );
 }
 
+function formatLastSaved(date: Date | null): string {
+  if (!date) return "Not saved this session";
+  return `Last saved ${date.toLocaleTimeString()}`;
+}
+
+// Exports split by purpose from the pre-print checklist's Print/Export
+// pair: this card carries the attorney memo and the full-state JSON
+// backup/restore, since neither is part of getting the document onto
+// paper.
+function DataCard() {
+  const [importError, setImportError] = useState<string | null>(null);
+
+  function handleMemo() {
+    const plan = activePlan.value;
+    const document = DOCUMENTS.find((d) => d.id === activeDocumentId.value);
+    if (!plan || !document) return;
+    const name = plan.party.testator.name || "plan";
+    void saveFile(
+      `${name.replace(/\s+/g, "-").toLowerCase()}-memo.txt`,
+      "text/plain",
+      document.memo(plan)
+    );
+  }
+
+  function handleSave() {
+    const data = {
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      activePlanId: activePlanId.value,
+      activeDocumentId: activeDocumentId.value,
+      plans: plans.value,
+    };
+    void saveFile(
+      "estate-plans.json",
+      "application/json",
+      JSON.stringify(data, null, 2)
+    );
+  }
+
+  async function handleOpen() {
+    setImportError(null);
+    const contents = await openFile(".json");
+    if (contents === null) return;
+    let raw: unknown;
+    try {
+      raw = JSON.parse(contents);
+    } catch {
+      setImportError("That file isn't valid JSON.");
+      return;
+    }
+    const parsed = parsePersisted(raw);
+    if (!parsed) {
+      setImportError("That file doesn't look like a saved plans export.");
+      return;
+    }
+    plans.value = parsed.plans;
+    activePlanId.value = parsed.activePlanId;
+  }
+
+  return (
+    <div class="card" style={{ marginTop: "var(--space-6)" }}>
+      <strong>Data</strong>
+      <div class="card-list" style={{ marginTop: "var(--space-3)" }}>
+        <button type="button" class="btn" onClick={handleMemo}>
+          Attorney memo
+        </button>
+        <button type="button" class="btn" onClick={handleSave}>
+          Save plans to file
+        </button>
+        <button type="button" class="btn" onClick={handleOpen}>
+          Open plans from file
+        </button>
+      </div>
+      {importError ? <div class="field-hint">{importError}</div> : null}
+      <div class="field-hint">{formatLastSaved(lastSavedAt.value)}</div>
+    </div>
+  );
+}
+
 export function PlansView() {
   const allPlans = Object.values(plans.value);
   const canDelete = allPlans.length > 1;
@@ -140,6 +222,7 @@ export function PlansView() {
           <PlanCard plan={plan} canDelete={canDelete} key={plan.id} />
         ))}
       </div>
+      <DataCard />
     </main>
   );
 }

@@ -1,4 +1,5 @@
 import type { FieldSpec, Section } from "../form/field-spec";
+import { toIsoDate, type StoredExecutionDate } from "../model/dates";
 import { getPath } from "../model/paths";
 import type { Plan } from "../model/plan";
 
@@ -8,7 +9,7 @@ export function flattenFields(fields: FieldSpec[]): FieldSpec[] {
   );
 }
 
-function isFieldAnswered(plan: Plan, field: FieldSpec): boolean {
+export function isFieldAnswered(plan: Plan, field: FieldSpec): boolean {
   if (field.kind === "group") {
     return flattenFields(field.fields).every((f) => isFieldAnswered(plan, f));
   }
@@ -16,6 +17,16 @@ function isFieldAnswered(plan: Plan, field: FieldSpec): boolean {
   if (field.kind === "checkbox") return true;
   if (field.kind === "list") {
     return Array.isArray(value) && value.length > 0;
+  }
+  if (field.kind === "executionDate") {
+    const stored = (value ?? {}) as Partial<StoredExecutionDate>;
+    return (
+      toIsoDate({
+        day: stored.day ?? "",
+        month: stored.month ?? "",
+        year: stored.year ?? "",
+      }) !== ""
+    );
   }
   if (typeof value === "number") return true;
   return typeof value === "string" && value.trim() !== "";

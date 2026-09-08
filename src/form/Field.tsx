@@ -1,8 +1,13 @@
-// One `<label for>`-bound control per `FieldSpec["kind"]`. `date` stays a
-// plain text input this phase — the execution date's migration to a real
-// date picker is Phase 4d's.
+// One `<label for>`-bound control per `FieldSpec["kind"]`.
 import { usePlan } from "../documents/shared/PlanContext";
+import {
+  fromIsoDate,
+  toIsoDate,
+  type StoredExecutionDate,
+} from "../model/dates";
 import { getPath } from "../model/paths";
+import type { Path } from "../model/paths";
+import type { Plan } from "../model/plan";
 import { setField } from "../store/index";
 import type { LeafFieldSpec } from "./registry";
 
@@ -69,6 +74,37 @@ export function Field({ field }: FieldProps) {
           />
         </div>
       );
+
+    case "executionDate": {
+      const stored = (value ?? {}) as Partial<StoredExecutionDate>;
+      const iso = toIsoDate({
+        day: stored.day ?? "",
+        month: stored.month ?? "",
+        year: stored.year ?? "",
+      });
+      return (
+        <div class="field">
+          <label for={id}>{field.label}</label>
+          <input
+            id={id}
+            type="date"
+            value={iso}
+            onInput={(event) => {
+              const nextIso = (event.target as HTMLInputElement).value;
+              const parts = fromIsoDate(nextIso);
+              // Sub-paths of a composite field aren't in `Path<Plan>`'s
+              // union at the type level — `field.path` is the composite
+              // `execution.executionDate`, not its `.day`/`.month`/`.year`
+              // leaves — so the three writes are typed through the same
+              // `Path<Plan>` the composite path itself carries.
+              setField(`${field.path}.day` as Path<Plan>, parts.day);
+              setField(`${field.path}.month` as Path<Plan>, parts.month);
+              setField(`${field.path}.year` as Path<Plan>, parts.year);
+            }}
+          />
+        </div>
+      );
+    }
 
     case "select":
       return (

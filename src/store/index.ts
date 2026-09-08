@@ -158,9 +158,21 @@ interface ParsedPersisted {
 }
 
 /**
- * Accepts both the current persisted shape (`plans` / `activePlanId`, written
- * by `persist()`) and the legacy v2 shape (`profiles` / `activeProfileId`),
- * running every stored plan through `migrateProfile` either way.
+ * Accepts the current persisted shape (`plans` / `activePlanId`, written by
+ * `persist()`), the v2 localStorage shape (`profiles` / `activeProfileId`),
+ * and the pre-rewrite `js/state.js` `exportStateAsJson()` shape — a bare
+ * `{ [profileId]: Profile }` map with no envelope at all, per
+ * `js/state.js:260` in the pre-Phase-3 history (`git show 71b715a:js/state.js`).
+ * That was the only "Export JSON" format that ever shipped, so a real
+ * previously-exported file is this shape, not the internal `profiles`
+ * envelope — invariant 8 (an export written by the previous version still
+ * imports) requires this branch, not just the internal shapes.
+ *
+ * Every branch below still runs each stored entry through `migrateProfile`,
+ * which validates shape per-id — a non-profile bare object (or any other
+ * malformed input) fails every id and falls through to the `null` return
+ * two lines above the end of this function, so this fallback cannot turn
+ * arbitrary JSON into a false positive.
  */
 export function parsePersisted(raw: unknown): ParsedPersisted | null {
   if (!raw || typeof raw !== "object") return null;
@@ -171,7 +183,7 @@ export function parsePersisted(raw: unknown): ParsedPersisted | null {
     ? (obj.plans as Record<string, unknown>)
     : obj.profiles && typeof obj.profiles === "object"
       ? (obj.profiles as Record<string, unknown>)
-      : null;
+      : obj;
   if (!rawProfiles) return null;
 
   const rawActiveId = obj.activePlanId ?? obj.activeProfileId;

@@ -284,22 +284,9 @@ export const WILL_SECTIONS: Section[] = [
     article: "Testimonium",
     fields: [
       {
-        kind: "text",
-        path: "execution.executionDate.day",
-        label: "Day",
-        hint: "e.g. 1st",
-      },
-      {
-        kind: "text",
-        path: "execution.executionDate.month",
-        label: "Month",
-        hint: "e.g. September",
-      },
-      {
-        kind: "text",
-        path: "execution.executionDate.year",
-        label: "Year",
-        hint: "e.g. 2026",
+        kind: "executionDate",
+        path: "execution.executionDate",
+        label: "Date of Execution",
       },
     ],
   },

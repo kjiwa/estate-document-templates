@@ -1,6 +1,6 @@
 // @ts-check
 const { test, expect } = require("@playwright/test");
-const { seedPlans } = require("./fixtures");
+const { seedPlans, disableFilePickers } = require("./fixtures");
 
 test.describe("Plan management", () => {
   test.beforeEach(async ({ page }) => {
@@ -117,6 +117,68 @@ test.describe("Plan management", () => {
     await expect(
       page.locator('[data-path="party.spouse.name"]').first()
     ).toHaveText("Avery Q. Ramos");
+  });
+
+  test("the Data card downloads an attorney memo", async ({ page }) => {
+    await disableFilePickers(page);
+    await page.goto("/");
+    await page.getByRole("button", { name: "Plans" }).click();
+
+    const [download] = await Promise.all([
+      page.waitForEvent("download"),
+      page.getByRole("button", { name: "Attorney memo" }).click(),
+    ]);
+
+    expect(download.suggestedFilename()).toMatch(/\.txt$/);
+  });
+
+  test("the Data card downloads a JSON save of every plan", async ({
+    page,
+  }) => {
+    await disableFilePickers(page);
+    await page.goto("/");
+    await page.getByRole("button", { name: "Plans" }).click();
+
+    const [download] = await Promise.all([
+      page.waitForEvent("download"),
+      page.getByRole("button", { name: "Save plans to file" }).click(),
+    ]);
+
+    expect(download.suggestedFilename()).toBe("estate-plans.json");
+  });
+
+  test("Open plans from file round-trips a previously saved export", async ({
+    page,
+  }) => {
+    await disableFilePickers(page);
+    await page.goto("/");
+    await page.getByRole("button", { name: "Plans" }).click();
+
+    const firstCard = page.locator(".plan-card").first();
+    await firstCard.getByRole("button", { name: "Rename" }).click();
+    await firstCard.getByLabel("Plan name").fill("Saved Before Reopen");
+    await firstCard.getByLabel("Plan name").press("Enter");
+
+    const [download] = await Promise.all([
+      page.waitForEvent("download"),
+      page.getByRole("button", { name: "Save plans to file" }).click(),
+    ]);
+    const savedPath = await download.path();
+
+    await firstCard.getByRole("button", { name: "Rename" }).click();
+    await firstCard.getByLabel("Plan name").fill("Overwritten Name");
+    await firstCard.getByLabel("Plan name").press("Enter");
+    await expect(firstCard.locator("strong")).toHaveText("Overwritten Name");
+
+    const [fileChooser] = await Promise.all([
+      page.waitForEvent("filechooser"),
+      page.getByRole("button", { name: "Open plans from file" }).click(),
+    ]);
+    await fileChooser.setFiles(savedPath);
+
+    await expect(
+      page.locator(".plan-card", { hasText: "Saved Before Reopen" })
+    ).toBeVisible();
   });
 
   test("Create reciprocal spouse plan is hidden when marital status is unmarried", async ({

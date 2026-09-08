@@ -126,6 +126,32 @@ test.describe("Contextual editing", () => {
     expect(overflowsX).toBe(false);
   });
 
+  test("tapping the testimonium day blank opens the composite date field, and setting it updates all three blanks", async ({
+    page,
+  }) => {
+    const dayBlank = page
+      .locator('[data-path="execution.executionDate.day"]')
+      .first();
+    await dayBlank.click();
+
+    const surface = await openSurfaceLocator(page);
+    await expect(surface).toBeVisible();
+    // Resolves up to the composite field, not a per-part text input.
+    await expect(page.locator("#field-execution-executionDate")).toBeVisible();
+
+    await page.locator("#field-execution-executionDate").fill("2026-09-21");
+
+    await expect(
+      page.locator('[data-path="execution.executionDate.day"]').first()
+    ).toHaveText("21st");
+    await expect(
+      page.locator('[data-path="execution.executionDate.month"]').first()
+    ).toHaveText("September");
+    await expect(
+      page.locator('[data-path="execution.executionDate.year"]').first()
+    ).toHaveText("2026");
+  });
+
   test("console clean, no non-localhost requests", async ({ page }) => {
     const consoleErrors = [];
     page.on("console", (msg) => {

@@ -482,6 +482,19 @@ button {
   padding: var(--space-8) var(--space-4);
 }
 
+.execute-flow,
+.print-checklist {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-4);
+}
+
+.print-checklist .checklist-item input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+}
+
 .plan-card {
   display: flex;
   justify-content: space-between;

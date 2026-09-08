@@ -12,6 +12,7 @@ export type FieldSpec =
   | { kind: "text"; path: Path<Plan>; label: string; hint?: string }
   | { kind: "number"; path: Path<Plan>; label: string; min?: number }
   | { kind: "date"; path: Path<Plan>; label: string }
+  | { kind: "executionDate"; path: Path<Plan>; label: string }
   | {
       kind: "select";
       path: Path<Plan>;

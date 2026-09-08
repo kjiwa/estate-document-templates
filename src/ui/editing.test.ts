@@ -89,9 +89,9 @@ describe("stepField", () => {
   });
 
   it("clamps at the end: canStepNext is false and stepField(1) is a no-op", () => {
-    openField("execution.executionDate.year");
+    openField("execution.executionDate");
     expect(canStepNext.value).toBe(false);
     stepField(1);
-    expect(activeFieldPath.value).toBe("execution.executionDate.year");
+    expect(activeFieldPath.value).toBe("execution.executionDate");
   });
 });
