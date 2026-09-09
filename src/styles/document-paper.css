@@ -53,7 +53,8 @@
 .paged-sheet .witness-block,
 .paged-sheet .sig-grid,
 .paged-sheet .affidavit-sig-row,
-.paged-sheet .notary-block {
+.paged-sheet .notary-block,
+.paged-sheet .election-table {
   page-break-inside: avoid;
   break-inside: avoid;
 }

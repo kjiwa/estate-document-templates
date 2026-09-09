@@ -85,8 +85,33 @@ const WillDocument = z.object({
   survivorshipDays: z.number().default(60),
 });
 
+// Election/select values are "" (unset) / "do" / "doNot", and for
+// `placeOfDeath` "" / "home" / "hospital". `.default({})` — not a per-leaf
+// v2 mapping in `migrate.ts` — is what lets both directions of invariant 8
+// hold: a v2 profile never had this key, and a v3 export written by a
+// version predating this namespace has no `healthCareDirective` key either;
+// both parse with every leaf defaulted.
+const HealthCareDirectiveDocument = z
+  .object({
+    placeOfDeath: z.string().default(""),
+    artificialNutrition: z.string().default(""),
+    artificialHydration: z.string().default(""),
+    cpr: z.string().default(""),
+  })
+  // A literal default, not `.default({})` — zod substitutes this value
+  // verbatim for a missing key without re-parsing it through the inner
+  // schema, so `.default({})` would leave every leaf `undefined` instead of
+  // defaulting to `""`.
+  .default({
+    placeOfDeath: "",
+    artificialNutrition: "",
+    artificialHydration: "",
+    cpr: "",
+  });
+
 const Documents = z.object({
   will: WillDocument,
+  healthCareDirective: HealthCareDirectiveDocument,
 });
 
 export const Plan = z.object({

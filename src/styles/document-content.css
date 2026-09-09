@@ -60,6 +60,26 @@
   border-radius: var(--radius-sm) var(--radius-sm) 0 0;
 }
 
+/* The Health Care Directive's boxed check-one table (RCW 70.122.030's
+   statutory form). Bordered like the source's own boxed election, sized off
+   the same tokens as everything else on the sheet. */
+.election-table {
+  width: 100%;
+  border: 1px solid var(--rule-on-paper);
+  border-collapse: collapse;
+  margin-bottom: var(--space-6);
+}
+
+.election-row td {
+  padding: var(--space-2) var(--space-3);
+}
+
+.election-mark-cell {
+  width: 3ch;
+  text-align: center;
+  font-weight: var(--font-weight-bold);
+}
+
 .powers-list {
   list-style: none;
   padding-left: 0;
