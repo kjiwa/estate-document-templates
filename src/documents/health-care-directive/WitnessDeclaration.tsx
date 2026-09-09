@@ -1,5 +1,6 @@
 import { Blank } from "../shared/Blank";
 import { usePlan } from "../shared/PlanContext";
+import { WitnessSigColumn } from "../shared/WitnessSigColumn";
 
 // Not `../shared/WitnessAttestation` — that component's recitals qualify
 // witnesses to a Will under RCW 11.12.020. RCW 70.122.030(1) disqualifies a
@@ -7,38 +8,6 @@ import { usePlan } from "../shared/PlanContext";
 // physician or health facility, and anyone with a claim against the
 // declarer's estate) and requires a penalty-of-perjury declaration rather
 // than the will's "published and declared" attestation.
-function WitnessSigColumn({ index }: { index: 0 | 1 }) {
-  return (
-    <div class="sig-column">
-      <div class="sig-field">
-        <div class="sig-field-line" />
-        <div class="sig-field-label">Witness Signature</div>
-      </div>
-      <div class="sig-field">
-        <div class="sig-field-line">
-          <Blank path={`execution.witnesses.${index}.name`} chars={20} />
-        </div>
-        <div class="sig-field-label">Printed Name</div>
-      </div>
-      <div class="sig-field">
-        <div class="sig-field-line">
-          <Blank path={`execution.witnesses.${index}.address`} chars={20} />
-        </div>
-        <div class="sig-field-label">Residence Address</div>
-      </div>
-      <div class="sig-field">
-        <div class="sig-field-line">
-          <Blank
-            path={`execution.witnesses.${index}.cityStateZip`}
-            chars={20}
-          />
-        </div>
-        <div class="sig-field-label">City, State, Zip</div>
-      </div>
-    </div>
-  );
-}
-
 export function WitnessDeclaration() {
   const plan = usePlan();
   const declarer = plan.party.testator.name;
