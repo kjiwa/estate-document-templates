@@ -5,6 +5,11 @@ import type { ExecuteGroupDef, Section } from "../form/field-spec";
 import type { Advisory } from "../model/advisory";
 import type { Plan } from "../model/plan";
 import type { GuidanceEntry } from "./shared/guidance";
+import { Body as HealthCareDirectiveBody } from "./health-care-directive/Body";
+import { HEALTH_CARE_EXECUTE_GROUPS } from "./health-care-directive/executeGroups";
+import { HEALTH_CARE_GUIDANCE } from "./health-care-directive/guidance";
+import { analyzeHealthCareDirective } from "./health-care-directive/review";
+import { HEALTH_CARE_SECTIONS } from "./health-care-directive/sections";
 import { Body as RemainsDirectiveBody } from "./remains-directive/Body";
 import { DIRECTIVE_EXECUTE_GROUPS } from "./remains-directive/executeGroups";
 import { DIRECTIVE_GUIDANCE } from "./remains-directive/guidance";
@@ -60,6 +65,8 @@ const WILL_STATUTES = [
 
 const DIRECTIVE_STATUTES = ["RCW 11.20.020", "RCW 42.45.130", "RCW 68.50.160"];
 
+const HEALTH_CARE_STATUTES = ["RCW 70.122.020", "RCW 70.122.030"];
+
 export const DOCUMENTS: DocumentDefinition[] = [
   {
     id: "will",
@@ -83,5 +90,16 @@ export const DOCUMENTS: DocumentDefinition[] = [
     executeGroups: DIRECTIVE_EXECUTE_GROUPS,
     Body: RemainsDirectiveBody,
     review: analyzeDirective,
+  },
+  {
+    id: "health-care-directive",
+    title: "Health Care Directive",
+    roleNoun: "Declarer",
+    statutes: HEALTH_CARE_STATUTES,
+    sections: HEALTH_CARE_SECTIONS,
+    guidance: HEALTH_CARE_GUIDANCE,
+    executeGroups: HEALTH_CARE_EXECUTE_GROUPS,
+    Body: HealthCareDirectiveBody,
+    review: analyzeHealthCareDirective,
   },
 ];

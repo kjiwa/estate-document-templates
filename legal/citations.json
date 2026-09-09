@@ -1,7 +1,9 @@
 {
   "_comment": "Snapshot of each cited RCW section's history note, fetched from app.leg.wa.gov. The monthly citation-check workflow (.github/workflows/citation-check.yml) diffs this against a fresh fetch and fails the build if a line changed, naming which statute moved.",
-  "checkedAt": "2026-09-02",
+  "checkedAt": "2026-09-08",
   "citations": {
+    "70.122.020": "2025 c 58 s 2040; 2012 c 10 s 53; 1992 c 98 s 2; 1979 c 112 s 3.",
+    "70.122.030": "2025 c 56 s 1; 2019 c 209 s 2; 1992 c 98 s 3; 1979 c 112 s 4.",
     "11.02.005": "2026 c 204 s 15; 2021 c 140 s 1012; 2020 c 312 s 708; 2018 c 22 s 6; 2014 c 58 s 18. Prior: 2011 c 327 s 1; 2008 c 6 s 901; 2007 c 475 s 1; 2005 c 97 s 1; 2001 c 320 s 1; 2000 c 130 s 1; 1999 c 358 s 20; 1998 c 292 s 117; 1997 c 252 s 1; 1994 c 221 s 1; 1993 c 73 s 1; 1985 c 30 s 4; prior: 1984 c 149 s 4; 1977 ex.s. c 80 s 14; 1975-'76 2nd ex.s. c 42 s 23; 1965 c 145 s 11.02.005. Former RCW sections: Subd. (3), RCW 11.04.110; subd. (4), RCW 11.04.010; subd. (5), RCW 11.04.100; subd. (6), RCW 11.04.280; subd. (7), RCW 11.04.010; subd. (8) and (9), RCW 11.12.240; subd. (14) and (15), RCW 11.02.040.",
     "11.12.020": "2021 c 140 s 1013; 1990 c 79 s 1; 1965 c 145 s 11.12.020. Prior: 1929 c 21 s 1; 1917 c 156 s 25; RRS s 1395; prior: Code 1881 s 1319; 1863 p 207 ss 53, 54; 1860 p 170 ss 20, 21. FORMER PART OF SECTION; re nuncupative wills, now codified as RCW 11.12.025.",
     "11.12.091": "1994 c 221 s 9.",

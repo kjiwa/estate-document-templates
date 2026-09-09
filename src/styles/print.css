@@ -103,6 +103,7 @@
   .sig-grid,
   .affidavit-sig-row,
   .notary-block,
+  .election-table,
   .no-break {
     break-inside: avoid;
     page-break-inside: avoid;
