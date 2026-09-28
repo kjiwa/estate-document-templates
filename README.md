@@ -1,6 +1,6 @@
 # Estate Document Templates
 
-A client-side web application for generating, customizing, and printing legally structured estate planning documents compliant with Washington State law. Ships two document types today — a Last Will and Testament (RCW Title 11) and a Disposition of Remains Directive (RCW 68.50.160) — switchable from the header picker, drafted from one shared plan.
+A client-side web application for generating, customizing, and printing legally structured estate planning documents compliant with Washington State law. Ships three document types today — a Last Will and Testament (RCW Title 11), a Disposition of Remains Directive (RCW 68.50.160), and a Health Care Directive (RCW 70.122.030, the Natural Death Act) — switchable from the header picker, drafted from one shared plan.
 
 ## Features
 
@@ -14,18 +14,18 @@ A client-side web application for generating, customizing, and printing legally 
   - **RCW 11.98**: Trustee powers and small trust terminations under chapter 11.98 RCW.
   - **RCW 11.120.070**: Fiduciary access to digital assets, including express consent to disclosure of communication content.
   - **RCW 6.32.250**: Spendthrift protection, limited to trust interests.
-  - **RCW 11.02.005(18)**: Representation (not per stirpes) for gifts to a deceased beneficiary's descendants; the survivorship period is editable per profile rather than tracking a statutory default.
+  - **RCW 11.02.005(18)**: Representation (not per stirpes) for gifts to a deceased beneficiary's descendants; the survivorship period is editable per plan rather than tracking a statutory default.
   - **RCW 11.68.011**: Nonintervention powers, requested by petition rather than directed outright.
   - **RCW 11.20.020 & RCW 42.45.130**: Self-proving affidavit with testator and witness signature lines, and a dated notarial jurat.
+  - **RCW 70.122.020 & RCW 70.122.030**: Health Care Directive under the Natural Death Act — terminal/permanent unconscious condition elections and witness or notarial execution.
 - **Guidance Layer**: Every decision-bearing field carries a native `<details>` disclosure explaining what it does, the options, what's typical, and its impact — content only, never part of the printed document. A live Review panel raises advisories (e.g. an interested witness, a missing alternate fiduciary) computed by a pure `analyzeProfile()` function. An Attorney Memo export lists every choice and advisory for counsel.
-- **Profile Switching & Pronoun Agreement**: Toggle between reciprocal spousal profiles, with automatic updates to pronouns, fiduciary appointments, and beneficiary declarations.
+- **Plan Switching & Pronoun Agreement**: Toggle between reciprocal spousal plans, with automatic updates to pronouns, fiduciary appointments, and beneficiary declarations.
 - **Variable Highlighting**: Toggle dynamic field indicators on screen to audit customizable terms without affecting printed output.
 - **Screen-to-Print Fidelity**: Print stylesheets configured for standard Letter portrait dimensions (`8.5in x 11in`), calibrated margins, `@page` margin-box page numbers and testator initials, widow/orphan controls, and unbreakable signature and notary blocks.
 - **State Persistence & Portability**:
   - Auto-persists drafting sessions in browser `localStorage`, deep-merged over the shipped defaults so an older or partial draft never invents a value for a field it doesn't have.
-  - Export and import full profile state as structured JSON, validated by shape.
+  - Export and import full plan state as structured JSON, validated by shape.
   - Export standalone, self-contained HTML files ready for offline viewing or printing — styled from the same source the app uses, with no guidance content.
-- **Accessibility**: Built to WCAG 2.1/2.2 AA standards with semantic landmarks, keyboard navigation, focus indicators, and screen-reader status announcements.
 
 ## Document Structure
 
@@ -54,6 +54,17 @@ A client-side web application for generating, customizing, and printing legally 
 5. **Testimonium & Attestation**: Execution statement, declarant signature block, and a two-witness attestation that the declarant signed and dated the instrument in their presence (RCW 68.50.160(1)).
 6. **Notarial Acknowledgment**: Not required by RCW 68.50.160 — included, and stated as not required in the document's own text, so a funeral establishment or cemetery authority receiving the instrument cold has independent proof of the declarant's signature.
 
+### Health Care Directive
+
+Unlike the will and the remains directive, this instrument has no Article/Clause numbering — it is one continuous declaration of lettered paragraphs (A)-(G) under the Natural Death Act, none of them optional.
+
+1. **Title & Preamble**: Declarer identification, domicile declaration, and the Natural Death Act declaration (RCW 70.122.030).
+2. **Paragraph (A)**: Direction to withhold or withdraw life-sustaining treatment on diagnosis of a terminal or permanent unconscious condition (RCW 70.122.020, RCW 70.122.030), with an optional place-of-death preference.
+3. **Paragraph (B)**: Instruction that the Directive be honored by family, physicians, and any health care decision-maker.
+4. **Paragraph (C)**: The statutory boxed check-one election table for artificial nutrition and hydration.
+5. **Paragraphs (D)-(G)**: Capacity statement, right to amend, severability, and revocation of prior directives.
+6. **Testimonium & Attestation**: Execution statement, declarer signature block, and witness declaration conforming to RCW 70.122.030(1)'s two-witness or notarial-acknowledgment alternative.
+
 ## Project Structure
 
 ```
@@ -67,12 +78,14 @@ A client-side web application for generating, customizing, and printing legally 
 │   │   ├── registry.ts      # DOCUMENTS: the document-type registry
 │   │   ├── shared/          # Plan context and clauses shared across document types
 │   │   ├── will/             # Washington Last Will & Testament: sections, body, guidance, review
-│   │   └── remains-directive/ # Disposition of Remains Directive: sections, body, guidance, review
+│   │   ├── remains-directive/ # Disposition of Remains Directive: sections, body, guidance, review
+│   │   └── health-care-directive/ # Health Care Directive: sections, body, guidance, review
 │   ├── export/               # Attorney memo and standalone HTML generation
 │   ├── form/                 # FieldSpec union, <Field> renderer, field registry/traversal
 │   ├── model/                 # Plan schema (zod), paths, migrations, pronouns, dates
 │   ├── store/                # Reactive plan store and persistence (localStorage)
 │   ├── ui/                   # Signals-derived UI state: editing, advisories, execute, files, theme
+│   ├── fonts/                 # Bundled webfonts, each under its own src/fonts/LICENSE-* file
 │   └── styles/                # Design tokens and app/document/print CSS
 ├── legal/
 │   └── citations.json      # Snapshot of statute history notes, checked by CI
@@ -115,7 +128,13 @@ npm run build && npm run preview
 
 ### Testing
 
-Run the Playwright test suite (covers desktop/mobile viewports, WCAG accessibility, state reactivity, the guidance layer, and PDF rendering):
+Run the unit test suite (Vitest — store, model, and pure logic):
+
+```sh
+npm run test:unit
+```
+
+Run the Playwright end-to-end suite (covers desktop/mobile viewports, semantic landmarks and keyboard navigation, state reactivity, the guidance layer, and PDF rendering):
 
 ```sh
 npm test
@@ -139,5 +158,4 @@ clearing site data, using a private window, or switching browsers loses the draf
 
 This tool is a drafting aid, not legal advice, and using it does not create an
 attorney-client relationship. It generates documents under Washington State law
-(RCW Title 11) only. Have a licensed attorney review any document before you sign
-it.
+only. Have a licensed attorney review any document before you sign it.

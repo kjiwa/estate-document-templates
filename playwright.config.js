@@ -8,10 +8,10 @@ module.exports = defineConfig({
   forbidOnly: !!process.env.CI,
   retries: 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: "list",
+  reporter: [["list"], ["html", { open: "never" }]],
   use: {
     baseURL: "http://127.0.0.1:8080",
-    trace: "on-first-retry",
+    trace: "retain-on-failure",
   },
   projects: [
     {

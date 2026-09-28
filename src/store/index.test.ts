@@ -1,5 +1,6 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { CURRENT_SCHEMA_VERSION } from "../model/migrate";
 import {
   activeDocumentId,
   activePlanId,
@@ -7,6 +8,7 @@ import {
   createReciprocalPlan,
   deletePlan,
   duplicatePlan,
+  loadFromStorage,
   nextPlanId,
   parsePersisted,
   plans,
@@ -15,6 +17,29 @@ import {
   setActivePlan,
   setField,
 } from "./index";
+
+const STORAGE_KEY = "estate_templates_state_v1";
+
+// A minimal `Storage` stand-in — Vitest's `node` environment has no
+// `window`/`localStorage` at all (see `src/ui/files.test.ts`'s `stubDom`
+// helper for the same problem elsewhere).
+function fakeLocalStorage(): Storage {
+  const data = new Map<string, string>();
+  return {
+    getItem: (key: string) => (data.has(key) ? data.get(key)! : null),
+    setItem: (key: string, value: string) => {
+      data.set(key, value);
+    },
+    removeItem: (key: string) => {
+      data.delete(key);
+    },
+    clear: () => data.clear(),
+    key: () => null,
+    get length() {
+      return data.size;
+    },
+  } as Storage;
+}
 
 // Captured once, before any test mutates `plans.value["profile-1"]` (or, in
 // "plan mutations" below, deletes it outright) — the fixture every describe
@@ -231,5 +256,71 @@ describe("parsePersisted", () => {
   it("returns null for an empty plans/profiles map", () => {
     expect(parsePersisted({ plans: {} })).toBeNull();
     expect(parsePersisted({ profiles: {} })).toBeNull();
+  });
+
+  it("rejects an envelope with a schemaVersion newer than the code understands", () => {
+    const persisted = {
+      schemaVersion: CURRENT_SCHEMA_VERSION + 1,
+      activePlanId: "profile-1",
+      activeDocumentId: "will",
+      plans: { "profile-1": plans.value["profile-1"]! },
+    };
+    expect(parsePersisted(persisted)).toBeNull();
+  });
+});
+
+describe("loadFromStorage", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.useRealTimers();
+  });
+
+  it("does not let the module's initial autosave schedule overwrite the real stored state before loadFromStorage finishes", async () => {
+    vi.useFakeTimers();
+    const storage = fakeLocalStorage();
+    const originalRaw = "{not valid json";
+    storage.setItem(STORAGE_KEY, originalRaw);
+    vi.stubGlobal("window", { localStorage: storage });
+
+    vi.resetModules();
+    const mod = await import("./index");
+
+    // Real code calls `loadFromStorage()` immediately after importing this
+    // module (see `main.tsx`), but the module's own top-level effect already
+    // ran, with the blank-plan signal defaults, before that call — any delay
+    // between the two, real or simulated here via the fake clock, opens the
+    // race: past the 250ms debounce, an ungated effect's pending write fires
+    // with those blanks before the load ever gets a chance to run.
+    vi.advanceTimersByTime(1000);
+    expect(storage.getItem(STORAGE_KEY)).toBe(originalRaw);
+
+    expect(mod.loadFromStorage()).toBe(false);
+    expect(storage.getItem(STORAGE_KEY)).toBe(originalRaw);
+  });
+
+  it("preserves the raw stored value under a backup key when parsing fails", () => {
+    const storage = fakeLocalStorage();
+    const originalRaw = "{not valid json";
+    storage.setItem(STORAGE_KEY, originalRaw);
+    vi.stubGlobal("window", { localStorage: storage });
+
+    expect(loadFromStorage()).toBe(false);
+
+    expect(storage.getItem(`${STORAGE_KEY}__unparsed`)).toBe(originalRaw);
+  });
+
+  it("preserves the raw stored value under a backup key when migration fails for every plan", () => {
+    const storage = fakeLocalStorage();
+    const originalRaw = JSON.stringify({
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      activePlanId: "profile-1",
+      plans: { "profile-1": { not: "a plan" } },
+    });
+    storage.setItem(STORAGE_KEY, originalRaw);
+    vi.stubGlobal("window", { localStorage: storage });
+
+    expect(loadFromStorage()).toBe(false);
+
+    expect(storage.getItem(`${STORAGE_KEY}__unparsed`)).toBe(originalRaw);
   });
 });

@@ -20,14 +20,24 @@ const ROOT = path.resolve(__dirname, "..");
 
 const SOURCE_GLOB = "src/documents/**/*.{ts,tsx}";
 const CITATIONS_SNAPSHOT_PATH = path.join(ROOT, "legal/citations.json");
-const CITATION_PATTERN = /RCW\s+(\d+\.\d+(?:\.\d+)?)/g;
+// Two shapes appear in the documents: a pinpoint section cite ("RCW
+// 68.50.160", 3-segment title.chapter.section), and a whole-chapter cite
+// ("chapter 11.130 RCW", 2-segment title.chapter, number before "RCW").
+// app.leg.wa.gov's `?cite=` param accepts both, but a chapter page is a
+// table of contents with no per-citation `[...]` history note, so a
+// 2-segment cite here is always checked against a `null` snapshot entry
+// rather than a history string — the generic `result.history !==
+// snapshotHistory` comparison in `main` already handles that (both sides
+// are `null`), no special-casing needed.
+const CITATION_PATTERN =
+  /RCW\s+(\d+\.\d+(?:\.\d+)?)|chapter\s+(\d+\.\d+)\s+RCW/g;
 
 async function extractCitations() {
   const citations = new Set();
   for await (const relativePath of glob(SOURCE_GLOB, { cwd: ROOT })) {
     const text = await readFile(path.join(ROOT, relativePath), "utf8");
     for (const match of text.matchAll(CITATION_PATTERN)) {
-      citations.add(match[1]);
+      citations.add(match[1] ?? match[2]);
     }
   }
   return [...citations].sort();
@@ -48,6 +58,9 @@ async function fetchCitation(cite) {
   const response = await fetch(url, {
     headers: { "User-Agent": "estate-document-templates-citation-check" },
   });
+  if (!response.ok) {
+    throw new Error(`${response.status} ${response.statusText}`);
+  }
   const html = await response.text();
   const text = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
 

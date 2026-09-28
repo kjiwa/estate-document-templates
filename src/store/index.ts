@@ -17,6 +17,7 @@ import { reciprocalPlan } from "../model/reciprocal";
 // `activeDocumentId` value below is the literal id of what has always been
 // the first (and, until Phase 5, only) document, not `DOCUMENTS[0]`.
 const STORAGE_KEY = "estate_templates_state_v1";
+const STORAGE_KEY_UNPARSED = `${STORAGE_KEY}__unparsed`;
 const UNDO_LIMIT = 50;
 const UNDO_COALESCE_MS = 500;
 const PERSIST_DEBOUNCE_MS = 250;
@@ -195,6 +196,18 @@ export function parsePersisted(raw: unknown): ParsedPersisted | null {
   if (!raw || typeof raw !== "object") return null;
   const obj = raw as Record<string, unknown>;
 
+  // A `schemaVersion` newer than this build understands means the shape
+  // below may have changed in ways `migrateProfile` can't detect (a
+  // renamed/added required field, say) — refusing it here, rather than
+  // blindly tagging it as `CURRENT_SCHEMA_VERSION` and merging it, is what
+  // keeps a downgrade-then-reload from silently corrupting newer data.
+  if (
+    typeof obj.schemaVersion === "number" &&
+    obj.schemaVersion > CURRENT_SCHEMA_VERSION
+  ) {
+    return null;
+  }
+
   const isV3 = Boolean(obj.plans && typeof obj.plans === "object");
   const rawProfiles = isV3
     ? (obj.plans as Record<string, unknown>)
@@ -246,20 +259,41 @@ export function parsePersisted(raw: unknown): ParsedPersisted | null {
   };
 }
 
+// Written to when `loadFromStorage()` can't make sense of `STORAGE_KEY`, so
+// the unreadable value survives instead of being silently dropped once the
+// app falls back to blank plans (see `backupUnparsed` below).
+function backupUnparsed(raw: string): void {
+  try {
+    window.localStorage.setItem(STORAGE_KEY_UNPARSED, raw);
+  } catch {
+    // Best-effort, same as `persist()` below.
+  }
+}
+
 export function loadFromStorage(): boolean {
   if (typeof window === "undefined" || !window.localStorage) return false;
+  const raw = window.localStorage.getItem(STORAGE_KEY);
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return false;
     const parsed = parsePersisted(JSON.parse(raw));
-    if (!parsed) return false;
+    if (!parsed) {
+      backupUnparsed(raw);
+      return false;
+    }
 
     plans.value = parsed.plans;
     activePlanId.value = parsed.activePlanId;
     activeDocumentId.value = parsed.activeDocumentId;
     return true;
   } catch {
+    if (raw) backupUnparsed(raw);
     return false;
+  } finally {
+    // Gates the autosave effect below: it must not schedule a write with the
+    // module's initial blank-plan signals before this function has decided
+    // whether real stored state exists, or a failed load's blank fallback
+    // would win the race and overwrite that stored state.
+    loadAttempted.value = true;
   }
 }
 
@@ -280,6 +314,7 @@ function persist(): void {
 }
 
 let persistTimer: ReturnType<typeof setTimeout> | undefined;
+const loadAttempted = signal(false);
 
 effect(() => {
   // Read every signal this effect depends on before scheduling, so preact
@@ -288,6 +323,14 @@ effect(() => {
   void plans.value;
   void activePlanId.value;
   void activeDocumentId.value;
+
+  // This effect runs once at module load, with the blank-plan signal
+  // defaults, before `main.tsx` calls `loadFromStorage()`. Scheduling a
+  // write here unconditionally would race a failed load: the timer below
+  // would still fire and overwrite real stored state with those blanks.
+  // Waiting for `loadFromStorage()` to finish (success or failure) closes
+  // that window.
+  if (!loadAttempted.value) return;
 
   if (persistTimer) clearTimeout(persistTimer);
   persistTimer = setTimeout(persist, PERSIST_DEBOUNCE_MS);
