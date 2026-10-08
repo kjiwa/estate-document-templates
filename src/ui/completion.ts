@@ -1,4 +1,4 @@
-import type { FieldSpec, Section } from "../form/field-spec";
+import { isOptional, type FieldSpec, type Section } from "../form/field-spec";
 import { toIsoDate, type StoredExecutionDate } from "../model/dates";
 import { getPath } from "../model/paths";
 import type { Plan } from "../model/plan";
@@ -9,9 +9,12 @@ export function flattenFields(fields: FieldSpec[]): FieldSpec[] {
   );
 }
 
-export function isOptional(plan: Plan, field: FieldSpec): boolean {
-  if (!("optional" in field) || field.optional === undefined) return false;
-  return field.optional === true || field.optional(plan);
+export function isRequired(plan: Plan, field: FieldSpec): boolean {
+  return (
+    field.kind !== "group" &&
+    field.kind !== "checkbox" &&
+    !isOptional(plan, field)
+  );
 }
 
 export function isFieldAnswered(plan: Plan, field: FieldSpec): boolean {
@@ -46,12 +49,14 @@ export function sectionCompletion(
   plan: Plan,
   section: Section
 ): { answered: number; total: number; complete: boolean } {
-  const fields = flattenFields(section.fields);
+  const fields = flattenFields(section.fields).filter((f) =>
+    isRequired(plan, f)
+  );
   const answered = fields.filter((f) => isFieldAnswered(plan, f)).length;
   const total = fields.length;
   const complete = section.complete
     ? section.complete(plan)
-    : total > 0 && answered === total;
+    : answered === total;
   return { answered, total, complete };
 }
 

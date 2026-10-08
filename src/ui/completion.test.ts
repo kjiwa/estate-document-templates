@@ -5,11 +5,18 @@ import { describe, expect, it } from "vitest";
 
 import { DOCUMENTS, type DocumentDefinition } from "../documents/registry";
 import { HighlightContext, PlanContext } from "../documents/shared/PlanContext";
+import { isOptional } from "../form/field-spec";
 import { sectionFields } from "../form/registry";
 import { migrateProfile } from "../model/migrate";
 import type { Plan } from "../model/plan";
 import { getPath } from "../model/paths";
-import { isFieldAnswered, isOptional, sectionCompletion } from "./completion";
+import {
+  documentCompletion,
+  flattenFields,
+  isFieldAnswered,
+  isRequired,
+  sectionCompletion,
+} from "./completion";
 
 function blankPlan(): Plan {
   const result = migrateProfile("profile-1", { label: "Profile 1" });
@@ -72,6 +79,44 @@ describe("completion matches the rendered fill-ins", () => {
     });
   }
 
+  const BLANK_ANSWERED: Record<string, number> = {
+    will: 4,
+    "remains-directive": 1,
+    "health-care-directive": 1,
+    "general-power-of-attorney": 1,
+    "durable-power-of-attorney": 1,
+  };
+
+  for (const doc of DOCUMENTS) {
+    it(`counts exactly the required visible leaves of ${doc.id} on a blank plan`, () => {
+      const required = visibleLeaves(doc, plan).filter((f) =>
+        isRequired(plan, f)
+      );
+      const prefilled = required.filter((f) => {
+        const value = getPath(plan, f.path);
+        return (
+          typeof value === "number" ||
+          (typeof value === "string" && value.trim() !== "")
+        );
+      });
+      const completion = documentCompletion(plan, doc.sections);
+      expect(completion.total).toBe(required.length);
+      expect(completion.answered).toBe(prefilled.length);
+      expect(completion.answered).toBe(BLANK_ANSWERED[doc.id]);
+    });
+
+    it(`completes every ${doc.id} section that has no required leaves`, () => {
+      const offenders = doc.sections
+        .filter((s) => !s.hidden?.(plan) && !s.complete)
+        .filter(
+          (s) => !flattenFields(s.fields).some((f) => isRequired(plan, f))
+        )
+        .filter((s) => !sectionCompletion(plan, s).complete)
+        .map((s) => s.id);
+      expect(offenders).toEqual([]);
+    });
+  }
+
   it("treats the remains directive's optional sections as complete when blank", () => {
     for (const id of ["instructions", "arranger", "notify"]) {
       const section = sectionById("remains-directive", id);
@@ -79,10 +124,9 @@ describe("completion matches the rendered fill-ins", () => {
     }
   });
 
-  it("does not count a blank health care directive placeOfDeath as unanswered", () => {
-    const field = sectionFields(
-      sectionById("health-care-directive", "directions")
-    ).find(
+  it("excludes a blank health care directive placeOfDeath from the total", () => {
+    const section = sectionById("health-care-directive", "directions");
+    const field = sectionFields(section).find(
       (f) =>
         "path" in f && f.path === "documents.healthCareDirective.placeOfDeath"
     );
@@ -90,7 +134,11 @@ describe("completion matches the rendered fill-ins", () => {
     expect(getPath(plan, "documents.healthCareDirective.placeOfDeath")).toBe(
       ""
     );
-    expect(isFieldAnswered(plan, field!)).toBe(true);
+    expect(isRequired(plan, field!)).toBe(false);
+    const leaves = flattenFields(section.fields);
+    const required = leaves.filter((f) => isRequired(plan, f)).length;
+    expect(sectionCompletion(plan, section).total).toBe(required);
+    expect(required).toBe(leaves.length - 1);
   });
 
   it("requires the community property agreement date only when the agreement exists", () => {
