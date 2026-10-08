@@ -23,6 +23,7 @@ import {
   documentReadiness,
   STAGE_LABELS,
   type DocumentReadiness,
+  type ReadinessStage,
 } from "../ui/completion";
 import { lastSavedAt, openFile, saveFile } from "../ui/files";
 import { view } from "../ui/view";
@@ -125,6 +126,20 @@ function DocumentRow({ plan, document }: DocumentRowProps) {
   );
 }
 
+function stageSummary(plan: Plan): string {
+  const counts = new Map<ReadinessStage, number>();
+  for (const document of DOCUMENTS) {
+    const { stage } = documentReadiness(plan, document);
+    counts.set(stage, (counts.get(stage) ?? 0) + 1);
+  }
+  const parts = (Object.keys(STAGE_LABELS) as ReadinessStage[])
+    .filter((stage) => counts.has(stage))
+    .map(
+      (stage) => `${counts.get(stage)} ${STAGE_LABELS[stage].toLowerCase()}`
+    );
+  return `Documents: ${parts.join(", ")}`;
+}
+
 interface PlanCardProps {
   plan: Plan;
   canDelete: boolean;
@@ -208,11 +223,14 @@ function PlanCard({ plan, canDelete }: PlanCardProps) {
           {confirmingDelete ? "Confirm delete" : "Delete"}
         </button>
       </div>
-      <ul class="plan-overview">
-        {DOCUMENTS.map((document) => (
-          <DocumentRow plan={plan} document={document} key={document.id} />
-        ))}
-      </ul>
+      <details class="plan-documents" open={isActive}>
+        <summary>{stageSummary(plan)}</summary>
+        <ul class="plan-overview">
+          {DOCUMENTS.map((document) => (
+            <DocumentRow plan={plan} document={document} key={document.id} />
+          ))}
+        </ul>
+      </details>
     </div>
   );
 }
