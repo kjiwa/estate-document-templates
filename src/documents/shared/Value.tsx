@@ -53,7 +53,8 @@ export function Value({ path, value }: ValueProps) {
   const text = toText(fieldValue);
 
   if (highlight) {
-    const interactive = editing.interactive && path !== undefined;
+    const interactive =
+      editing.interactive && path !== undefined && editing.isEditable(path);
     const activeClass =
       interactive && editing.activePath === path ? " field-active" : "";
     const editingProps = interactive

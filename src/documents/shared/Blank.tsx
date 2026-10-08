@@ -47,7 +47,8 @@ export function Blank({ path, value, chars = 10 }: BlankProps) {
         : undefined;
 
   if (raw === null || raw === undefined || raw === "") {
-    const interactive = editing.interactive && path !== undefined;
+    const interactive =
+      editing.interactive && path !== undefined && editing.isEditable(path);
     const activeClass =
       interactive && editing.activePath === path ? " field-active" : "";
     const editingProps = interactive
