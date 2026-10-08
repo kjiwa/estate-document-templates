@@ -1,6 +1,8 @@
 import { Blank } from "./Blank";
+import { useExecutionPath } from "./PlanContext";
 
 export function NotarySignature() {
+  const at = useExecutionPath();
   return (
     <div class="notary-sig-row">
       <div class="sig-column">
@@ -10,7 +12,7 @@ export function NotarySignature() {
         </div>
         <div class="sig-field">
           <div class="sig-field-line">
-            <Blank path="execution.notary.name" chars={20} />
+            <Blank path={at("notary.name")} chars={20} />
           </div>
           <div class="sig-field-label">Printed Name</div>
         </div>
@@ -20,7 +22,7 @@ export function NotarySignature() {
         </div>
         <div class="sig-field">
           <div class="sig-field-line">
-            <Blank path="execution.notary.commissionExpires" chars={20} />
+            <Blank path={at("notary.commissionExpires")} chars={20} />
           </div>
           <div class="sig-field-label">Commission Expires</div>
         </div>

@@ -58,14 +58,34 @@ const Notary = z.object({
   commissionExpires: z.string().default(""),
 });
 
-const Execution = z.object({
-  city: z.string().default(""),
-  executionDate: ExecutionDate,
-  witnesses: z.array(Witness).default([
+const emptyExecution = () => ({
+  city: "",
+  executionDate: { day: "", month: "", year: "" },
+  witnesses: [
     { name: "", address: "", cityStateZip: "" },
     { name: "", address: "", cityStateZip: "" },
-  ]),
-  notary: Notary,
+  ],
+  notary: { name: "", commissionExpires: "" },
+});
+
+// Literal default: zod substitutes it verbatim for a missing key without
+// re-parsing it through the inner schema, so `.default({})` would leave
+// every leaf `undefined`.
+const Execution = z
+  .object({
+    city: z.string().default(""),
+    executionDate: ExecutionDate,
+    witnesses: z.array(Witness).default(() => emptyExecution().witnesses),
+    notary: Notary,
+  })
+  .default(emptyExecution);
+
+const Executions = z.object({
+  will: Execution,
+  remainsDirective: Execution,
+  healthCareDirective: Execution,
+  durablePowerOfAttorney: Execution,
+  generalPowerOfAttorney: Execution,
 });
 
 const CommunityPropertyAgreement = z.object({
@@ -157,7 +177,7 @@ export const Plan = z.object({
   label: z.string(),
   party: Party,
   fiduciaries: Fiduciaries,
-  execution: Execution,
+  executions: Executions,
   documents: Documents,
 });
 

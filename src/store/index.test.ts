@@ -68,10 +68,19 @@ describe("store", () => {
   });
 
   it("setField on an array path updates only that element", () => {
-    setField("execution.witnesses.0.name", "Alex");
+    setField("executions.will.witnesses.0.name", "Alex");
     const plan = plans.value["profile-1"]!;
-    expect(plan.execution.witnesses[0]?.name).toBe("Alex");
-    expect(plan.execution.witnesses[1]?.name).toBe("");
+    expect(plan.executions.will.witnesses[0]?.name).toBe("Alex");
+    expect(plan.executions.will.witnesses[1]?.name).toBe("");
+  });
+
+  it("editing one document's execution date leaves every other document's unchanged", () => {
+    setField("executions.will.executionDate.day", "3rd");
+    setField("executions.durablePowerOfAttorney.executionDate.day", "9th");
+    const { executions } = plans.value["profile-1"]!;
+    expect(executions.will.executionDate.day).toBe("3rd");
+    expect(executions.durablePowerOfAttorney.executionDate.day).toBe("9th");
+    expect(executions.remainsDirective.executionDate.day).toBe("");
   });
 });
 
@@ -183,6 +192,25 @@ describe("parsePersisted", () => {
     // guards against `migrateProfile` mistaking it for a v2 profile and
     // blanking every field via `mapV2ToV3`.
     expect(result!.plans["profile-1"]?.party.testator.name).toBe("Jordan");
+  });
+
+  it("treats an envelope-level schemaVersion below 3 as v3 for plans in the v3 shape", () => {
+    const base = plans.value["profile-1"]!;
+    const named = {
+      ...base,
+      party: {
+        ...base.party,
+        testator: { ...base.party.testator, name: "Jo" },
+      },
+    };
+    const result = parsePersisted({
+      schemaVersion: 2,
+      activePlanId: "profile-1",
+      plans: { "profile-1": named },
+    });
+    expect(result).not.toBeNull();
+    expect(result!.skipped).toBe(0);
+    expect(result!.plans["profile-1"]?.party.testator.name).toBe("Jo");
   });
 
   it("restores a stored activeDocumentId that resolves against DOCUMENTS", () => {

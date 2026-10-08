@@ -16,7 +16,16 @@ export function AppFooter() {
   return (
     <footer class="app-footer">
       <span>Drafting aid, not legal advice. Provided as is.</span>
-      <button type="button" class="link-button" onClick={openDisclaimer}>
+      <button
+        type="button"
+        class="link-button"
+        onClick={(event) => {
+          // Safari does not focus a button on click; focus it so the dialog
+          // can return focus here on close.
+          event.currentTarget.focus();
+          openDisclaimer();
+        }}
+      >
         Disclaimer
       </button>
     </footer>

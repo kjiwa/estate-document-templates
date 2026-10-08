@@ -6,8 +6,10 @@ import { HighlightContext, PlanContext } from "../documents/shared/PlanContext";
 import type { Plan } from "../model/plan";
 import {
   escapeCssString,
+  namedPageRules,
   printDocLabel,
   printInitialsLabel,
+  printPageName,
 } from "../ui/printLabels";
 
 // `?inline` returns processed CSS as a string without injecting it — see
@@ -49,25 +51,35 @@ body {
 .paged-sheet {
   margin: 0 auto;
 }
+.paged-sheet + .paged-sheet {
+  margin-top: var(--space-8);
+}
 `;
 
-export function generateStandaloneHtml(
-  plan: Plan,
-  document: DocumentDefinition
-): string {
-  const renderedBody = render(
+function renderBody(plan: Plan, document: DocumentDefinition): string {
+  return render(
     h(
       PlanContext.Provider,
       { value: plan },
       h(HighlightContext.Provider, { value: false }, h(document.Body, {}))
     )
   );
-  // Escaped, unlike `js/export.js`'s unescaped `<title>` interpolation.
-  const title = `${document.title} - ${escapeHtml(plan.party.testator.name || "Document")}`;
+}
+
+function renderSheet(
+  plan: Plan,
+  document: DocumentDefinition,
+  attributes = ""
+): string {
+  return `<article class="paged-sheet"${attributes}>
+    ${renderBody(plan, document)}
+  </article>`;
+}
+
+function assemblePage(title: string, pageCss: string, sheets: string): string {
   const css = [tokensCss, documentContentCss, documentPaperCss, printCss].join(
     "\n\n"
   );
-
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -76,14 +88,38 @@ export function generateStandaloneHtml(
   <title>${title}</title>
   <style>
 ${css}
-${buildPrintDocLabel(plan, document)}
+${pageCss}
 ${GENERATED_SCREEN_STYLES}
   </style>
 </head>
 <body>
-  <article class="paged-sheet">
-    ${renderedBody}
-  </article>
+  ${sheets}
 </body>
 </html>`;
+}
+
+export function generateStandaloneHtml(
+  plan: Plan,
+  document: DocumentDefinition
+): string {
+  // Escaped, unlike `js/export.js`'s unescaped `<title>` interpolation.
+  const title = `${document.title} - ${escapeHtml(plan.party.testator.name || "Document")}`;
+  return assemblePage(
+    title,
+    buildPrintDocLabel(plan, document),
+    renderSheet(plan, document)
+  );
+}
+
+export function generateStandaloneBundle(
+  plan: Plan,
+  documents: readonly DocumentDefinition[]
+): string {
+  const title = `All documents - ${escapeHtml(plan.party.testator.name || "Plan")}`;
+  const sheets = documents
+    .map((document) =>
+      renderSheet(plan, document, ` style="page: ${printPageName(document)}"`)
+    )
+    .join("\n  ");
+  return assemblePage(title, namedPageRules(plan, documents), sheets);
 }

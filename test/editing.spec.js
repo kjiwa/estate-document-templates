@@ -132,25 +132,29 @@ test.describe("Contextual editing", () => {
     page,
   }) => {
     const dayBlank = page
-      .locator('[data-path="execution.executionDate.day"]')
+      .locator('[data-path="executions.will.executionDate.day"]')
       .first();
     await dayBlank.click();
 
     const surface = await openSurfaceLocator(page);
     await expect(surface).toBeVisible();
     // Resolves up to the composite field, not a per-part text input.
-    await expect(page.locator("#field-execution-executionDate")).toBeVisible();
+    await expect(
+      page.locator("#field-executions-will-executionDate")
+    ).toBeVisible();
 
-    await page.locator("#field-execution-executionDate").fill("2026-09-21");
+    await page
+      .locator("#field-executions-will-executionDate")
+      .fill("2026-09-21");
 
     await expect(
-      page.locator('[data-path="execution.executionDate.day"]').first()
+      page.locator('[data-path="executions.will.executionDate.day"]').first()
     ).toHaveText("21st");
     await expect(
-      page.locator('[data-path="execution.executionDate.month"]').first()
+      page.locator('[data-path="executions.will.executionDate.month"]').first()
     ).toHaveText("September");
     await expect(
-      page.locator('[data-path="execution.executionDate.year"]').first()
+      page.locator('[data-path="executions.will.executionDate.year"]').first()
     ).toHaveText("2026");
   });
 

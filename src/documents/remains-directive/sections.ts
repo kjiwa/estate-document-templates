@@ -1,15 +1,8 @@
 import type { Section, Option } from "../../form/field-spec";
+import { GENDER_OPTIONS } from "../shared/genderOptions";
 
 // Every field the directive's document body reads. Reuses `party.testator`,
-// `fiduciaries.remains`, and `execution` — no schema change, so this is the
-// sharpest available test of the Phase 3 seam (Phase 5's own framing).
-const GENDER_OPTIONS: readonly Option[] = [
-  { value: "", label: "Not specified" },
-  { value: "male", label: "Male (he / him / his)" },
-  { value: "female", label: "Female (she / her / hers)" },
-  { value: "nonbinary", label: "Non-binary (they / them / theirs)" },
-];
-
+// `fiduciaries.remains`, and its own execution record.
 const ARRANGEMENTS_OPTIONS: readonly Option[] = [
   { value: "", label: "Not specified" },
   { value: "no", label: "No prearrangements made" },
@@ -49,7 +42,11 @@ export const DIRECTIVE_SECTIONS: Section[] = [
         label: "County of Residence",
       },
       { kind: "text", path: "party.testator.state", label: "State" },
-      { kind: "text", path: "execution.city", label: "City of Execution" },
+      {
+        kind: "text",
+        path: "executions.remainsDirective.city",
+        label: "City of Execution",
+      },
     ],
   },
   {
@@ -180,32 +177,32 @@ export const DIRECTIVE_SECTIONS: Section[] = [
     fields: [
       {
         kind: "text",
-        path: "execution.witnesses.0.name",
+        path: "executions.remainsDirective.witnesses.0.name",
         label: "Witness 1 Name",
       },
       {
         kind: "text",
-        path: "execution.witnesses.0.address",
+        path: "executions.remainsDirective.witnesses.0.address",
         label: "Witness 1 Address",
       },
       {
         kind: "text",
-        path: "execution.witnesses.0.cityStateZip",
+        path: "executions.remainsDirective.witnesses.0.cityStateZip",
         label: "Witness 1 City, State, Zip",
       },
       {
         kind: "text",
-        path: "execution.witnesses.1.name",
+        path: "executions.remainsDirective.witnesses.1.name",
         label: "Witness 2 Name",
       },
       {
         kind: "text",
-        path: "execution.witnesses.1.address",
+        path: "executions.remainsDirective.witnesses.1.address",
         label: "Witness 2 Address",
       },
       {
         kind: "text",
-        path: "execution.witnesses.1.cityStateZip",
+        path: "executions.remainsDirective.witnesses.1.cityStateZip",
         label: "Witness 2 City, State, Zip",
       },
     ],
@@ -218,12 +215,12 @@ export const DIRECTIVE_SECTIONS: Section[] = [
     fields: [
       {
         kind: "text",
-        path: "execution.notary.name",
+        path: "executions.remainsDirective.notary.name",
         label: "Notary Name",
       },
       {
         kind: "text",
-        path: "execution.notary.commissionExpires",
+        path: "executions.remainsDirective.notary.commissionExpires",
         label: "Commission Expires",
       },
     ],
@@ -235,7 +232,7 @@ export const DIRECTIVE_SECTIONS: Section[] = [
     fields: [
       {
         kind: "executionDate",
-        path: "execution.executionDate",
+        path: "executions.remainsDirective.executionDate",
         label: "Date of Execution",
       },
     ],

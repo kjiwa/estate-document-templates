@@ -20,13 +20,15 @@ A client-side web application ([live site](https://kjiwa.github.io/estate-docume
   - **RCW 70.122.020 & RCW 70.122.030**: Health Care Directive under the Natural Death Act — terminal/permanent unconscious condition elections and two-witness execution.
   - **RCW 11.125.050 & RCW 11.125.100**: General Power of Attorney — execution by notarial acknowledgment, and the statutory termination provisions, recited verbatim for a non-durable power of attorney.
   - **RCW 11.125.040, 11.125.090, 11.125.400 & 11.125.410**: Durable Power of Attorney — the durability statement, determination of incapacity, health care authority bounded by the guardian limits of RCW 11.130.335(3), and authority over minor children.
-- **Guidance Layer**: Every decision-bearing field carries a native `<details>` disclosure explaining what it does, the options, what's typical, and its impact — content only, never part of the printed document. A live Review panel raises advisories (e.g. an interested witness, a missing alternate fiduciary) computed by a pure `analyzeProfile()` function. A will-only Attorney Memo export lists every choice and advisory for counsel.
+- **Guidance Layer**: Every decision-bearing field carries a native `<details>` disclosure explaining what it does, the options, what's typical, and its impact — content only, never part of the printed document. A live Review panel raises advisories (e.g. an interested witness, a missing alternate fiduciary) computed by a pure per-document `analyze*()` function. An Attorney Memo export, available for every document type, lists every choice and advisory for counsel.
 - **Plan Switching & Pronoun Agreement**: Toggle between reciprocal spousal plans, with automatic updates to pronouns, fiduciary appointments, and beneficiary declarations.
 - **Variable Highlighting**: Toggle dynamic field indicators on screen to audit customizable terms without affecting printed output.
 - **Screen-to-Print Fidelity**: Print stylesheets configured for standard Letter portrait dimensions (`8.5in x 11in`), calibrated margins, `@page` margin-box page numbers and testator initials, widow/orphan controls, and unbreakable signature and notary blocks.
 - **State Persistence & Portability**:
   - Auto-persists drafting sessions in browser `localStorage`, deep-merged over the shipped defaults so an older or partial draft never invents a value for a field it doesn't have.
   - Export and import full plan state as structured JSON, validated by shape.
+  - **Print all** and **Download all** on the Plans view print or export every document in a plan at once.
+  - Hash URLs (`#/<view>/<document>`) make the current view and document linkable and survive reload.
   - Export standalone, self-contained HTML files ready for offline viewing or printing — styled from the same source the app uses, with no guidance content.
 
 ## Document Structure
@@ -113,11 +115,12 @@ A springing, durable power of attorney: the powers begin on the principal's inca
 │   └── styles/                # Design tokens and app/document/print CSS
 ├── legal/
 │   └── citations.json      # Snapshot of statute history notes, checked by CI
-├── design/                  # Frozen Phase 2 mockups and design tokens reference
 ├── test/                    # Playwright end-to-end and fidelity test suites
 ├── package.json
 └── playwright.config.js
 ```
+
+The Phase 2 design mockups were removed from the tree; they remain at the `design-phase-2` git tag.
 
 ## Getting Started
 
@@ -166,7 +169,7 @@ Run the unit test suite (Vitest — store, model, and pure logic):
 npm run test:unit
 ```
 
-Run the Playwright end-to-end suite (covers desktop/mobile viewports, semantic landmarks and keyboard navigation, state reactivity, the guidance layer, and PDF rendering):
+Run the Playwright end-to-end suite (runs in Chromium desktop, Chromium mobile, and a WebKit mobile project; covers viewports, semantic landmarks and keyboard navigation, state reactivity, the guidance layer, and PDF rendering):
 
 ```sh
 npm test
@@ -185,7 +188,7 @@ npm run check:citations
 Every draft lives in the browser's `localStorage`, on the machine that typed it.
 Nothing is uploaded and there is no server. **Export JSON is the only backup** —
 save a backup file from the Plans view; clearing site data, using a private window,
-or switching browsers loses the draft. Data is tied to the site address: a fork or
+or switching browsers loses the draft. Signing details (city, date, witnesses, notary) are stored per document, so each document keeps its own record; the Execute view can copy them from another document in the same plan. Data is tied to the site address: a fork or
 a different URL starts empty.
 
 ## Disclaimer

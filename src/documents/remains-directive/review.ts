@@ -5,7 +5,7 @@ import type { Plan } from "../../model/plan";
 // beneficiaries under a will, and a remains agent is not one — the will's
 // `collectRoleHolders` (`../will/review.ts`) correctly never adds
 // `fiduciaries.remains.*`, and this document has no equivalent rule to add.
-export function analyzeDirective(plan: Plan): Advisory[] {
+export function analyzeRemainsDirective(plan: Plan): Advisory[] {
   const advisories: Advisory[] = [];
   const agent = plan.fiduciaries.remains.agent.trim();
   const alternate = plan.fiduciaries.remains.alternate.trim();

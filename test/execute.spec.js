@@ -72,9 +72,11 @@ test.describe("Execute flow (signing day)", () => {
     const cityRow = rows.filter({ hasText: "City and date of execution" });
     await expect(cityRow.locator(".rail-check.done")).toHaveCount(0);
 
-    // PLAN_1 already has `execution.city` set; filling the composite date
+    // PLAN_1 already has `executions.will.city` set; filling the composite date
     // field is the group's one remaining blank.
-    await page.locator("#field-execution-executionDate").fill("2026-09-01");
+    await page
+      .locator("#field-executions-will-executionDate")
+      .fill("2026-09-01");
     await page.getByRole("button", { name: "Continue →" }).click();
 
     await expect(cityRow.locator(".rail-check.done")).toHaveCount(1);
@@ -98,6 +100,37 @@ test.describe("Execute flow (signing day)", () => {
     await expect(page.locator(".execute-flow")).toBeVisible();
     await expect(page.locator(".rail-progress-label")).toHaveText(
       /^Group 1 of \d/
+    );
+  });
+
+  test("Copy signing details copies another document's record without touching the source", async ({
+    page,
+  }) => {
+    await page.getByLabel("Active document").selectOption("remains-directive");
+    await page.getByRole("button", { name: "Execute" }).click();
+
+    await expect(
+      page.locator("#field-executions-remainsDirective-city")
+    ).toHaveValue("");
+    await page
+      .getByRole("button", {
+        name: "Copy signing details from Last Will and Testament",
+      })
+      .click();
+    await expect(
+      page.locator("#field-executions-remainsDirective-city")
+    ).toHaveValue("Tacoma");
+    await expect(
+      page.getByRole("button", { name: /Copy signing details from/ })
+    ).toHaveCount(0);
+
+    await page
+      .locator("#field-executions-remainsDirective-city")
+      .fill("Olympia");
+
+    await page.getByLabel("Active document").selectOption("will");
+    await expect(page.locator("#field-executions-will-city")).toHaveValue(
+      "Tacoma"
     );
   });
 });

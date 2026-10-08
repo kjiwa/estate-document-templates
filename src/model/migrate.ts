@@ -1,6 +1,8 @@
 import { Plan } from "./plan";
 
-export const CURRENT_SCHEMA_VERSION = 3;
+export const CURRENT_SCHEMA_VERSION = 4;
+
+const V2 = 2;
 
 export type MigrateResult =
   { success: true; plan: Plan } | { success: false; error: string };
@@ -20,8 +22,7 @@ function asObject(value: unknown): Unknown {
 // schema's `.default()` — the same deep-merge-over-defaults behavior
 // `js/state.js`'s `normalizeProfile()` provided, reproduced through zod
 // rather than reimplemented.
-function mapV2ToV3(id: string, raw: unknown): unknown {
-  const v2 = asObject(raw);
+function v2ToV3(v2: Unknown): Unknown {
   const testator = asObject(v2.testator);
   const spouse = asObject(v2.spouse);
   const guardians = asObject(v2.guardians);
@@ -35,7 +36,7 @@ function mapV2ToV3(id: string, raw: unknown): unknown {
   const ultimateBeneficiary = asObject(v2.ultimateBeneficiary);
 
   return {
-    id,
+    id: v2.id,
     label: v2.label,
     party: {
       testator: {
@@ -105,18 +106,54 @@ function mapV2ToV3(id: string, raw: unknown): unknown {
   };
 }
 
-// Migrates one stored/imported profile, keyed by `id`, from v2 or v3 shape
-// to a validated v3 `Plan`. `id` is preserved verbatim as `Plan.id` — it is
-// not migrated, so an imported profile keyed by an unrecognized (non-
-// `profile-N`) id survives unchanged, matching `js/state.js`'s "unrecognized
-// ids are accepted" behavior.
+const EXECUTION_KEYS = [
+  "will",
+  "remainsDirective",
+  "healthCareDirective",
+  "durablePowerOfAttorney",
+  "generalPowerOfAttorney",
+];
+
+// v3 kept one execution record shared by every document; v4 keeps one per
+// document, so each starts as a copy of the shared record.
+function v3ToV4(raw: Unknown): Unknown {
+  const { execution, ...rest } = raw;
+  const executions: Unknown = {};
+  for (const key of EXECUTION_KEYS)
+    executions[key] = structuredClone(execution);
+  return { ...rest, executions };
+}
+
+// Ordered; the step at index `n` migrates version `V2 + n` to `V2 + n + 1`.
+export const MIGRATIONS: ((raw: Unknown) => Unknown)[] = [v2ToV3, v3ToV4];
+
+function schemaVersionOf(obj: Unknown): number {
+  return typeof obj.schemaVersion === "number" ? obj.schemaVersion : V2;
+}
+
+function runMigrations(raw: Unknown, fromVersion: number): Unknown {
+  return MIGRATIONS.slice(fromVersion - V2).reduce(
+    (current, step) => step(current),
+    raw
+  );
+}
+
+// Migrates one stored/imported profile, keyed by `id`, from its
+// `schemaVersion` (absent means v2) to a validated current `Plan`. `id` is
+// preserved verbatim as `Plan.id` — it is not migrated, so an imported
+// profile keyed by an unrecognized (non-`profile-N`) id survives unchanged,
+// matching `js/state.js`'s "unrecognized ids are accepted" behavior.
 export function migrateProfile(id: string, raw: unknown): MigrateResult {
   const obj = asObject(raw);
-  const isV3Shaped = obj.schemaVersion === CURRENT_SCHEMA_VERSION;
-
-  const candidate = isV3Shaped ? { ...obj, id } : mapV2ToV3(id, raw);
-  const result = Plan.safeParse(candidate);
-  if (!result.success) {
+  const version = schemaVersionOf(obj);
+  const candidate =
+    Number.isInteger(version) &&
+    version >= V2 &&
+    version <= CURRENT_SCHEMA_VERSION
+      ? { ...runMigrations({ ...obj, id }, version), id }
+      : null;
+  const result = candidate && Plan.safeParse(candidate);
+  if (!result || !result.success) {
     return {
       success: false,
       error: `Profile "${id}" has an invalid shape and cannot be imported.`,

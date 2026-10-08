@@ -142,13 +142,13 @@ describe("reciprocalPlan", () => {
   it("carries execution details over unchanged", () => {
     const plan = marriedPlan();
     const clone = reciprocalPlan(plan, "plan-3", "x");
-    expect(clone.execution.city).toBe("Seattle");
-    expect(clone.execution.executionDate).toEqual({
+    expect(clone.executions.will.city).toBe("Seattle");
+    expect(clone.executions.will.executionDate).toEqual({
       day: "1st",
       month: "September",
       year: "2026",
     });
-    expect(clone.execution.notary).toEqual({
+    expect(clone.executions.will.notary).toEqual({
       name: "Morgan J. Park",
       commissionExpires: "2028",
     });
@@ -170,7 +170,9 @@ describe("reciprocalPlan", () => {
       ],
     });
     const clone = reciprocalPlan(plan, "plan-3", "x");
-    expect(clone.execution.witnesses[0]?.name).toBe("Jordan A. Whitfield");
+    expect(clone.executions.will.witnesses[0]?.name).toBe(
+      "Jordan A. Whitfield"
+    );
   });
 
   it("leaves the will document's non-beneficiary fields alone", () => {

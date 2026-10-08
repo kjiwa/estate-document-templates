@@ -1,6 +1,7 @@
 import { Fragment } from "preact";
 
 import { Blank } from "../shared/Blank";
+import { ExecutionContext } from "../shared/PlanContext";
 import { SignatureBlock } from "../shared/SignatureBlock";
 import { Testimonium } from "../shared/Testimonium";
 import { PrincipalAcknowledgment } from "../shared/PrincipalAcknowledgment";
@@ -200,7 +201,7 @@ function StatuteRecital() {
   );
 }
 
-export function Body() {
+function BodyContent() {
   return (
     <>
       <Title />
@@ -228,5 +229,13 @@ export function Body() {
       {"\n"}
       <PrincipalAcknowledgment />
     </>
+  );
+}
+
+export function Body() {
+  return (
+    <ExecutionContext.Provider value="executions.generalPowerOfAttorney">
+      <BodyContent />
+    </ExecutionContext.Provider>
   );
 }

@@ -1,6 +1,7 @@
 import { useRef, useState } from "preact/hooks";
 
 import { DOCUMENTS, type DocumentDefinition } from "../documents/registry";
+import { generateStandaloneBundle } from "../export/standaloneHtml";
 import { CURRENT_SCHEMA_VERSION } from "../model/migrate";
 import type { Plan } from "../model/plan";
 import {
@@ -28,7 +29,8 @@ import {
   type DocumentReadiness,
   type ReadinessStage,
 } from "../ui/completion";
-import { lastSavedAt, openFile, saveFile } from "../ui/files";
+import { fileSlug, lastSavedAt, openFile, saveFile } from "../ui/files";
+import { printAllDocuments } from "../ui/print";
 import { view } from "../ui/view";
 
 function openDocument(plan: Plan, document: DocumentDefinition) {
@@ -125,6 +127,14 @@ function stageSummary(plan: Plan): string {
     : `Documents: ${stages}`;
 }
 
+function downloadAll(plan: Plan) {
+  void saveFile(
+    `${fileSlug(plan.party.testator.name, "plan")}-all-documents.html`,
+    "text/html",
+    generateStandaloneBundle(plan, DOCUMENTS)
+  );
+}
+
 interface PlanCardProps {
   plan: Plan;
   canDelete: boolean;
@@ -200,6 +210,16 @@ function PlanCard({ plan, canDelete }: PlanCardProps) {
         ) : null}
         <button
           type="button"
+          class="btn"
+          onClick={() => printAllDocuments(plan.id)}
+        >
+          Print all
+        </button>
+        <button type="button" class="btn" onClick={() => downloadAll(plan)}>
+          Download all
+        </button>
+        <button
+          type="button"
           class="btn btn-danger"
           disabled={!canDelete}
           aria-label={
@@ -261,9 +281,8 @@ function DataCard() {
   function handleMemo() {
     const plan = activePlan.value;
     if (!plan || !memo) return;
-    const name = plan.party.testator.name || "plan";
     void saveFile(
-      `${name.replace(/\s+/g, "-").toLowerCase()}-memo.txt`,
+      `${fileSlug(plan.party.testator.name, "plan")}-memo.txt`,
       "text/plain",
       memo(plan)
     );

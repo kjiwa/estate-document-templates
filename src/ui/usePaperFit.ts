@@ -1,8 +1,7 @@
 import type { RefObject } from "preact";
 import { useEffect } from "preact/hooks";
 
-// The hook form of design/build-mockups.mjs's paperFitScript: measures the
-// sheet's unscaled height and the viewport's available width, then sets
+// Measures the sheet's unscaled height and the viewport's available width, then sets
 // --paper-scale/--paper-height so document-paper.css's fit-to-width rule has
 // real numbers. The 0.4 floor is the same legibility judgment call made in
 // Phase 2 — verified by eye at 393px, not derived arithmetically.

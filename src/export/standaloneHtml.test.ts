@@ -8,7 +8,10 @@ import { describe, expect, it } from "vitest";
 import { DOCUMENTS } from "../documents/registry";
 import { GOLDEN_CASES, buildV2Profile } from "../documents/will/goldenFixtures";
 import { migrateProfile } from "../model/migrate";
-import { generateStandaloneHtml } from "./standaloneHtml";
+import {
+  generateStandaloneBundle,
+  generateStandaloneHtml,
+} from "./standaloneHtml";
 
 const WILL = DOCUMENTS.find((d) => d.id === "will")!;
 
@@ -99,5 +102,77 @@ describe("generateStandaloneHtml", () => {
     const titleTag = html.match(/<title>(.*?)<\/title>/)?.[1] ?? "";
     expect(titleTag).not.toContain("<script>");
     expect(titleTag).toContain("&lt;script&gt;");
+  });
+});
+
+describe("generateStandaloneBundle", () => {
+  const baseline = GOLDEN_CASES.find((c) => c.slug === "03-baseline")!;
+  const migrated = migrateProfile(
+    "profile-1",
+    buildV2Profile(baseline.slug, baseline.overlay)
+  );
+  if (!migrated.success) throw new Error("fixture does not migrate");
+  const html = generateStandaloneBundle(migrated.plan, DOCUMENTS);
+
+  it("renders one sheet per document, each on its own named page", () => {
+    const { document: rendered } = parseHTML(html);
+    const sheets = Array.from(rendered.querySelectorAll("article.paged-sheet"));
+    expect(sheets).toHaveLength(DOCUMENTS.length);
+    DOCUMENTS.forEach((document, index) => {
+      expect(sheets[index]?.getAttribute("style")).toBe(
+        `page: doc-${document.id}`
+      );
+      expect(html).toContain(`@page doc-${document.id} {`);
+    });
+  });
+
+  it("carries each document's own footer label", () => {
+    for (const document of DOCUMENTS) {
+      expect(html).toContain(
+        `${document.title} — ${migrated.plan.party.testator.name}`
+      );
+    }
+  });
+
+  it("inlines CSS with no url()", () => {
+    const styleContents = html.match(/<style>([\s\S]*?)<\/style>/)?.[1] ?? "";
+    expect(styleContents).not.toContain("url(");
+  });
+});
+
+describe("hostile testator name in print label CSS", () => {
+  const baseline = GOLDEN_CASES.find((c) => c.slug === "03-baseline")!;
+  const migrated = migrateProfile(
+    "profile-1",
+    buildV2Profile(baseline.slug, baseline.overlay)
+  );
+  if (!migrated.success) throw new Error("fixture does not migrate");
+  const hostile = {
+    ...migrated.plan,
+    party: {
+      ...migrated.plan.party,
+      testator: {
+        ...migrated.plan.party.testator,
+        name: 'X</style><script>alert(1)</script>\n"; } body { display: none',
+      },
+    },
+  };
+  const closers = (html: string) => (html.match(/<\/style>/gi) ?? []).length;
+
+  it("cannot terminate the style element (single document)", () => {
+    expect(closers(generateStandaloneHtml(hostile, WILL))).toBe(
+      closers(generateStandaloneHtml(migrated.plan, WILL))
+    );
+    expect(generateStandaloneHtml(hostile, WILL)).not.toContain(
+      "<script>alert(1)"
+    );
+  });
+
+  it("cannot terminate the style element (bundle)", () => {
+    const html = generateStandaloneBundle(hostile, DOCUMENTS);
+    expect(closers(html)).toBe(
+      closers(generateStandaloneBundle(migrated.plan, DOCUMENTS))
+    );
+    expect(html).not.toContain("<script>alert(1)");
   });
 });

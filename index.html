@@ -24,7 +24,7 @@
     <!-- CSP script hash covers the inline theme script below; recompute it after any edit to that script. -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'sha256-YsMSZVyShGDOuQRf9TH4vtB0+YPQhtrYlu1nFuj4Uvg='; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'none'; connect-src 'none'; form-action 'none'; img-src 'self' data:"
+      content="default-src 'self'; script-src 'self' 'sha256-O1oR5XGYe8E41IiybqyfCcrlXD5juDfXFKnT/uejUpQ='; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'none'; connect-src 'none'; form-action 'none'; img-src 'self' data:"
     />
     <title>Estate Document Templates</title>
     <script>
@@ -33,12 +33,14 @@
       (function () {
         try {
           var theme = localStorage.getItem("estate_templates_theme_v1");
-          if (theme === "light" || theme === "dark") {
-            document.documentElement.setAttribute("data-theme", theme);
+          if (theme !== "light" && theme !== "dark") {
+            theme = matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light";
           }
+          document.documentElement.setAttribute("data-theme", theme);
         } catch {
-          // Storage may be unavailable or the stored value malformed —
-          // fall back to the system preference tokens.css already handles.
+          // Storage or matchMedia unavailable: leave the default light tokens.
         }
       })();
     </script>

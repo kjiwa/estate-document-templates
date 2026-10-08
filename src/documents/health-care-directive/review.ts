@@ -70,18 +70,20 @@ function disqualifiedWitnessAdvisories(plan: Plan): Advisory[] {
   const takers = disqualifiedTakers(plan);
   const advisories: Advisory[] = [];
 
-  (plan.execution.witnesses || []).forEach((witness, index) => {
-    const normalized = normalizeName(witness?.name);
-    if (!normalized || !takers.has(normalized)) return;
+  (plan.executions.healthCareDirective.witnesses || []).forEach(
+    (witness, index) => {
+      const normalized = normalizeName(witness?.name);
+      if (!normalized || !takers.has(normalized)) return;
 
-    advisories.push({
-      id: `hcd-disqualified-witness-${index}`,
-      severity: "warning",
-      title: "Disqualified witness",
-      message: `Witness ${witness.name} appears to be related to you or entitled to a share of your estate. Under ${RCW_WITNESS_QUALIFICATION}, a witness to this Directive must not be related to you by blood or marriage, or entitled to any portion of your estate.`,
-      path: `execution.witnesses.${index}.name` as Path<Plan>,
-    });
-  });
+      advisories.push({
+        id: `hcd-disqualified-witness-${index}`,
+        severity: "warning",
+        title: "Disqualified witness",
+        message: `Witness ${witness.name} appears to be related to you or entitled to a share of your estate. Under ${RCW_WITNESS_QUALIFICATION}, a witness to this Directive must not be related to you by blood or marriage, or entitled to any portion of your estate.`,
+        path: `executions.healthCareDirective.witnesses.${index}.name` as Path<Plan>,
+      });
+    }
+  );
 
   return advisories;
 }

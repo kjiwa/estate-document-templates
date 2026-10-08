@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { migrateProfile } from "../../model/migrate";
 import type { Plan } from "../../model/plan";
-import { analyzeProfile } from "./review";
+import { analyzeWill } from "./review";
 
 // Fixtures go through `migrateProfile` with v2-shaped overlays, since
 // `Plan.parse` requires every group object present — see
@@ -16,13 +16,13 @@ function planWith(overlay: Record<string, unknown> = {}): Plan {
   return result.plan;
 }
 
-describe("analyzeProfile", () => {
+describe("analyzeWill", () => {
   it("flags an interested witness (id family interested-witness-N)", () => {
     const plan = planWith({
       spouse: { name: "Taylor" },
       witnesses: [{ name: "Taylor", address: "", cityStateZip: "" }],
     });
-    const ids = analyzeProfile(plan).map((a) => a.id);
+    const ids = analyzeWill(plan).map((a) => a.id);
     expect(ids).toContain("interested-witness-0");
   });
 
@@ -31,7 +31,7 @@ describe("analyzeProfile", () => {
       spouse: { name: "Taylor" },
       personalRepresentatives: { primary: "Taylor", alternate: "" },
     });
-    const ids = analyzeProfile(plan).map((a) => a.id);
+    const ids = analyzeWill(plan).map((a) => a.id);
     expect(ids).toContain("multi-role-taylor");
   });
 
@@ -44,7 +44,7 @@ describe("analyzeProfile", () => {
         gender: "",
       },
     });
-    const ids = analyzeProfile(plan).map((a) => a.id);
+    const ids = analyzeWill(plan).map((a) => a.id);
     expect(ids).toContain("trustee-is-beneficiary");
   });
 
@@ -55,7 +55,7 @@ describe("analyzeProfile", () => {
       personalRepresentatives: { primary: "C", alternate: "" },
       trustees: { primary: "D", alternate: "" },
     });
-    const ids = analyzeProfile(plan).map((a) => a.id);
+    const ids = analyzeWill(plan).map((a) => a.id);
     expect(ids).toContain("no-alternate-guardians");
     expect(ids).toContain("no-alternate-conservators");
     expect(ids).toContain("no-alternate-personalRepresentatives");
@@ -63,36 +63,36 @@ describe("analyzeProfile", () => {
   });
 
   it("flags an unset execution date", () => {
-    const ids = analyzeProfile(planWith()).map((a) => a.id);
+    const ids = analyzeWill(planWith()).map((a) => a.id);
     expect(ids).toContain("execution-date-unset");
   });
 
   it("flags an empty children list", () => {
-    const ids = analyzeProfile(planWith()).map((a) => a.id);
+    const ids = analyzeWill(planWith()).map((a) => a.id);
     expect(ids).toContain("children-empty");
   });
 
   it("flags married with no spouse named", () => {
-    const ids = analyzeProfile(planWith()).map((a) => a.id);
+    const ids = analyzeWill(planWith()).map((a) => a.id);
     expect(ids).toContain("married-no-spouse-name");
   });
 
   it("does not flag missing spouse name when unmarried", () => {
-    const ids = analyzeProfile(planWith({ maritalStatus: "unmarried" })).map(
+    const ids = analyzeWill(planWith({ maritalStatus: "unmarried" })).map(
       (a) => a.id
     );
     expect(ids).not.toContain("married-no-spouse-name");
   });
 
   it("flags a disclaimer trust with no trustee", () => {
-    const ids = analyzeProfile(
-      planWith({ spousalGift: "disclaimerTrust" })
-    ).map((a) => a.id);
+    const ids = analyzeWill(planWith({ spousalGift: "disclaimerTrust" })).map(
+      (a) => a.id
+    );
     expect(ids).toContain("disclaimer-trust-no-trustee");
   });
 
   it("attaches a Path<Plan> to every advisory", () => {
-    const advisories = analyzeProfile(planWith());
+    const advisories = analyzeWill(planWith());
     expect(advisories.length).toBeGreaterThan(0);
     for (const advisory of advisories) {
       expect(typeof advisory.path).toBe("string");

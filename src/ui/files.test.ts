@@ -1,7 +1,7 @@
 import { parseHTML } from "linkedom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { lastSavedAt, openFile, saveFile } from "./files";
+import { fileSlug, lastSavedAt, openFile, saveFile } from "./files";
 
 // `saveFile`/`openFile` read the module-global `window`, which does not
 // exist in Vitest's `node` environment — stubbed per test via
@@ -147,5 +147,18 @@ describe("openFile", () => {
 
     const result = await openFile(".json");
     expect(result).toEqual({ name: "b.json", contents: "fallback contents" });
+  });
+});
+
+describe("fileSlug", () => {
+  it("lowercases and reduces to [a-z0-9-]", () => {
+    expect(fileSlug("Jordan  Q. O'Neil/../x", "plan")).toBe(
+      "jordan-q-o-neil-x"
+    );
+  });
+
+  it("falls back when nothing survives", () => {
+    expect(fileSlug("", "plan")).toBe("plan");
+    expect(fileSlug("///", "plan")).toBe("plan");
   });
 });

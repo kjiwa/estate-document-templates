@@ -8,13 +8,12 @@ import {
   showAdvisory,
 } from "../ui/advisories";
 import { documentReadiness, STAGE_LABELS } from "../ui/completion";
-import { saveFile } from "../ui/files";
+import { fileSlug, saveFile } from "../ui/files";
 import { printDocument } from "../ui/print";
 import { activeDocumentId, activePlan } from "../store/index";
 import { view } from "../ui/view";
 
-// Mirrors `design/mockups/07-preprint-checklist.html` structurally. Both
-// checkboxes are a local acknowledgement, not persisted plan data, and
+// Both checkboxes are a local acknowledgement, not persisted plan data, and
 // neither gates the buttons.
 export function PrintChecklist() {
   const plan = activePlan.value;
@@ -28,8 +27,7 @@ export function PrintChecklist() {
 
   function handleExport() {
     if (!plan || !document) return;
-    const testatorName = plan.party.testator.name || "document";
-    const slug = testatorName.replace(/\s+/g, "-").toLowerCase();
+    const slug = fileSlug(plan.party.testator.name, "document");
     const suggestedName = `${slug}-${document.id}.html`;
     void saveFile(
       suggestedName,

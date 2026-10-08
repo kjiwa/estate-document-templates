@@ -1,5 +1,7 @@
 import { Field } from "../form/Field";
 import {
+  copyExecutionFrom,
+  copySources,
   currentExecuteGroup,
   executeGroupComplete,
   executeGroupIndex,
@@ -8,8 +10,7 @@ import {
 } from "../ui/execute";
 import { view } from "../ui/view";
 
-// Mirrors `design/mockups/06-signing-day.html` structurally: the progress
-// bar, group heading/lead, the group's fields, Back/Continue, and the
+// The progress bar, group heading/lead, the group's fields, Back/Continue, and the
 // "Also in this flow" checklist of all four groups.
 export function ExecuteFlow() {
   const groups = executeGroups.value;
@@ -61,6 +62,27 @@ export function ExecuteFlow() {
         {group.title}
       </h1>
       <p style={{ color: "var(--ink-muted)", marginTop: 0 }}>{group.lead}</p>
+      {index === 0 && copySources.value.length > 0 ? (
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "var(--space-2)",
+            marginBottom: "var(--space-4)",
+          }}
+        >
+          {copySources.value.map((source) => (
+            <button
+              type="button"
+              class="btn"
+              key={source.id}
+              onClick={() => copyExecutionFrom(source)}
+            >
+              Copy signing details from {source.title}
+            </button>
+          ))}
+        </div>
+      ) : null}
       <div class="panel-field-group">
         {group.fields.map((field) => (
           <Field field={field} key={field.path} />

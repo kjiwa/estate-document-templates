@@ -72,6 +72,22 @@ test.describe("Application Shell, Layout & Accessibility", () => {
     await expect(darkButton).toHaveAttribute("aria-pressed", "false");
   });
 
+  test("system theme follows the emulated color scheme", async ({ page }) => {
+    await page.emulateMedia({ colorScheme: "dark" });
+    await page.goto("/");
+    await page
+      .locator('[aria-label="Theme"] button:has-text("System")')
+      .click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    await expect(page.locator("body")).toHaveCSS(
+      "background-color",
+      "rgb(20, 19, 17)"
+    );
+
+    await page.emulateMedia({ colorScheme: "light" });
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  });
+
   test("presentation toggle swaps the document sheet and aria-pressed", async ({
     page,
   }) => {
@@ -284,5 +300,24 @@ test.describe("Disclaimer", () => {
     const footer = await page.locator(".app-footer").boundingBox();
     expect(footer.y).toBeGreaterThanOrEqual(body.y + body.height - 1);
     expect(footer.y + footer.height).toBeLessThanOrEqual(900);
+  });
+  test("hash routing: reload stays on Plans and Back leaves execute", async ({
+    page,
+  }) => {
+    await acceptDisclaimer(page);
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto("/#/plans");
+    await expect(page.locator(".plans-view")).toBeVisible();
+    await page.reload();
+    await expect(page.locator(".plans-view")).toBeVisible();
+
+    await page.goto("/#/document/will");
+    await expect(page.locator("#document-sheet")).toBeVisible();
+    await page.getByRole("button", { name: "Execute" }).click();
+    await expect(page.locator(".execute-flow")).toBeVisible();
+    await expect(page).toHaveURL(/#\/execute\/will$/);
+    await page.goBack();
+    await expect(page.locator(".execute-flow")).toBeHidden();
+    await expect(page.locator("#document-sheet")).toBeVisible();
   });
 });

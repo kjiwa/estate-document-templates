@@ -1,4 +1,5 @@
 import type { Section } from "../../form/field-spec";
+import { GENDER_OPTIONS } from "../shared/genderOptions";
 
 export const DURABLE_POA_SECTIONS: Section[] = [
   {
@@ -7,12 +8,23 @@ export const DURABLE_POA_SECTIONS: Section[] = [
     fields: [
       { kind: "text", path: "party.testator.name", label: "Full Legal Name" },
       {
+        kind: "select",
+        path: "party.testator.gender",
+        optional: true,
+        label: "Gender / Pronouns",
+        options: GENDER_OPTIONS,
+      },
+      {
         kind: "text",
         path: "party.testator.county",
         label: "County of Residence",
       },
       { kind: "text", path: "party.testator.state", label: "State" },
-      { kind: "text", path: "execution.city", label: "City of Execution" },
+      {
+        kind: "text",
+        path: "executions.durablePowerOfAttorney.city",
+        label: "City of Execution",
+      },
     ],
   },
   {
@@ -56,10 +68,14 @@ export const DURABLE_POA_SECTIONS: Section[] = [
     article: "Notarial Acknowledgment",
     guidance: "notary",
     fields: [
-      { kind: "text", path: "execution.notary.name", label: "Notary Name" },
       {
         kind: "text",
-        path: "execution.notary.commissionExpires",
+        path: "executions.durablePowerOfAttorney.notary.name",
+        label: "Notary Name",
+      },
+      {
+        kind: "text",
+        path: "executions.durablePowerOfAttorney.notary.commissionExpires",
         label: "Commission Expires",
       },
     ],
@@ -71,7 +87,7 @@ export const DURABLE_POA_SECTIONS: Section[] = [
     fields: [
       {
         kind: "executionDate",
-        path: "execution.executionDate",
+        path: "executions.durablePowerOfAttorney.executionDate",
         label: "Date of Execution",
       },
     ],

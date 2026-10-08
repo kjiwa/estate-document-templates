@@ -13,8 +13,7 @@ import {
 } from "../ui/editing";
 import { FieldGuidance } from "./FieldGuidance";
 
-// Desktop: the tapped field's whole section, per
-// `design/mockups/01-desktop-draft.html`. Not modal — a third grid column
+// Desktop: the tapped field's whole section. Not modal — a third grid column
 // beside the document, so it carries no `role="dialog"`.
 export function ContextPanel() {
   const groupRef = useRef<HTMLDivElement>(null);

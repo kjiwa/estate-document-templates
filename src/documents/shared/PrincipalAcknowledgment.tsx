@@ -4,10 +4,11 @@ import { getPronouns } from "../../model/pronouns";
 import { Blank } from "./Blank";
 import { NotarySignature } from "./NotarySignature";
 import { NotaryVenue } from "./NotaryVenue";
-import { PlanContext } from "./PlanContext";
+import { PlanContext, useExecutionPath } from "./PlanContext";
 import { Value } from "./Value";
 
 export function PrincipalAcknowledgment() {
+  const at = useExecutionPath();
   const plan = useContext(PlanContext);
   const principalPronouns = getPronouns(plan?.party.testator.gender);
   const state = plan?.party.testator.state ?? "";
@@ -37,9 +38,9 @@ export function PrincipalAcknowledgment() {
       </p>
       <div class="notary-jurat">
         Given under my hand and official seal this{" "}
-        <Blank path="execution.executionDate.day" chars={5} /> day of{" "}
-        <Blank path="execution.executionDate.month" chars={14} />,{" "}
-        <Blank path="execution.executionDate.year" chars={6} />.
+        <Blank path={at("executionDate.day")} chars={5} /> day of{" "}
+        <Blank path={at("executionDate.month")} chars={14} />,{" "}
+        <Blank path={at("executionDate.year")} chars={6} />.
       </div>
       <NotarySignature />
     </div>

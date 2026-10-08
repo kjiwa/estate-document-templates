@@ -6,10 +6,11 @@
 // registry rather than being retyped.
 import { computed, effect, signal } from "@preact/signals";
 
-import { DOCUMENTS } from "../documents/registry";
+import { DOCUMENTS, type DocumentDefinition } from "../documents/registry";
 import type { Section } from "../form/field-spec";
 import { resolveFieldPath, type LeafFieldSpec } from "../form/registry";
-import { activeDocumentId, activePlan } from "../store/index";
+import type { Plan } from "../model/plan";
+import { activeDocumentId, activePlan, setField } from "../store/index";
 import { isFieldAnswered } from "./completion";
 
 const activeDocument = computed(() =>
@@ -65,4 +66,38 @@ export function stepExecuteGroup(delta: number): void {
   const next = executeGroupIndex.value + delta;
   if (next < 0 || next >= executeGroups.value.length) return;
   executeGroupIndex.value = next;
+}
+
+type ExecutionRecord = Plan["executions"][keyof Plan["executions"]];
+
+function recordHasAnswers(value: unknown): boolean {
+  if (typeof value === "string") return value !== "";
+  if (Array.isArray(value)) return value.some(recordHasAnswers);
+  if (value && typeof value === "object") {
+    return Object.values(value).some(recordHasAnswers);
+  }
+  return false;
+}
+
+// Other documents whose execution record has any answer, offered as the
+// source of a one-click copy into the active document's record — only while
+// that record is still empty, so a copy never overwrites entered answers.
+export const copySources = computed<DocumentDefinition[]>(() => {
+  const plan = activePlan.value;
+  const active = activeDocument.value;
+  if (!plan || !active) return [];
+  if (recordHasAnswers(plan.executions[active.executionKey])) return [];
+  return DOCUMENTS.filter(
+    (doc) =>
+      doc.id !== active.id &&
+      recordHasAnswers(plan.executions[doc.executionKey])
+  );
+});
+
+export function copyExecutionFrom(source: DocumentDefinition): void {
+  const plan = activePlan.value;
+  const active = activeDocument.value;
+  if (!plan || !active) return;
+  const record: ExecutionRecord = plan.executions[source.executionKey];
+  setField(`executions.${active.executionKey}`, record);
 }

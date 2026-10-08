@@ -3,6 +3,14 @@ const { test, expect } = require("@playwright/test");
 const { seedPlans, PLAN_1 } = require("./fixtures");
 const { generateStandaloneHtml } = require("./helpers/standaloneHtml");
 
+const DOCUMENT_IDS = [
+  "will",
+  "remains-directive",
+  "health-care-directive",
+  "general-power-of-attorney",
+  "durable-power-of-attorney",
+];
+
 test.describe("Screen-to-Print Fidelity & PDF Generation", () => {
   test.beforeEach(async ({ page }) => {
     await seedPlans(page);
@@ -120,7 +128,9 @@ test.describe("Screen-to-Print Fidelity & PDF Generation", () => {
 
   test("headless PDF is a well-formed multi-object document with the @page margin boxes applied", async ({
     page,
+    browserName,
   }) => {
+    test.skip(browserName !== "chromium", "page.pdf is Chromium-only");
     const pdfBuffer = await page.pdf({
       format: "Letter",
       printBackground: true,
@@ -140,7 +150,9 @@ test.describe("Screen-to-Print Fidelity & PDF Generation", () => {
 
   test("generates a valid headless PDF for the active plan", async ({
     page,
+    browserName,
   }) => {
+    test.skip(browserName !== "chromium", "page.pdf is Chromium-only");
     const pdfBuffer = await page.pdf({
       format: "Letter",
       printBackground: true,
@@ -153,7 +165,9 @@ test.describe("Screen-to-Print Fidelity & PDF Generation", () => {
 
   test("renders standalone HTML export and generates valid PDF from exported HTML", async ({
     context,
+    browserName,
   }) => {
+    test.skip(browserName !== "chromium", "page.pdf is Chromium-only");
     const standaloneHtml = await generateStandaloneHtml(PLAN_1);
 
     const newPage = await context.newPage();
@@ -193,5 +207,50 @@ test.describe("Screen-to-Print Fidelity & PDF Generation", () => {
       .evaluateAll((els) => els.map((el) => getComputedStyle(el).display));
     expect(displays.length).toBeGreaterThan(0);
     expect(displays.every((d) => d === "none")).toBe(true);
+  });
+
+  test("print all renders every document on its own named page and the PDF covers each document", async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, "PDF page counts are measured at the desktop layout");
+    const consoleErrors = [];
+    page.on("console", (msg) => {
+      if (msg.type() === "error") consoleErrors.push(msg.text());
+    });
+    const pageCount = (pdf) =>
+      (pdf.toString("latin1").match(/\/Type\s*\/Page[^s]/g) || []).length;
+
+    let singleTotal = 0;
+    for (const id of DOCUMENT_IDS) {
+      await page.goto(`/#/document/${id}`);
+      await expect(page.locator("#document-sheet")).toBeVisible();
+      singleTotal += pageCount(
+        await page.pdf({ format: "Letter", printBackground: true })
+      );
+    }
+
+    await page.evaluate(() => {
+      window.print = () => {};
+    });
+    await page.getByRole("button", { name: "Plans" }).click();
+    await page
+      .locator(".plan-card")
+      .first()
+      .getByRole("button", { name: "Print all" })
+      .click();
+
+    const sheets = page.locator(".print-all .paged-sheet");
+    await expect(sheets).toHaveCount(DOCUMENT_IDS.length);
+    const pageNames = await sheets.evaluateAll((els) =>
+      els.map((el) => el.style.getPropertyValue("page"))
+    );
+    expect(pageNames).toEqual(DOCUMENT_IDS.map((id) => `doc-${id}`));
+
+    const allPages = pageCount(
+      await page.pdf({ format: "Letter", printBackground: true })
+    );
+    expect(allPages).toBeGreaterThanOrEqual(singleTotal);
+    expect(consoleErrors).toEqual([]);
   });
 });

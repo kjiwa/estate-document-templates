@@ -1,11 +1,7 @@
-// Reproduced verbatim from `scripts/capture-goldens.mjs`'s `BASE_OVERLAY`
-// and `CASES`, so the golden gate and the attorney-memo golden test pin the
-// exact same 23 v2 profiles the goldens were captured from. Not itself a
-// test file — imported by `Body.golden.test.tsx` and
-// `../../export/attorneyMemo.golden.test.ts`.
+// Frozen v2 profiles the will goldens were captured from. The memo goldens
+// live in `export/attorneyMemo.test.ts`.
 //
-// BLANK_PROFILE below is inlined from the retired js/config.js (Phase 0's
-// v2 shape) rather than imported, now that js/ no longer exists.
+// BLANK_PROFILE is the v2 blank shape, inlined.
 const BLANK_PROFILE = {
   testator: {
     name: "",

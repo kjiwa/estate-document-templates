@@ -1,5 +1,7 @@
 import { signal } from "@preact/signals";
 
-export const view = signal<"document" | "plans" | "execute" | "print">(
-  "document"
-);
+export type View = "document" | "plans" | "execute" | "print";
+
+export const VIEWS: readonly View[] = ["document", "plans", "execute", "print"];
+
+export const view = signal<View>("document");

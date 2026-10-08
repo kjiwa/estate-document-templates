@@ -4,12 +4,13 @@ import { getPronouns } from "../../model/pronouns";
 import { Blank } from "./Blank";
 import { NotarySignature } from "./NotarySignature";
 import { NotaryVenue } from "./NotaryVenue";
-import { PlanContext } from "./PlanContext";
+import { PlanContext, useExecutionPath } from "./PlanContext";
 import { Value } from "./Value";
 
 // Reproduces `renderNotaryCertificate`. The venue lines are the one site
 // that uppercases before interpolating (`will.js:420-421`).
 export function NotaryCertificate() {
+  const at = useExecutionPath();
   const plan = useContext(PlanContext);
   const testatorPronouns = getPronouns(plan?.party.testator.gender);
   const state = plan?.party.testator.state ?? "";
@@ -49,22 +50,22 @@ export function NotaryCertificate() {
           <div class="sig-field-line" />
           <div class="sig-field-label">
             Witness Signature —{" "}
-            <Blank path="execution.witnesses.0.name" chars={12} />
+            <Blank path={at("witnesses.0.name")} chars={12} />
           </div>
         </div>
         <div class="sig-field">
           <div class="sig-field-line" />
           <div class="sig-field-label">
             Witness Signature —{" "}
-            <Blank path="execution.witnesses.1.name" chars={12} />
+            <Blank path={at("witnesses.1.name")} chars={12} />
           </div>
         </div>
       </div>
       <div class="notary-jurat">
         Subscribed and sworn to before me this{" "}
-        <Blank path="execution.executionDate.day" chars={5} /> day of{" "}
-        <Blank path="execution.executionDate.month" chars={14} />,{" "}
-        <Blank path="execution.executionDate.year" chars={6} />.
+        <Blank path={at("executionDate.day")} chars={5} /> day of{" "}
+        <Blank path={at("executionDate.month")} chars={14} />,{" "}
+        <Blank path={at("executionDate.year")} chars={6} />.
       </div>
       <NotarySignature />
     </div>

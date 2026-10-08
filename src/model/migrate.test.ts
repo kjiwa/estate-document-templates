@@ -1,6 +1,9 @@
+import { readFile } from "node:fs/promises";
+
 import { describe, expect, it } from "vitest";
 
-import { migrateProfile, CURRENT_SCHEMA_VERSION } from "./migrate";
+import { migrateProfile, CURRENT_SCHEMA_VERSION, MIGRATIONS } from "./migrate";
+import type { Plan } from "./plan";
 
 describe("migrateProfile", () => {
   // 1. Already v3-shaped: pass through, but still `Plan.parse`.
@@ -20,7 +23,7 @@ describe("migrateProfile", () => {
         trustees: {},
         remains: {},
       },
-      execution: { executionDate: {}, notary: {} },
+      executions: { will: { executionDate: {}, notary: {} } },
       documents: {
         will: { communityPropertyAgreement: {}, ultimateBeneficiary: {} },
       },
@@ -85,8 +88,8 @@ describe("migrateProfile", () => {
       primary: "A",
       alternate: "B",
     });
-    expect(plan.execution.city).toBe("Tacoma");
-    expect(plan.execution.notary.name).toBe("Notary");
+    expect(plan.executions.will.city).toBe("Tacoma");
+    expect(plan.executions.will.notary.name).toBe("Notary");
     expect(plan.documents.will.spousalGift).toBe("disclaimerTrust");
     expect(plan.documents.will.survivorshipDays).toBe(90);
   });
@@ -101,7 +104,7 @@ describe("migrateProfile", () => {
     if (!result.success) return;
     expect(result.plan.party.testator.state).toBe("Washington");
     expect(result.plan.documents.will.survivorshipDays).toBe(60);
-    expect(result.plan.execution.witnesses).toHaveLength(2);
+    expect(result.plan.executions.will.witnesses).toHaveLength(2);
   });
 
   // 4. Unrecognized top-level id: preserved verbatim as `Plan.id`.
@@ -145,7 +148,7 @@ describe("migrateProfile", () => {
     });
     expect(result.success).toBe(true);
     if (!result.success) return;
-    expect(result.plan.execution.witnesses).toHaveLength(1);
+    expect(result.plan.executions.will.witnesses).toHaveLength(1);
   });
 
   it("copies a witnesses array of length 3 verbatim, no truncation", () => {
@@ -159,7 +162,7 @@ describe("migrateProfile", () => {
     });
     expect(result.success).toBe(true);
     if (!result.success) return;
-    expect(result.plan.execution.witnesses).toHaveLength(3);
+    expect(result.plan.executions.will.witnesses).toHaveLength(3);
   });
 
   // 7. `children` present but not an array: reject, do not coerce.
@@ -193,7 +196,7 @@ describe("migrateProfile", () => {
   // still import.
   it("imports a pre-existing v3 export with no healthCareDirective key", () => {
     const result = migrateProfile("profile-1", {
-      schemaVersion: CURRENT_SCHEMA_VERSION,
+      schemaVersion: 3,
       label: "Profile 1",
       party: {
         testator: { name: "Jordan", state: "Washington" },
@@ -215,6 +218,24 @@ describe("migrateProfile", () => {
     expect(result.success).toBe(true);
     if (!result.success) return;
     expect(result.plan.documents.healthCareDirective.cpr).toBe("");
+  });
+
+  it("gives each document its own execution record when migrating v3", () => {
+    const step = MIGRATIONS[1]!;
+    const shared = {
+      city: "Tacoma",
+      witnesses: [{ name: "A" }],
+      notary: { name: "N" },
+    };
+    const out = step({ execution: shared }) as {
+      executions: Record<string, typeof shared>;
+    };
+    const records = Object.values(out.executions);
+    expect(records).toHaveLength(5);
+    expect(new Set(records).size).toBe(5);
+    expect(new Set(records.map((r) => r.witnesses)).size).toBe(5);
+    expect(new Set(records.map((r) => r.notary)).size).toBe(5);
+    for (const record of records) expect(record).toEqual(shared);
   });
 
   const DEFAULT_REMAINS_DIRECTIVE = {
@@ -241,7 +262,7 @@ describe("migrateProfile", () => {
 
   it("imports a pre-existing v3 export with no remainsDirective key", () => {
     const result = migrateProfile("profile-1", {
-      schemaVersion: CURRENT_SCHEMA_VERSION,
+      schemaVersion: 3,
       label: "Profile 1",
       party: {
         testator: { name: "Jordan", state: "Washington" },
@@ -286,7 +307,7 @@ describe("migrateProfile", () => {
 
   it("imports a pre-existing v3 export with no durablePowerOfAttorney key", () => {
     const result = migrateProfile("profile-1", {
-      schemaVersion: CURRENT_SCHEMA_VERSION,
+      schemaVersion: 3,
       label: "Profile 1",
       party: {
         testator: { name: "Jordan", state: "Washington" },
@@ -327,7 +348,7 @@ describe("migrateProfile", () => {
 
   it("imports a pre-existing v3 export with no attorneysInFact key", () => {
     const result = migrateProfile("profile-1", {
-      schemaVersion: CURRENT_SCHEMA_VERSION,
+      schemaVersion: 3,
       label: "Profile 1",
       party: {
         testator: { name: "Jordan", state: "Washington" },
@@ -352,5 +373,72 @@ describe("migrateProfile", () => {
       primary: "",
       alternate: "",
     });
+  });
+
+  const EXECUTION_KEYS = [
+    "will",
+    "remainsDirective",
+    "healthCareDirective",
+    "durablePowerOfAttorney",
+    "generalPowerOfAttorney",
+  ] as const;
+
+  async function readV3Plan(): Promise<Record<string, unknown>> {
+    const raw = await readFile("test/data/v3-export.json", "utf8");
+    const envelope = JSON.parse(raw) as {
+      plans: Record<string, Record<string, unknown>>;
+    };
+    return envelope.plans["profile-1"]!;
+  }
+
+  it("copies a v3 shared execution record into all five documents", async () => {
+    const v3 = await readV3Plan();
+    const result = migrateProfile("profile-1", { ...v3, schemaVersion: 3 });
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    for (const key of EXECUTION_KEYS) {
+      expect(result.plan.executions[key].city).toBe("Spokane");
+      expect(result.plan.executions[key].witnesses[0]?.name).toBe(
+        "Lena Brandt"
+      );
+      expect(result.plan.executions[key].notary.name).toBe("Greta Holm");
+    }
+    expect("execution" in result.plan).toBe(false);
+  });
+
+  it("migrates a v2 payload through to the per-document records", () => {
+    const result = migrateProfile("profile-1", {
+      label: "Profile 1",
+      city: "Tacoma",
+    });
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    for (const key of EXECUTION_KEYS) {
+      expect(result.plan.executions[key].city).toBe("Tacoma");
+    }
+  });
+
+  it("round-trips a current-version plan through JSON unchanged", async () => {
+    const v3 = await readV3Plan();
+    const first = migrateProfile("profile-1", { ...v3, schemaVersion: 3 });
+    if (!first.success) throw new Error(first.error);
+    const second = migrateProfile("profile-1", {
+      ...(JSON.parse(JSON.stringify(first.plan)) as Plan),
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+    });
+    expect(second.success && second.plan).toEqual(first.plan);
+  });
+
+  it("has a step and a fixture for every version before the current one", async () => {
+    const fixtures: Record<number, Record<string, unknown>> = {
+      2: { label: "Profile 1" },
+      3: { ...(await readV3Plan()), schemaVersion: 3 },
+    };
+    for (let version = 2; version < CURRENT_SCHEMA_VERSION; version++) {
+      expect(MIGRATIONS[version - 2], `step from v${version}`).toBeDefined();
+      expect(fixtures[version], `fixture for v${version}`).toBeDefined();
+      expect(migrateProfile("profile-1", fixtures[version]).success).toBe(true);
+    }
+    expect(MIGRATIONS).toHaveLength(CURRENT_SCHEMA_VERSION - 2);
   });
 });

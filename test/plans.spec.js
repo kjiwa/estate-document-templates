@@ -1,4 +1,5 @@
 // @ts-check
+const path = require("path");
 const { test, expect } = require("@playwright/test");
 const { seedPlans, disableFilePickers } = require("./fixtures");
 
@@ -180,6 +181,35 @@ test.describe("Plan management", () => {
     await expect(
       page.locator(".plan-card", { hasText: "Saved Before Reopen" })
     ).toBeVisible();
+  });
+
+  test("Open plans from file imports a schema v3 export and gives every document its own copy of the shared execution record", async ({
+    page,
+  }) => {
+    await disableFilePickers(page);
+    await page.goto("/");
+    await page.getByRole("button", { name: "Plans" }).click();
+
+    const [fileChooser] = await Promise.all([
+      page.waitForEvent("filechooser"),
+      page.getByRole("button", { name: "Open plans from file" }).click(),
+    ]);
+    await fileChooser.setFiles(path.join(__dirname, "data", "v3-export.json"));
+    await page.getByRole("button", { name: "Confirm replace" }).click();
+
+    await expect(
+      page.locator(".plan-card", { hasText: "Imported V3 Plan" })
+    ).toBeVisible();
+
+    await page.getByRole("button", { name: "Document" }).click();
+    await page
+      .getByLabel("Active document")
+      .selectOption("durable-power-of-attorney");
+    await expect(
+      page
+        .locator('[data-path="executions.durablePowerOfAttorney.city"]')
+        .first()
+    ).toHaveText("Spokane");
   });
 
   test("Open plans from file asks before replacing and Cancel keeps the current plans", async ({
@@ -401,7 +431,8 @@ test.describe("Plan management", () => {
     await page.addInitScript(() => {
       const KEY = "estate_templates_state_v1";
       const data = JSON.parse(window.localStorage.getItem(KEY));
-      data.plans["profile-1"].execution.witnesses[0].name = "Devin Okafor";
+      data.plans["profile-1"].executions.will.witnesses[0].name =
+        "Devin Okafor";
       window.localStorage.setItem(KEY, JSON.stringify(data));
     });
     await page.reload();

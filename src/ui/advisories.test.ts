@@ -24,10 +24,10 @@ beforeEach(() => {
 describe("advisoriesByPath / advisoriesBySection", () => {
   it("groups an interested-witness advisory under the witnesses section", () => {
     setField("fiduciaries.personalRepresentatives.alternate", "Alex Kowalski");
-    setField("execution.witnesses.0.name", "Alex Kowalski");
+    setField("executions.will.witnesses.0.name", "Alex Kowalski");
 
     const byPath = advisoriesByPath.value;
-    const witnessAdvisories = byPath.get("execution.witnesses.0.name");
+    const witnessAdvisories = byPath.get("executions.will.witnesses.0.name");
     expect(witnessAdvisories?.length).toBe(1);
     expect(witnessAdvisories?.[0]?.title).toBe("Interested witness");
 
@@ -47,14 +47,14 @@ describe("advisoriesByPath / advisoriesBySection", () => {
 describe("showAdvisory", () => {
   it("opens the field the advisory's path resolves to", () => {
     setField("fiduciaries.personalRepresentatives.alternate", "Alex Kowalski");
-    setField("execution.witnesses.0.name", "Alex Kowalski");
+    setField("executions.will.witnesses.0.name", "Alex Kowalski");
 
     const advisory = advisories.value.find(
       (a) => a.title === "Interested witness"
     )!;
     showAdvisory(advisory);
 
-    expect(activeFieldPath.value).toBe("execution.witnesses.0.name");
+    expect(activeFieldPath.value).toBe("executions.will.witnesses.0.name");
     expect(activeSectionId.value).toBe("witnesses");
   });
 
@@ -106,7 +106,7 @@ describe("overviewAdvisories", () => {
 
   it("keeps an interested-witness advisory", () => {
     setField("fiduciaries.personalRepresentatives.alternate", "Alex Kowalski");
-    setField("execution.witnesses.0.name", "Alex Kowalski");
+    setField("executions.will.witnesses.0.name", "Alex Kowalski");
     const plan = plans.value["profile-1"]!;
     expect(overviewAdvisories(plan, will).map((a) => a.title)).toContain(
       "Interested witness"

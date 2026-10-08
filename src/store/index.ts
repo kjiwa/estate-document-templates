@@ -184,8 +184,10 @@ export function parsePersisted(raw: unknown): ParsedPersisted | null {
     return null;
   }
 
-  const isV3 = Boolean(obj.plans && typeof obj.plans === "object");
-  const rawProfiles = isV3
+  const isEnvelope = Boolean(obj.plans && typeof obj.plans === "object");
+  const envelopeVersion =
+    typeof obj.schemaVersion === "number" ? Math.max(obj.schemaVersion, 3) : 3;
+  const rawProfiles = isEnvelope
     ? (obj.plans as Record<string, unknown>)
     : obj.profiles && typeof obj.profiles === "object"
       ? (obj.profiles as Record<string, unknown>)
@@ -201,14 +203,12 @@ export function parsePersisted(raw: unknown): ParsedPersisted | null {
   let skipped = 0;
   for (const id of storedIds) {
     const rawPlan = rawProfiles[id];
-    // A persisted v3 `Plan` carries no `schemaVersion` field of its own —
-    // only the envelope around `plans` does — so `migrateProfile` cannot
-    // tell it apart from a v2 profile without this tag, and would otherwise
-    // re-run it through `mapV2ToV3`, reading fields (`v2.testator`, …) that
-    // don't exist at the v3 shape's top level and silently blanking them.
+    // A persisted `Plan` carries no `schemaVersion` of its own; only the
+    // envelope around `plans` does, and `migrateProfile` reads it off the
+    // plan. An envelope written before versioning is v3-shaped.
     const taggedPlan =
-      isV3 && rawPlan && typeof rawPlan === "object"
-        ? { ...rawPlan, schemaVersion: CURRENT_SCHEMA_VERSION }
+      isEnvelope && rawPlan && typeof rawPlan === "object"
+        ? { ...rawPlan, schemaVersion: envelopeVersion }
         : rawPlan;
     const result = migrateProfile(id, taggedPlan);
     if (result.success) migratedPlans[id] = result.plan;

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { migrateProfile } from "../../model/migrate";
 import type { Plan } from "../../model/plan";
-import { analyzeDirective } from "./review";
+import { analyzeRemainsDirective } from "./review";
 
 // Mirrors `will/review.test.ts`'s `planWith` helper.
 function planWith(overlay: Record<string, unknown> = {}): Plan {
@@ -29,16 +29,16 @@ function withInstructions(
   };
 }
 
-describe("analyzeDirective", () => {
+describe("analyzeRemainsDirective", () => {
   it("warns when no agent is named", () => {
     const plan = planWith({ remains: { agent: "", alternate: "" } });
-    const ids = analyzeDirective(plan).map((a) => a.id);
+    const ids = analyzeRemainsDirective(plan).map((a) => a.id);
     expect(ids).toContain("remains-agent-unset");
   });
 
   it("notes when an agent is named but no alternate", () => {
     const plan = planWith({ remains: { agent: "Robin", alternate: "" } });
-    const advisories = analyzeDirective(plan);
+    const advisories = analyzeRemainsDirective(plan);
     expect(advisories.map((a) => a.id)).toContain("remains-alternate-unset");
     expect(
       advisories.find((a) => a.id === "remains-alternate-unset")?.severity
@@ -49,12 +49,12 @@ describe("analyzeDirective", () => {
     const plan = planWith({
       remains: { agent: "Robin", alternate: "Casey" },
     });
-    expect(analyzeDirective(plan)).toEqual([]);
+    expect(analyzeRemainsDirective(plan)).toEqual([]);
   });
 
   it("every advisory's path resolves against the plan", () => {
     const plan = planWith({ remains: { agent: "", alternate: "" } });
-    for (const advisory of analyzeDirective(plan)) {
+    for (const advisory of analyzeRemainsDirective(plan)) {
       expect(advisory.path.startsWith("fiduciaries.remains.")).toBe(true);
     }
   });
@@ -66,7 +66,7 @@ describe("analyzeDirective", () => {
       }),
       { method: "burial" }
     );
-    const advisory = analyzeDirective(plan).find(
+    const advisory = analyzeRemainsDirective(plan).find(
       (a) => a.id === "remains-preference-contradiction"
     );
     expect(advisory?.severity).toBe("info");
@@ -79,7 +79,7 @@ describe("analyzeDirective", () => {
       method: "burial",
     });
     const unset = withInstructions(planWith({ remains }), { method: "" });
-    expect(analyzeDirective(agrees)).toEqual([]);
-    expect(analyzeDirective(unset)).toEqual([]);
+    expect(analyzeRemainsDirective(agrees)).toEqual([]);
+    expect(analyzeRemainsDirective(unset)).toEqual([]);
   });
 });
