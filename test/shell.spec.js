@@ -301,4 +301,23 @@ test.describe("Disclaimer", () => {
     expect(footer.y).toBeGreaterThanOrEqual(body.y + body.height - 1);
     expect(footer.y + footer.height).toBeLessThanOrEqual(900);
   });
+  test("hash routing: reload stays on Plans and Back leaves execute", async ({
+    page,
+  }) => {
+    await acceptDisclaimer(page);
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto("/#/plans");
+    await expect(page.locator(".plans-view")).toBeVisible();
+    await page.reload();
+    await expect(page.locator(".plans-view")).toBeVisible();
+
+    await page.goto("/#/document/will");
+    await expect(page.locator("#document-sheet")).toBeVisible();
+    await page.getByRole("button", { name: "Execute" }).click();
+    await expect(page.locator(".execute-flow")).toBeVisible();
+    await expect(page).toHaveURL(/#\/execute\/will$/);
+    await page.goBack();
+    await expect(page.locator(".execute-flow")).toBeHidden();
+    await expect(page.locator("#document-sheet")).toBeVisible();
+  });
 });
