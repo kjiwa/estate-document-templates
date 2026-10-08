@@ -271,13 +271,15 @@ export const GOLDEN_CASES: GoldenCase[] = [
   },
 ];
 
-// Mirrors `scripts/capture-goldens.mjs`'s local mutating `deepMerge`
-// (replace-wholesale for arrays), used only to build these v2 fixtures.
+// Arrays replace wholesale.
+const UNSAFE_KEYS = new Set(["__proto__", "constructor", "prototype"]);
+
 function deepMerge(
   target: Record<string, unknown>,
   source: Record<string, unknown>
 ): Record<string, unknown> {
   for (const key of Object.keys(source)) {
+    if (UNSAFE_KEYS.has(key)) continue;
     const value = source[key];
     if (Array.isArray(value)) {
       target[key] = value;

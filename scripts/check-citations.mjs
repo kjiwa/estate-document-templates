@@ -43,14 +43,18 @@ async function extractCitations() {
   return [...citations].sort();
 }
 
+function htmlToText(html, replacement) {
+  return html
+    .replace(/<[^>]+>/g, replacement)
+    .replace(/[<>]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function extractHistoryNote(html) {
   const matches = [...html.matchAll(/<div[^>]*>\[(.*?)\]<\/div>/gs)];
   if (matches.length === 0) return null;
-  const raw = matches[matches.length - 1][1];
-  return raw
-    .replace(/<[^>]+>/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
+  return htmlToText(matches[matches.length - 1][1], "");
 }
 
 async function fetchCitation(cite) {
@@ -62,7 +66,7 @@ async function fetchCitation(cite) {
     throw new Error(`${response.status} ${response.statusText}`);
   }
   const html = await response.text();
-  const text = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+  const text = htmlToText(html, " ");
 
   if (text.includes("Citation not found")) {
     return { cite, notFound: true, history: null };
