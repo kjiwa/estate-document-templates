@@ -17,8 +17,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check:citations": "node scripts/check-citations.mjs",
-    "design:shots": "node design/screenshot.mjs"
+    "check:citations": "node scripts/check-citations.mjs"
   },
   "repository": {
     "type": "git",

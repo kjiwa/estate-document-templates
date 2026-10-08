@@ -14,7 +14,7 @@ import {
 import { useFocusTrap } from "../ui/useFocusTrap";
 import { FieldGuidance } from "./FieldGuidance";
 
-// Mobile: exactly one field, per `design/mockups/04-mobile-reading-sheet.html`.
+// Mobile: exactly one field.
 export function BottomSheet() {
   const sheetRef = useRef<HTMLDivElement>(null);
   const idx = activeEntryIndex.value;

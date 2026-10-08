@@ -1,8 +1,7 @@
 /* ==========================================================================
    App chrome — the rail, header, contextual panel, bottom sheet, and
    controls. Hairlines and tint steps, no card shadows (reserved for the
-   paper sheet and the bottom sheet). Implements design/mockup.css, the
-   frozen Phase 2 chrome reference.
+   paper sheet and the bottom sheet).
    ========================================================================== */
 
 * {

@@ -13,8 +13,7 @@ import { printDocument } from "../ui/print";
 import { activeDocumentId, activePlan } from "../store/index";
 import { view } from "../ui/view";
 
-// Mirrors `design/mockups/07-preprint-checklist.html` structurally. Both
-// checkboxes are a local acknowledgement, not persisted plan data, and
+// Both checkboxes are a local acknowledgement, not persisted plan data, and
 // neither gates the buttons.
 export function PrintChecklist() {
   const plan = activePlan.value;

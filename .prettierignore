@@ -5,6 +5,4 @@ playwright-report/
 package-lock.json
 profiles.local.json
 test/golden/
-design/mockups/
-design/index.html
 dist/

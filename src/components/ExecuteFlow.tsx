@@ -10,8 +10,7 @@ import {
 } from "../ui/execute";
 import { view } from "../ui/view";
 
-// Mirrors `design/mockups/06-signing-day.html` structurally: the progress
-// bar, group heading/lead, the group's fields, Back/Continue, and the
+// The progress bar, group heading/lead, the group's fields, Back/Continue, and the
 // "Also in this flow" checklist of all four groups.
 export function ExecuteFlow() {
   const groups = executeGroups.value;
