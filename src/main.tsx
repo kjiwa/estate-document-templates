@@ -10,7 +10,7 @@ import "./styles/print.css";
 
 import { App } from "./App";
 import { installPrintPresentationSwitch } from "./ui/presentation";
-import { installPrintLabels } from "./ui/print";
+import { installPrintAllReset, installPrintLabels } from "./ui/print";
 import { installRouter } from "./ui/route";
 import { installStorageSync, loadFromStorage } from "./store/index";
 
@@ -18,6 +18,7 @@ loadFromStorage();
 installRouter();
 installPrintPresentationSwitch();
 installPrintLabels();
+installPrintAllReset();
 installStorageSync();
 
 const root = document.getElementById("app");

@@ -7,12 +7,19 @@ import { AppFooter, Disclaimer } from "./components/Disclaimer";
 import { DocumentSurface } from "./components/DocumentSurface";
 import { ExecuteFlow } from "./components/ExecuteFlow";
 import { PlansView } from "./components/PlansView";
+import { PrintAll } from "./components/PrintAll";
 import { PrintChecklist } from "./components/PrintChecklist";
 import { Rail } from "./components/Rail";
 import { DOCUMENTS } from "./documents/registry";
 import { PlanContext } from "./documents/shared/PlanContext";
-import { activeDocumentId, activePlan, storageNotice } from "./store/index";
+import {
+  activeDocumentId,
+  activePlan,
+  plans,
+  storageNotice,
+} from "./store/index";
 import { activeFieldPath } from "./ui/editing";
+import { printAllPlanId } from "./ui/print";
 import { view } from "./ui/view";
 import { isNarrow } from "./ui/viewport";
 
@@ -59,6 +66,9 @@ export function App() {
   const editorOpen = activeFieldPath.value !== null;
   const showPanel = editorOpen && !isNarrow.value;
   const showSheet = editorOpen && isNarrow.value;
+  const printAllPlan = printAllPlanId.value
+    ? plans.value[printAllPlanId.value]
+    : undefined;
   const showPlans = view.value === "plans";
   const showExecute = view.value === "execute";
   const showPrintChecklist = view.value === "print";
@@ -71,7 +81,9 @@ export function App() {
       </a>
       <AppHeader />
       <StorageNotice />
-      {showPlans ? (
+      {printAllPlan ? (
+        <PrintAll plan={printAllPlan} />
+      ) : showPlans ? (
         <PlansView />
       ) : document && plan ? (
         // `Field` (used by `ContextPanel`/`BottomSheet`, siblings of

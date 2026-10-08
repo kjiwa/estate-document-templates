@@ -1,6 +1,6 @@
 import type { ComponentType } from "preact";
 
-import { generateAttorneyMemo } from "../export/attorneyMemo";
+import { documentMemo, generateAttorneyMemo } from "../export/attorneyMemo";
 import type { ExecuteGroupDef, Section } from "../form/field-spec";
 import type { Advisory } from "../model/advisory";
 import type { Plan } from "../model/plan";
@@ -45,10 +45,13 @@ export interface DocumentDefinition {
   executeGroups: ExecuteGroupDef[];
   Body: ComponentType;
   review: (plan: Plan) => Advisory[];
-  // Optional: not every document has an attorney memo. `attorneyMemo.ts`
-  // stays will-specific behind this indirection rather than being forced
-  // generic before a second caller needs it to be.
-  memo?: (plan: Plan) => string;
+  memo: (plan: Plan) => string;
+}
+
+function withMemo(
+  definition: Omit<DocumentDefinition, "memo">
+): DocumentDefinition {
+  return { ...definition, memo: (plan) => documentMemo(definition, plan) };
 }
 
 export const DOCUMENTS: DocumentDefinition[] = [
@@ -64,7 +67,7 @@ export const DOCUMENTS: DocumentDefinition[] = [
     review: analyzeWill,
     memo: generateAttorneyMemo,
   },
-  {
+  withMemo({
     id: "remains-directive",
     title: "Disposition of Remains Directive",
     roleNoun: "Declarant",
@@ -74,8 +77,8 @@ export const DOCUMENTS: DocumentDefinition[] = [
     executeGroups: DIRECTIVE_EXECUTE_GROUPS,
     Body: RemainsDirectiveBody,
     review: analyzeRemainsDirective,
-  },
-  {
+  }),
+  withMemo({
     id: "health-care-directive",
     title: "Health Care Directive",
     roleNoun: "Declarer",
@@ -85,8 +88,8 @@ export const DOCUMENTS: DocumentDefinition[] = [
     executeGroups: HEALTH_CARE_EXECUTE_GROUPS,
     Body: HealthCareDirectiveBody,
     review: analyzeHealthCareDirective,
-  },
-  {
+  }),
+  withMemo({
     id: "general-power-of-attorney",
     title: "General Power of Attorney",
     roleNoun: "Principal",
@@ -96,8 +99,8 @@ export const DOCUMENTS: DocumentDefinition[] = [
     executeGroups: GENERAL_POA_EXECUTE_GROUPS,
     Body: GeneralPowerOfAttorneyBody,
     review: analyzeGeneralPowerOfAttorney,
-  },
-  {
+  }),
+  withMemo({
     id: "durable-power-of-attorney",
     title: "Durable Power of Attorney",
     roleNoun: "Principal",
@@ -107,5 +110,5 @@ export const DOCUMENTS: DocumentDefinition[] = [
     executeGroups: DURABLE_POA_EXECUTE_GROUPS,
     Body: DurablePowerOfAttorneyBody,
     review: analyzeDurablePowerOfAttorney,
-  },
+  }),
 ];

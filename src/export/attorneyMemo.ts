@@ -1,4 +1,9 @@
+import type { DocumentDefinition } from "../documents/registry";
 import { analyzeWill } from "../documents/will/review";
+import { flattenFields, hasValue } from "../ui/completion";
+import type { LeafFieldSpec } from "../form/registry";
+import type { Advisory } from "../model/advisory";
+import { getPath } from "../model/paths";
 import type { Plan } from "../model/plan";
 
 const OPEN_QUESTIONS_FOR_COUNSEL = [
@@ -10,6 +15,20 @@ const OPEN_QUESTIONS_FOR_COUNSEL = [
 function formatChoice(label: string, value: unknown): string {
   const unset = value === undefined || value === null || value === "";
   return `- ${label}: ${unset ? "(unset)" : value}`;
+}
+
+function advisoryLines(advisories: Advisory[]): string[] {
+  const lines = ["ADVISORIES RAISED"];
+  if (advisories.length === 0) {
+    lines.push("- None raised by automated review.");
+  } else {
+    advisories.forEach((advisory) => {
+      lines.push(
+        `- [${advisory.severity}] ${advisory.title}: ${advisory.message}`
+      );
+    });
+  }
+  return lines;
 }
 
 // A plain-text companion document listing every choice made and every
@@ -83,20 +102,72 @@ export function generateAttorneyMemo(plan: Plan): string {
   );
   lines.push("");
 
-  lines.push("ADVISORIES RAISED");
-  if (advisories.length === 0) {
-    lines.push("- None raised by automated review.");
-  } else {
-    advisories.forEach((advisory) => {
-      lines.push(
-        `- [${advisory.severity}] ${advisory.title}: ${advisory.message}`
-      );
-    });
-  }
+  lines.push(...advisoryLines(advisories));
   lines.push("");
 
   lines.push("OPEN QUESTIONS FOR COUNSEL");
   OPEN_QUESTIONS_FOR_COUNSEL.forEach((question) => lines.push(`- ${question}`));
 
   return lines.join("\n");
+}
+
+function formatListRow(row: unknown): string {
+  if (typeof row === "string") return row.trim();
+  if (row === null || typeof row !== "object") return "";
+  return Object.values(row)
+    .filter((cell) => typeof cell === "string" && cell.trim() !== "")
+    .join(", ");
+}
+
+function formatFieldValue(field: LeafFieldSpec, value: unknown): string {
+  if (field.kind === "checkbox") return "yes";
+  if (field.kind === "list") {
+    return (value as unknown[])
+      .map(formatListRow)
+      .filter((row) => row !== "")
+      .join("; ");
+  }
+  if (field.kind === "select") {
+    return field.options.find((o) => o.value === value)?.label ?? String(value);
+  }
+  return String(value);
+}
+
+function sectionLines(
+  plan: Plan,
+  document: Pick<DocumentDefinition, "sections">
+): string[] {
+  const lines: string[] = [];
+  for (const section of document.sections) {
+    if (section.hidden?.(plan)) continue;
+    const answered = (flattenFields(section.fields) as LeafFieldSpec[]).filter(
+      (field) => !field.path.startsWith("executions.") && hasValue(plan, field)
+    );
+    if (answered.length === 0) continue;
+    lines.push(section.legend.toUpperCase());
+    answered.forEach((field) =>
+      lines.push(
+        `- ${field.label}: ${formatFieldValue(field, getPath(plan, field.path))}`
+      )
+    );
+    lines.push("");
+  }
+  return lines;
+}
+
+// The memo for every document but the will: each section's answered fields,
+// then the document's own review advisories. The signing-day record is left
+// out; it is not a drafting choice.
+export function documentMemo(
+  document: Pick<DocumentDefinition, "title" | "sections" | "review">,
+  plan: Plan
+): string {
+  return [
+    "ATTORNEY MEMORANDUM",
+    document.title,
+    `Draft prepared for: ${plan.party.testator.name || "(unnamed)"}`,
+    "",
+    ...sectionLines(plan, document),
+    ...advisoryLines(document.review(plan)),
+  ].join("\n");
 }

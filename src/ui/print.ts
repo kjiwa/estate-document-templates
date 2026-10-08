@@ -1,3 +1,5 @@
+import { signal } from "@preact/signals";
+
 import { DOCUMENTS } from "../documents/registry";
 import { activeDocumentId, activePlan } from "../store/index";
 import { closeEditor } from "./editing";
@@ -42,11 +44,34 @@ function setPrintLabels(): void {
 export function printDocument(): void {
   closeEditor();
   view.value = "document";
+  printAfterPaint();
+}
+
+function printAfterPaint(): void {
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       window.print();
     });
   });
+}
+
+// While set, the app renders every document of that plan in sequence in
+// place of the current view (`components/PrintAll.tsx`); `afterprint`
+// clears it.
+export const printAllPlanId = signal<string | null>(null);
+
+export function printAllDocuments(planId: string): void {
+  closeEditor();
+  printAllPlanId.value = planId;
+  printAfterPaint();
+}
+
+export function installPrintAllReset(): () => void {
+  const reset = () => {
+    printAllPlanId.value = null;
+  };
+  window.addEventListener("afterprint", reset);
+  return () => window.removeEventListener("afterprint", reset);
 }
 
 // Cmd+P bypasses `printDocument`, so the labels are also set when the

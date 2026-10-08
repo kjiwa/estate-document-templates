@@ -1,6 +1,7 @@
 import { useRef, useState } from "preact/hooks";
 
 import { DOCUMENTS, type DocumentDefinition } from "../documents/registry";
+import { generateStandaloneBundle } from "../export/standaloneHtml";
 import { CURRENT_SCHEMA_VERSION } from "../model/migrate";
 import type { Plan } from "../model/plan";
 import {
@@ -29,6 +30,7 @@ import {
   type ReadinessStage,
 } from "../ui/completion";
 import { lastSavedAt, openFile, saveFile } from "../ui/files";
+import { printAllDocuments } from "../ui/print";
 import { view } from "../ui/view";
 
 function openDocument(plan: Plan, document: DocumentDefinition) {
@@ -125,6 +127,15 @@ function stageSummary(plan: Plan): string {
     : `Documents: ${stages}`;
 }
 
+function downloadAll(plan: Plan) {
+  const name = plan.party.testator.name || "plan";
+  void saveFile(
+    `${name.replace(/\s+/g, "-").toLowerCase()}-all-documents.html`,
+    "text/html",
+    generateStandaloneBundle(plan, DOCUMENTS)
+  );
+}
+
 interface PlanCardProps {
   plan: Plan;
   canDelete: boolean;
@@ -198,6 +209,16 @@ function PlanCard({ plan, canDelete }: PlanCardProps) {
             Create reciprocal spouse plan
           </button>
         ) : null}
+        <button
+          type="button"
+          class="btn"
+          onClick={() => printAllDocuments(plan.id)}
+        >
+          Print all
+        </button>
+        <button type="button" class="btn" onClick={() => downloadAll(plan)}>
+          Download all
+        </button>
         <button
           type="button"
           class="btn btn-danger"

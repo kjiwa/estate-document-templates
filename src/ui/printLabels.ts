@@ -24,3 +24,25 @@ export function printInitialsLabel(document: DocumentDefinition): string {
 export function escapeCssString(value: string): string {
   return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 }
+
+export function printPageName(document: DocumentDefinition): string {
+  return `doc-${document.id}`;
+}
+
+// One `@page` rule per document, so a multi-document print carries each
+// document's own footer and initials prompt. Margin-box `content` takes
+// literal strings here, since the root custom properties name only one
+// document.
+export function namedPageRules(
+  plan: Plan,
+  documents: readonly DocumentDefinition[]
+): string {
+  return documents
+    .map(
+      (document) => `@page ${printPageName(document)} {
+  @bottom-left { content: "${escapeCssString(printDocLabel(plan, document))}"; }
+  @bottom-right { content: "${escapeCssString(printInitialsLabel(document))}"; }
+}`
+    )
+    .join("\n");
+}
