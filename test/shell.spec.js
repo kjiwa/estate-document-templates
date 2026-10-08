@@ -72,6 +72,22 @@ test.describe("Application Shell, Layout & Accessibility", () => {
     await expect(darkButton).toHaveAttribute("aria-pressed", "false");
   });
 
+  test("system theme follows the emulated color scheme", async ({ page }) => {
+    await page.emulateMedia({ colorScheme: "dark" });
+    await page.goto("/");
+    await page
+      .locator('[aria-label="Theme"] button:has-text("System")')
+      .click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    await expect(page.locator("body")).toHaveCSS(
+      "background-color",
+      "rgb(20, 19, 17)"
+    );
+
+    await page.emulateMedia({ colorScheme: "light" });
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  });
+
   test("presentation toggle swaps the document sheet and aria-pressed", async ({
     page,
   }) => {

@@ -13,13 +13,16 @@ function readStoredTheme(): Theme {
 
 export const theme = signal<Theme>(readStoredTheme());
 
+const DARK_QUERY = "(prefers-color-scheme: dark)";
+
+function resolveTheme(value: Theme): "light" | "dark" {
+  if (value !== "system") return value;
+  return window.matchMedia(DARK_QUERY).matches ? "dark" : "light";
+}
+
 function applyTheme(value: Theme): void {
   if (typeof document === "undefined") return;
-  if (value === "system") {
-    document.documentElement.removeAttribute("data-theme");
-  } else {
-    document.documentElement.setAttribute("data-theme", value);
-  }
+  document.documentElement.setAttribute("data-theme", resolveTheme(value));
 }
 
 function persistTheme(value: Theme): void {
@@ -30,6 +33,12 @@ effect(() => {
   applyTheme(theme.value);
   persistTheme(theme.value);
 });
+
+if (typeof window !== "undefined") {
+  window.matchMedia(DARK_QUERY).addEventListener("change", () => {
+    if (theme.value === "system") applyTheme("system");
+  });
+}
 
 export function setTheme(value: Theme): void {
   theme.value = value;
