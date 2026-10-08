@@ -272,14 +272,14 @@ export const GOLDEN_CASES: GoldenCase[] = [
 ];
 
 // Arrays replace wholesale.
-const UNSAFE_KEYS = new Set(["__proto__", "constructor", "prototype"]);
-
 function deepMerge(
   target: Record<string, unknown>,
   source: Record<string, unknown>
 ): Record<string, unknown> {
   for (const key of Object.keys(source)) {
-    if (UNSAFE_KEYS.has(key)) continue;
+    if (key === "__proto__" || key === "constructor" || key === "prototype") {
+      continue;
+    }
     const value = source[key];
     if (Array.isArray(value)) {
       target[key] = value;
