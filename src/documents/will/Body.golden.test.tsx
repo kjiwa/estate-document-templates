@@ -15,64 +15,13 @@ import { parseHTML } from "linkedom";
 import { describe, expect, it } from "vitest";
 
 import { migrateProfile } from "../../model/migrate";
+import { collapse, extractText, flatten } from "../goldenFlatten";
 import { HighlightContext, PlanContext } from "../shared/PlanContext";
 import { Body } from "./Body";
 import { GOLDEN_CASES, buildV2Profile } from "./goldenFixtures";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const GOLDEN_DIR = path.resolve(__dirname, "../../../test/golden");
-
-function collapse(text: string): string {
-  return text.replace(/\s+/g, " ").trim();
-}
-
-// Block-level elements always create a visual gap in a rendered document,
-// whether or not the source markup happened to place a literal whitespace
-// character at that exact tag boundary — template literals (`js/templates/
-// will.js`) and JSX disagree on the latter by construction. Inline elements
-// (`strong`, `mark`, `span`, ...) never do, so their adjacency is left
-// exactly as authored — e.g. `<strong>Name</strong>, Testator` must stay
-// glued with no inserted space.
-const BLOCK_TAGS = new Set([
-  "div",
-  "p",
-  "h1",
-  "h2",
-  "h3",
-  "ol",
-  "ul",
-  "li",
-  "details",
-  "summary",
-  "blockquote",
-]);
-
-function extractText(node: Node): string {
-  if (node.nodeType !== 1 /* ELEMENT_NODE */) return node.textContent || "";
-  const el = node as Element;
-  const inner = Array.from(el.childNodes)
-    .map((child) => extractText(child))
-    .join("");
-  return BLOCK_TAGS.has(el.tagName.toLowerCase()) ? ` ${inner} ` : inner;
-}
-
-function flatten(root: Element): [string, string, string][] {
-  const result: [string, string, string][] = [];
-  function walk(node: Element) {
-    result.push([
-      node.tagName.toLowerCase(),
-      node.getAttribute("class") || "",
-      collapse(extractText(node)),
-    ]);
-    for (const child of Array.from(node.children)) {
-      walk(child as Element);
-    }
-  }
-  for (const child of Array.from(root.children)) {
-    walk(child as Element);
-  }
-  return result;
-}
 
 async function loadGolden(slug: string): Promise<string> {
   return readFile(path.join(GOLDEN_DIR, `${slug}.html`), "utf8");

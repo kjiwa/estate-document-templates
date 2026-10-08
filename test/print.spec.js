@@ -128,7 +128,9 @@ test.describe("Screen-to-Print Fidelity & PDF Generation", () => {
 
   test("headless PDF is a well-formed multi-object document with the @page margin boxes applied", async ({
     page,
+    browserName,
   }) => {
+    test.skip(browserName !== "chromium", "page.pdf is Chromium-only");
     const pdfBuffer = await page.pdf({
       format: "Letter",
       printBackground: true,
@@ -148,7 +150,9 @@ test.describe("Screen-to-Print Fidelity & PDF Generation", () => {
 
   test("generates a valid headless PDF for the active plan", async ({
     page,
+    browserName,
   }) => {
+    test.skip(browserName !== "chromium", "page.pdf is Chromium-only");
     const pdfBuffer = await page.pdf({
       format: "Letter",
       printBackground: true,
@@ -161,7 +165,9 @@ test.describe("Screen-to-Print Fidelity & PDF Generation", () => {
 
   test("renders standalone HTML export and generates valid PDF from exported HTML", async ({
     context,
+    browserName,
   }) => {
+    test.skip(browserName !== "chromium", "page.pdf is Chromium-only");
     const standaloneHtml = await generateStandaloneHtml(PLAN_1);
 
     const newPage = await context.newPage();
