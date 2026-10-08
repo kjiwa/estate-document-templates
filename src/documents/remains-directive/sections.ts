@@ -1,15 +1,9 @@
 import type { Section, Option } from "../../form/field-spec";
+import { GENDER_OPTIONS } from "../shared/genderOptions";
 
 // Every field the directive's document body reads. Reuses `party.testator`,
 // `fiduciaries.remains`, and `execution` — no schema change, so this is the
 // sharpest available test of the Phase 3 seam (Phase 5's own framing).
-const GENDER_OPTIONS: readonly Option[] = [
-  { value: "", label: "Not specified" },
-  { value: "male", label: "Male (he / him / his)" },
-  { value: "female", label: "Female (she / her / hers)" },
-  { value: "nonbinary", label: "Non-binary (they / them / theirs)" },
-];
-
 const ARRANGEMENTS_OPTIONS: readonly Option[] = [
   { value: "", label: "Not specified" },
   { value: "no", label: "No prearrangements made" },

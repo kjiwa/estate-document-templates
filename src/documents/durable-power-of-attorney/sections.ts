@@ -1,4 +1,5 @@
 import type { Section } from "../../form/field-spec";
+import { GENDER_OPTIONS } from "../shared/genderOptions";
 
 export const DURABLE_POA_SECTIONS: Section[] = [
   {
@@ -6,6 +7,13 @@ export const DURABLE_POA_SECTIONS: Section[] = [
     legend: "Principal & Domicile",
     fields: [
       { kind: "text", path: "party.testator.name", label: "Full Legal Name" },
+      {
+        kind: "select",
+        path: "party.testator.gender",
+        optional: true,
+        label: "Gender / Pronouns",
+        options: GENDER_OPTIONS,
+      },
       {
         kind: "text",
         path: "party.testator.county",

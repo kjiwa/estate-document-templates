@@ -249,7 +249,7 @@ function completenessAdvisories(plan: Plan): Advisory[] {
   return advisories;
 }
 
-export function analyzeProfile(plan: Plan): Advisory[] {
+export function analyzeWill(plan: Plan): Advisory[] {
   const holders = collectRoleHolders(plan);
   const trusteeAdvisory = trusteeBeneficiaryAdvisory(plan);
 

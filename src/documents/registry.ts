@@ -23,12 +23,12 @@ import { HEALTH_CARE_SECTIONS } from "./health-care-directive/sections";
 import { Body as RemainsDirectiveBody } from "./remains-directive/Body";
 import { DIRECTIVE_EXECUTE_GROUPS } from "./remains-directive/executeGroups";
 import { DIRECTIVE_GUIDANCE } from "./remains-directive/guidance";
-import { analyzeDirective } from "./remains-directive/review";
+import { analyzeRemainsDirective } from "./remains-directive/review";
 import { DIRECTIVE_SECTIONS } from "./remains-directive/sections";
 import { Body } from "./will/Body";
 import { WILL_EXECUTE_GROUPS } from "./will/executeGroups";
 import { GUIDANCE } from "./will/guidance";
-import { analyzeProfile } from "./will/review";
+import { analyzeWill } from "./will/review";
 import { WILL_SECTIONS } from "./will/sections";
 
 export interface DocumentDefinition {
@@ -59,7 +59,7 @@ export const DOCUMENTS: DocumentDefinition[] = [
     guidance: GUIDANCE,
     executeGroups: WILL_EXECUTE_GROUPS,
     Body,
-    review: analyzeProfile,
+    review: analyzeWill,
     memo: generateAttorneyMemo,
   },
   {
@@ -70,7 +70,7 @@ export const DOCUMENTS: DocumentDefinition[] = [
     guidance: DIRECTIVE_GUIDANCE,
     executeGroups: DIRECTIVE_EXECUTE_GROUPS,
     Body: RemainsDirectiveBody,
-    review: analyzeDirective,
+    review: analyzeRemainsDirective,
   },
   {
     id: "health-care-directive",

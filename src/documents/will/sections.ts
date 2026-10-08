@@ -1,17 +1,11 @@
-import type { Section, Option } from "../../form/field-spec";
+import type { Section } from "../../form/field-spec";
+import { GENDER_OPTIONS } from "../shared/genderOptions";
 
 // Populated from today's real form: `js/app.js`'s `FIELD_BINDINGS` (36
 // entries) plus its one `CHECKBOX_BINDINGS` entry, grouped by `index.html`'s
 // 12 content fieldsets. Article numbers are taken only from legends that
 // already name one; "Active Profile" and "Data Management & Export" are
 // chrome and do not appear here.
-const GENDER_OPTIONS: readonly Option[] = [
-  { value: "", label: "Not specified" },
-  { value: "male", label: "Male (he / him / his)" },
-  { value: "female", label: "Female (she / her / hers)" },
-  { value: "nonbinary", label: "Non-binary (they / them / theirs)" },
-];
-
 export const WILL_SECTIONS: Section[] = [
   {
     id: "testator",

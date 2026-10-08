@@ -1,4 +1,4 @@
-import { analyzeProfile } from "../documents/will/review";
+import { analyzeWill } from "../documents/will/review";
 import type { Plan } from "../model/plan";
 
 const OPEN_QUESTIONS_FOR_COUNSEL = [
@@ -14,10 +14,10 @@ function formatChoice(label: string, value: unknown): string {
 
 // A plain-text companion document listing every choice made and every
 // advisory raised, meant to be handed to counsel alongside the draft.
-// Generated from the same plan and the same `analyzeProfile()` the Review
+// Generated from the same plan and the same `analyzeWill()` the Review
 // panel uses, so it never says anything the editor didn't already surface.
 export function generateAttorneyMemo(plan: Plan): string {
-  const advisories = analyzeProfile(plan);
+  const advisories = analyzeWill(plan);
   const lines: string[] = [];
 
   lines.push("ATTORNEY MEMORANDUM");
