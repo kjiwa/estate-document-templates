@@ -21,6 +21,7 @@ export const WILL_SECTIONS: Section[] = [
       {
         kind: "select",
         path: "party.testator.gender",
+        optional: true,
         label: "Gender / Pronouns",
         options: GENDER_OPTIONS,
       },
@@ -51,6 +52,7 @@ export const WILL_SECTIONS: Section[] = [
       {
         kind: "select",
         path: "party.spouse.gender",
+        optional: true,
         label: "Spouse Gender / Pronouns",
         options: GENDER_OPTIONS,
       },
@@ -65,6 +67,7 @@ export const WILL_SECTIONS: Section[] = [
       {
         kind: "list",
         path: "party.children",
+        optional: true,
         label: "Full Name",
         addLabel: "Add Child",
       },
@@ -117,6 +120,7 @@ export const WILL_SECTIONS: Section[] = [
       {
         kind: "text",
         path: "fiduciaries.remains.preference",
+        optional: true,
         label: "Preference (optional, non-binding)",
       },
     ],
@@ -126,6 +130,10 @@ export const WILL_SECTIONS: Section[] = [
     legend: "Disposition of Property (Article 3)",
     article: "3",
     guidance: ["spousalGift", "communityPropertyAgreement"],
+    complete: ({ documents: { will } }) =>
+      will.spousalGift !== "" &&
+      (!will.communityPropertyAgreement.exists ||
+        will.communityPropertyAgreement.date.trim() !== ""),
     fields: [
       {
         kind: "select",
@@ -144,6 +152,7 @@ export const WILL_SECTIONS: Section[] = [
       {
         kind: "text",
         path: "documents.will.communityPropertyAgreement.date",
+        optional: true,
         label: "Agreement Date",
       },
     ],
@@ -167,6 +176,7 @@ export const WILL_SECTIONS: Section[] = [
       {
         kind: "select",
         path: "documents.will.ultimateBeneficiary.gender",
+        optional: true,
         label: "Gender / Pronouns",
         options: GENDER_OPTIONS,
       },

@@ -42,6 +42,7 @@ export const HEALTH_CARE_SECTIONS: Section[] = [
       {
         kind: "select",
         path: "documents.healthCareDirective.placeOfDeath",
+        optional: true,
         label: "Place of Death Preference",
         options: PLACE_OF_DEATH_OPTIONS,
       },

@@ -9,7 +9,13 @@ export interface Option {
 // A closed set of input kinds, not a plugin point — adding a kind means
 // extending this union and every switch over it.
 export type FieldSpec =
-  | { kind: "text"; path: Path<Plan>; label: string; hint?: string }
+  | {
+      kind: "text";
+      path: Path<Plan>;
+      label: string;
+      hint?: string;
+      optional?: true;
+    }
   | { kind: "number"; path: Path<Plan>; label: string; min?: number }
   | { kind: "date"; path: Path<Plan>; label: string }
   | { kind: "executionDate"; path: Path<Plan>; label: string }
@@ -18,6 +24,7 @@ export type FieldSpec =
       path: Path<Plan>;
       label: string;
       options: readonly Option[];
+      optional?: true;
     }
   | { kind: "checkbox"; path: Path<Plan>; label: string }
   | {
@@ -26,6 +33,7 @@ export type FieldSpec =
       label: string;
       addLabel: string;
       columns?: readonly { key: string; label: string }[];
+      optional?: true;
     }
   | { kind: "group"; label: string; fields: FieldSpec[] };
 

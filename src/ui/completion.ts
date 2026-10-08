@@ -15,6 +15,7 @@ export function isFieldAnswered(plan: Plan, field: FieldSpec): boolean {
   }
   const value = getPath(plan, field.path);
   if (field.kind === "checkbox") return true;
+  if ("optional" in field && field.optional) return true;
   if (field.kind === "list") {
     return Array.isArray(value) && value.length > 0;
   }
