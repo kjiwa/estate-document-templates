@@ -331,7 +331,6 @@ describe("storage failures", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.useRealTimers();
-    storageNotice.value = null;
   });
 
   function throwingStorage(): Storage {
@@ -384,7 +383,7 @@ describe("storage failures", () => {
     expect(storageNotice.value).toMatch(/couldn't be read/);
   });
 
-  it("reloads state when another tab writes the storage key", () => {
+  it("reloads state when another tab writes the storage key", async () => {
     const listeners: Record<string, (event: unknown) => void> = {};
     const storage = fakeLocalStorage();
     vi.stubGlobal("window", {
@@ -395,6 +394,7 @@ describe("storage failures", () => {
       removeEventListener: () => {},
     });
     installStorageSync();
+    await new Promise((resolve) => setTimeout(resolve, 300));
 
     const other = JSON.parse(JSON.stringify(BASE_PLAN));
     other.label = "From another tab";

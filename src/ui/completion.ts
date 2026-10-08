@@ -31,8 +31,10 @@ export function isFieldAnswered(plan: Plan, field: FieldSpec): boolean {
 function hasRowContent(row: unknown): boolean {
   if (typeof row === "string") return row.trim() !== "";
   if (row === null || typeof row !== "object") return false;
-  return Object.values(row).some(
-    (cell) => typeof cell === "string" && cell.trim() !== ""
+  return Object.values(row).some((cell) =>
+    typeof cell === "string"
+      ? cell.trim() !== ""
+      : cell !== null && cell !== undefined && cell !== false
   );
 }
 

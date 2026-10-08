@@ -37,7 +37,14 @@ export const plans = signal<Record<string, Plan>>({
   "profile-1": blankPlan("profile-1", "My plan"),
 });
 
-export const storageNotice = signal<string | null>(null);
+const saveFailed = signal(false);
+const unreadable = signal(false);
+
+export const storageNotice = computed<string | null>(() => {
+  if (saveFailed.value) return SAVE_FAILED_NOTICE;
+  if (unreadable.value) return UNREADABLE_NOTICE;
+  return null;
+});
 
 export const activePlanId = signal<string>("profile-1");
 export const activeDocumentId = signal<string>("will");
@@ -235,8 +242,10 @@ export function parsePersisted(raw: unknown): ParsedPersisted | null {
 // `STORAGE_KEY`, so the unreadable value survives instead of being silently
 // dropped by the next autosave.
 function backupUnparsed(raw: string): void {
-  writeStorage(STORAGE_KEY_UNPARSED, raw);
-  storageNotice.value = UNREADABLE_NOTICE;
+  if (readStorage(STORAGE_KEY_UNPARSED) === null) {
+    writeStorage(STORAGE_KEY_UNPARSED, raw);
+  }
+  unreadable.value = true;
 }
 
 function applyParsed(parsed: ParsedPersisted): void {
@@ -277,11 +286,7 @@ function persist(): void {
     activeDocumentId: activeDocumentId.value,
     plans: plans.value,
   };
-  if (writeStorage(STORAGE_KEY, JSON.stringify(data))) {
-    if (storageNotice.value === SAVE_FAILED_NOTICE) storageNotice.value = null;
-  } else {
-    storageNotice.value = SAVE_FAILED_NOTICE;
-  }
+  saveFailed.value = !writeStorage(STORAGE_KEY, JSON.stringify(data));
 }
 
 let persistTimer: ReturnType<typeof setTimeout> | undefined;
@@ -321,6 +326,7 @@ export function installStorageSync(): () => void {
   if (typeof window === "undefined") return () => {};
 
   const handleStorage = (event: StorageEvent) => {
+    if (persistTimer) return;
     if (event.key === null || event.key === STORAGE_KEY) loadFromStorage();
   };
 

@@ -333,7 +333,11 @@ function DataCard() {
           <span>
             Replace {planCount(Object.keys(plans.value).length)} with{" "}
             {planCount(Object.keys(pendingImport.parsed.plans).length)} from{" "}
-            {pendingImport.fileName}?
+            {pendingImport.fileName}
+            {pendingImport.parsed.skipped > 0
+              ? ` (${planCount(pendingImport.parsed.skipped)} in the file can't be read and will be skipped)`
+              : ""}
+            ?
           </span>
           <button type="button" class="btn btn-danger" onClick={confirmImport}>
             Confirm replace
