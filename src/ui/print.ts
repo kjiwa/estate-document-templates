@@ -1,5 +1,6 @@
 import { DOCUMENTS } from "../documents/registry";
 import { activeDocumentId, activePlan } from "../store/index";
+import { closeEditor } from "./editing";
 import {
   escapeCssString,
   printDocLabel,
@@ -39,11 +40,18 @@ function setPrintLabels(): void {
 // wired at the app root) forces Paper for the duration of the print; this
 // function does not touch `presentation` itself.
 export function printDocument(): void {
-  setPrintLabels();
+  closeEditor();
   view.value = "document";
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       window.print();
     });
   });
+}
+
+// Cmd+P bypasses `printDocument`, so the labels are also set when the
+// browser announces the print.
+export function installPrintLabels(): () => void {
+  window.addEventListener("beforeprint", setPrintLabels);
+  return () => window.removeEventListener("beforeprint", setPrintLabels);
 }

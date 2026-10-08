@@ -102,13 +102,16 @@ describe("openFile", () => {
     (window as unknown as Record<string, unknown>).showOpenFilePicker = vi.fn(
       async () => [
         {
-          getFile: async () => ({ text: async () => "file contents" }),
+          getFile: async () => ({
+            name: "a.json",
+            text: async () => "file contents",
+          }),
         },
       ]
     );
 
     const result = await openFile(".json");
-    expect(result).toBe("file contents");
+    expect(result).toEqual({ name: "a.json", contents: "file contents" });
   });
 
   it("resolves null on a picker cancel", async () => {
@@ -135,7 +138,7 @@ describe("openFile", () => {
       const el = originalCreateElement(tag);
       if (tag === "input") {
         Object.defineProperty(el, "files", {
-          value: [{ text: async () => "fallback contents" }],
+          value: [{ name: "b.json", text: async () => "fallback contents" }],
         });
         queueMicrotask(() => el.dispatchEvent(new window.Event("change")));
       }
@@ -143,6 +146,6 @@ describe("openFile", () => {
     }) as typeof window.document.createElement;
 
     const result = await openFile(".json");
-    expect(result).toBe("fallback contents");
+    expect(result).toEqual({ name: "b.json", contents: "fallback contents" });
   });
 });

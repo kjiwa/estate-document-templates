@@ -181,6 +181,49 @@ test.describe("Plan management", () => {
     ).toBeVisible();
   });
 
+  test("Open plans from file asks before replacing and Cancel keeps the current plans", async ({
+    page,
+  }) => {
+    await disableFilePickers(page);
+    await page.goto("/");
+    await page.getByRole("button", { name: "Plans" }).click();
+
+    const [download] = await Promise.all([
+      page.waitForEvent("download"),
+      page.getByRole("button", { name: "Save plans to file" }).click(),
+    ]);
+    const savedPath = await download.path();
+
+    const firstCard = page.locator(".plan-card").first();
+    await firstCard.getByRole("button", { name: "Rename" }).click();
+    await firstCard.getByLabel("Plan name").fill("Edited After Save");
+    await firstCard.getByLabel("Plan name").press("Enter");
+
+    const [fileChooser] = await Promise.all([
+      page.waitForEvent("filechooser"),
+      page.getByRole("button", { name: "Open plans from file" }).click(),
+    ]);
+    await fileChooser.setFiles(savedPath);
+
+    await expect(page.getByText(/^Replace 2 plans with 2 from /)).toBeVisible();
+    await expect(firstCard.locator("strong")).toHaveText("Edited After Save");
+
+    await page.getByRole("button", { name: "Cancel" }).click();
+    await expect(page.getByText(/^Replace 2 plans/)).toHaveCount(0);
+    await expect(firstCard.locator("strong")).toHaveText("Edited After Save");
+
+    const [secondChooser] = await Promise.all([
+      page.waitForEvent("filechooser"),
+      page.getByRole("button", { name: "Open plans from file" }).click(),
+    ]);
+    await secondChooser.setFiles(savedPath);
+    await page.getByRole("button", { name: "Confirm replace" }).click();
+
+    await expect(firstCard.locator("strong")).not.toHaveText(
+      "Edited After Save"
+    );
+  });
+
   test("Create reciprocal spouse plan is hidden when marital status is unmarried", async ({
     page,
   }) => {
@@ -216,27 +259,85 @@ test.describe("Plan management", () => {
     );
   });
 
-  test("the active plan's document list is open and the others are collapsed", async ({
+  test("every document list starts collapsed and the summary carries the advisory total", async ({
     page,
   }) => {
     await page.getByRole("button", { name: "Plans" }).click();
 
     const cards = page.locator(".plan-card");
-    await expect(cards.first().locator(".plan-documents")).toHaveJSProperty(
-      "open",
-      true
+    for (const index of [0, 1]) {
+      const documents = cards.nth(index).locator(".plan-documents");
+      await expect(documents).toHaveJSProperty("open", false);
+      await expect(documents.locator("summary")).toHaveText(
+        /^Documents: [^;]+(; \d+ to review)?$/
+      );
+    }
+    const first = cards.first().locator(".plan-documents");
+    await first.locator("summary").click();
+    await expect(first).toHaveJSProperty("open", true);
+  });
+
+  test("optional-blank lines appear only once a document is out of in-progress", async ({
+    page,
+  }) => {
+    await page.getByRole("button", { name: "Plans" }).click();
+    await page
+      .locator(".plan-card")
+      .first()
+      .locator(".plan-documents > summary")
+      .click();
+
+    const inProgress = page
+      .locator(".plan-card")
+      .first()
+      .locator(".plan-overview-row")
+      .filter({
+        has: page.locator(".stage-chip", { hasText: /^In progress$/ }),
+      });
+    await expect(inProgress.filter({ hasText: "Left blank" })).toHaveCount(0);
+  });
+
+  test("the active plan's card is highlighted", async ({ page }) => {
+    await page.getByRole("button", { name: "Plans" }).click();
+
+    await expect(page.locator(".plan-card-active")).toHaveCount(1);
+    await expect(page.locator(".plan-card").first()).toHaveClass(
+      /plan-card-active/
     );
-    await expect(cards.first().locator("summary")).toHaveText(/^Documents: /);
-    const other = cards.nth(1).locator(".plan-documents");
-    await expect(other).toHaveJSProperty("open", false);
-    await other.locator("summary").click();
-    await expect(other).toHaveJSProperty("open", true);
+  });
+
+  test("the header plan picker switches the active plan", async ({ page }) => {
+    const picker = page.getByLabel("Active plan");
+    await expect(picker).toHaveValue("profile-1");
+    await expect(picker.locator("option")).toHaveCount(2);
+
+    await picker.selectOption("profile-2");
+
+    await expect(
+      page.locator('[data-path="party.testator.name"]').first()
+    ).toHaveText("Morgan T. Ramos");
+  });
+
+  test("opening Plans focuses its heading and renames the skip link", async ({
+    page,
+  }) => {
+    await page.getByRole("button", { name: "Plans" }).click();
+
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Plans" })
+    ).toBeFocused();
+    await expect(page.locator("a.skip-link")).toHaveText("Skip to plans");
   });
 
   test("the stage chip is vertically centered on the document title", async ({
     page,
   }) => {
     await page.getByRole("button", { name: "Plans" }).click();
+    await page
+      .locator(".plan-card")
+      .first()
+      .locator(".plan-documents > summary")
+      .click();
 
     const head = page.locator(".plan-overview-head").first();
     const title = await head.locator(".plan-overview-title").boundingBox();
@@ -275,6 +376,11 @@ test.describe("Plan management", () => {
     });
     await page.reload();
     await page.getByRole("button", { name: "Plans" }).click();
+    await page
+      .locator(".plan-card")
+      .first()
+      .locator(".plan-documents > summary")
+      .click();
 
     const willRow = page
       .locator(".plan-card")
@@ -297,6 +403,11 @@ test.describe("Plan management", () => {
     });
     await page.reload();
     await page.getByRole("button", { name: "Plans" }).click();
+    await page
+      .locator(".plan-card")
+      .first()
+      .locator(".plan-documents > summary")
+      .click();
 
     await page
       .locator(".plan-card")

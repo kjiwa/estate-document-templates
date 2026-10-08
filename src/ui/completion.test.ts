@@ -111,7 +111,7 @@ describe("completion matches the rendered fill-ins", () => {
 
     it(`completes every ${doc.id} section that has no required leaves`, () => {
       const offenders = doc.sections
-        .filter((s) => !s.hidden?.(plan) && !s.complete)
+        .filter((s) => !s.hidden?.(plan))
         .filter(
           (s) => !flattenFields(s.fields).some((f) => isRequired(plan, f))
         )
@@ -352,5 +352,30 @@ describe("hasValue", () => {
     expect(hasValue(plan.plan, field)).toBe(false);
     const checked = setPath(plan.plan, field.path, true);
     expect(hasValue(checked, field)).toBe(true);
+  });
+});
+
+describe("hasValue for lists", () => {
+  const field: LeafFieldSpec = {
+    kind: "list",
+    path: "party.children",
+    label: "Children",
+    addLabel: "Add child",
+  };
+  const base = migrateProfile("p", { label: "p" });
+  if (!base.success) throw new Error(base.error);
+
+  it("counts a list as answered only when a row has content", () => {
+    const withRows = (rows: unknown[]) => setPath(base.plan, field.path, rows);
+    expect(hasValue(withRows([]), field)).toBe(false);
+    expect(hasValue(withRows([""]), field)).toBe(false);
+    expect(hasValue(withRows(["  ", ""]), field)).toBe(false);
+    expect(hasValue(withRows(["", "Rowan"]), field)).toBe(true);
+  });
+
+  it("reads a column row as content when any cell is filled", () => {
+    const withRows = (rows: unknown[]) => setPath(base.plan, field.path, rows);
+    expect(hasValue(withRows([{ name: "", note: "" }]), field)).toBe(false);
+    expect(hasValue(withRows([{ name: "", note: "x" }]), field)).toBe(true);
   });
 });

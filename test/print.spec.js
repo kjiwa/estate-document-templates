@@ -177,4 +177,16 @@ test.describe("Screen-to-Print Fidelity & PDF Generation", () => {
     expect(standalonePdfBuffer.subarray(0, 4).toString()).toBe("%PDF");
     await newPage.close();
   });
+
+  test("hides inline advisory markers and the active-field outline in print", async ({
+    page,
+  }) => {
+    await expect(page.locator(".advisory-inline").first()).toBeVisible();
+    await page.emulateMedia({ media: "print" });
+    const displays = await page
+      .locator(".advisory-inline")
+      .evaluateAll((els) => els.map((el) => getComputedStyle(el).display));
+    expect(displays.length).toBeGreaterThan(0);
+    expect(displays.every((d) => d === "none")).toBe(true);
+  });
 });

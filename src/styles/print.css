@@ -30,6 +30,7 @@
   .disclaimer-backdrop,
   .presentation-toggle,
   .skip-link,
+  .advisory-inline,
   .no-print {
     display: none !important;
   }
@@ -82,6 +83,10 @@
     border: none !important;
     padding: 0 !important;
     color: inherit !important;
+  }
+
+  [data-path].field-active {
+    outline: none !important;
   }
 
   /* Orphan & Widow Control */

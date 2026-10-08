@@ -1,3 +1,5 @@
+import { useEffect, useRef } from "preact/hooks";
+
 import { AppHeader } from "./components/AppHeader";
 import { BottomSheet } from "./components/BottomSheet";
 import { ContextPanel } from "./components/ContextPanel";
@@ -9,10 +11,47 @@ import { PrintChecklist } from "./components/PrintChecklist";
 import { Rail } from "./components/Rail";
 import { DOCUMENTS } from "./documents/registry";
 import { PlanContext } from "./documents/shared/PlanContext";
-import { activeDocumentId, activePlan } from "./store/index";
+import { activeDocumentId, activePlan, storageNotice } from "./store/index";
 import { activeFieldPath } from "./ui/editing";
 import { view } from "./ui/view";
 import { isNarrow } from "./ui/viewport";
+
+const SKIP_LABELS: Record<typeof view.value, string> = {
+  document: "Skip to document",
+  plans: "Skip to plans",
+  execute: "Skip to signing steps",
+  print: "Skip to print checklist",
+};
+
+function useFocusHeadingOnViewChange(current: typeof view.value): void {
+  const previous = useRef(current);
+  useEffect(() => {
+    if (previous.current === current) return;
+    previous.current = current;
+    const heading = document.querySelector<HTMLElement>("#main-content h1");
+    heading?.setAttribute("tabindex", "-1");
+    heading?.focus();
+  }, [current]);
+}
+
+function StorageNotice() {
+  const message = storageNotice.value;
+  if (!message) return null;
+  return (
+    <div class="storage-notice" role="status">
+      {message}{" "}
+      <button
+        type="button"
+        class="link-button"
+        onClick={() => {
+          view.value = "plans";
+        }}
+      >
+        Plans
+      </button>
+    </div>
+  );
+}
 
 export function App() {
   const document = DOCUMENTS.find((d) => d.id === activeDocumentId.value);
@@ -23,13 +62,15 @@ export function App() {
   const showPlans = view.value === "plans";
   const showExecute = view.value === "execute";
   const showPrintChecklist = view.value === "print";
+  useFocusHeadingOnViewChange(view.value);
 
   return (
     <>
       <a href="#main-content" class="skip-link">
-        Skip to document
+        {SKIP_LABELS[view.value]}
       </a>
       <AppHeader />
+      <StorageNotice />
       {showPlans ? (
         <PlansView />
       ) : document && plan ? (

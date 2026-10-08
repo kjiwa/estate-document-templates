@@ -4,8 +4,11 @@ import { signal } from "@preact/signals";
 // reloads) — the Data card's "Last saved" line.
 export const lastSavedAt = signal<Date | null>(null);
 
+const REVOKE_DELAY_MS = 1000;
+
 function extensionFor(mimeType: string): string {
   if (mimeType === "application/json") return "json";
+  if (mimeType === "text/html") return "html";
   return "txt";
 }
 
@@ -22,7 +25,7 @@ function saveViaAnchor(
   window.document.body.appendChild(anchor);
   anchor.click();
   anchor.remove();
-  URL.revokeObjectURL(url);
+  setTimeout(() => URL.revokeObjectURL(url), REVOKE_DELAY_MS);
 }
 
 // Uses the File System Access API's save picker when present; falls back to
@@ -63,12 +66,25 @@ export async function saveFile(
   return true;
 }
 
-function openViaInput(accept: string): Promise<string | null> {
+export interface OpenedFile {
+  name: string;
+  contents: string;
+}
+
+async function readOpened(file: File): Promise<OpenedFile> {
+  return { name: file.name, contents: await file.text() };
+}
+
+function openViaInput(accept: string): Promise<OpenedFile | null> {
   return new Promise((resolve) => {
     const input = window.document.createElement("input");
     input.type = "file";
     input.accept = accept;
     input.style.display = "none";
+    input.addEventListener("cancel", () => {
+      input.remove();
+      resolve(null);
+    });
     input.addEventListener("change", () => {
       const file = input.files?.[0];
       input.remove();
@@ -76,8 +92,7 @@ function openViaInput(accept: string): Promise<string | null> {
         resolve(null);
         return;
       }
-      file
-        .text()
+      readOpened(file)
         .then(resolve)
         .catch(() => resolve(null));
     });
@@ -89,7 +104,7 @@ function openViaInput(accept: string): Promise<string | null> {
 // Uses the File System Access API's open picker when present; falls back to
 // a hidden `<input type="file">` otherwise. Resolves `null` on cancel in
 // either branch.
-export async function openFile(accept: string): Promise<string | null> {
+export async function openFile(accept: string): Promise<OpenedFile | null> {
   if (window.showOpenFilePicker) {
     try {
       const [handle] = await window.showOpenFilePicker({
@@ -97,7 +112,7 @@ export async function openFile(accept: string): Promise<string | null> {
       });
       if (!handle) return null;
       const file = await handle.getFile();
-      return await file.text();
+      return await readOpened(file);
     } catch (error) {
       if (error instanceof Error && error.name === "AbortError") return null;
       throw error;

@@ -37,7 +37,13 @@ export function ContextPanel() {
   const fieldAdvisories = path ? (advisoriesByPath.value.get(path) ?? []) : [];
 
   return (
-    <aside class="context-panel" aria-label="Edit field">
+    <aside
+      class="context-panel"
+      aria-label="Edit field"
+      onKeyDown={(event) => {
+        if (event.key === "Escape") closeEditor();
+      }}
+    >
       <div class="panel-heading">
         <h2>{section.legend}</h2>
         <button

@@ -109,11 +109,28 @@ test.describe("Application Shell, Layout & Accessibility", () => {
     await expect(page.locator(".notary-block")).toBeVisible();
   });
 
-  test("rail is hidden below 900px", async ({ page }) => {
+  test("below 900px the rail collapses into a progress summary", async ({
+    page,
+  }) => {
     await page.setViewportSize({ width: 393, height: 852 });
     await page.goto("/");
 
+    const summary = page.locator(".rail-details > summary");
+    await expect(summary).toHaveText(
+      /^\d+ \/ \d+ required fields, (In progress|Ready to sign|Ready to print)$/
+    );
     await expect(page.locator(".app-rail")).toBeHidden();
+
+    await summary.click();
+    await expect(page.locator(".app-rail")).toBeVisible();
+  });
+
+  test("first run has one plan labelled My plan", async ({ page }) => {
+    await page.goto("/");
+
+    await expect(page.getByLabel("Active plan").locator("option")).toHaveText([
+      "My plan",
+    ]);
   });
 
   test("rail and document surface scroll independently at 1280px", async ({
@@ -228,8 +245,13 @@ test.describe("Disclaimer", () => {
     await footer.getByRole("button", { name: "Disclaimer" }).click();
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
+    await expect(page.locator(".app-header")).toHaveJSProperty("inert", true);
     await dialog.getByRole("button", { name: "Close" }).click();
     await expect(dialog).toHaveCount(0);
+    await expect(page.locator(".app-header")).toHaveJSProperty("inert", false);
+    await expect(
+      footer.getByRole("button", { name: "Disclaimer" })
+    ).toBeFocused();
 
     await footer.getByRole("button", { name: "Disclaimer" }).click();
     await expect(dialog.getByRole("button", { name: "Close" })).toBeFocused();

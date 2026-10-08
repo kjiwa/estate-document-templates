@@ -3,8 +3,9 @@ import { computed, effect, signal } from "@preact/signals";
 import { DOCUMENTS } from "../documents/registry";
 import { migrateProfile, CURRENT_SCHEMA_VERSION } from "../model/migrate";
 import type { Plan } from "../model/plan";
-import { getPath, setPath, type Path } from "../model/paths";
+import { setPath, type Path } from "../model/paths";
 import { reciprocalPlan } from "../model/reciprocal";
+import { readStorage, writeStorage } from "../ui/storage";
 
 // `documents/shared/{Blank,Value}.tsx` import `ui/advisories.ts`, which
 // already imported `DOCUMENTS` from `../documents/registry` before this
@@ -18,16 +19,11 @@ import { reciprocalPlan } from "../model/reciprocal";
 // the first (and, until Phase 5, only) document, not `DOCUMENTS[0]`.
 const STORAGE_KEY = "estate_templates_state_v1";
 const STORAGE_KEY_UNPARSED = `${STORAGE_KEY}__unparsed`;
-const UNDO_LIMIT = 50;
-const UNDO_COALESCE_MS = 500;
+const SAVE_FAILED_NOTICE =
+  "Changes aren't being saved in this browser. Save your plans to a file.";
+const UNREADABLE_NOTICE =
+  "Some saved plans couldn't be read. A copy of the stored data was kept in this browser.";
 const PERSIST_DEBOUNCE_MS = 250;
-
-interface UndoEntry {
-  path: string;
-  previousValue: unknown;
-  planId: string;
-  timestamp: number;
-}
 
 function blankPlan(id: string, label: string): Plan {
   const result = migrateProfile(id, { label });
@@ -38,9 +34,10 @@ function blankPlan(id: string, label: string): Plan {
 }
 
 export const plans = signal<Record<string, Plan>>({
-  "profile-1": blankPlan("profile-1", "Profile 1"),
-  "profile-2": blankPlan("profile-2", "Profile 2"),
+  "profile-1": blankPlan("profile-1", "My plan"),
 });
+
+export const storageNotice = signal<string | null>(null);
 
 export const activePlanId = signal<string>("profile-1");
 export const activeDocumentId = signal<string>("will");
@@ -49,28 +46,10 @@ export const activePlan = computed<Plan | undefined>(
   () => plans.value[activePlanId.value]
 );
 
-const undoStack: UndoEntry[] = [];
-
 export function setField(path: Path<Plan>, value: unknown): void {
   const id = activePlanId.value;
   const plan = plans.value[id];
   if (!plan) return;
-
-  const previousValue = getPath(plan, path);
-  const last = undoStack[undoStack.length - 1];
-  const now = Date.now();
-  const canCoalesce =
-    last &&
-    last.path === path &&
-    last.planId === id &&
-    now - last.timestamp < UNDO_COALESCE_MS;
-
-  if (!canCoalesce) {
-    undoStack.push({ path, previousValue, planId: id, timestamp: now });
-    if (undoStack.length > UNDO_LIMIT) undoStack.shift();
-  } else if (last) {
-    last.timestamp = now;
-  }
 
   plans.value = {
     ...plans.value,
@@ -78,8 +57,8 @@ export function setField(path: Path<Plan>, value: unknown): void {
   };
 }
 
-// `plan-<n>`, skipping ids already present — the shipped plans are
-// `profile-1`/`profile-2`, not `plan-*`, so this never collides with them.
+// `plan-<n>`, skipping ids already present — the first-run plan is
+// `profile-1`, not `plan-*`, so this never collides with it.
 export function nextPlanId(): string {
   const existing = new Set(Object.keys(plans.value));
   let n = 1;
@@ -151,17 +130,6 @@ export function createReciprocalPlan(id: string): string | undefined {
   return newId;
 }
 
-export function undo(): void {
-  const entry = undoStack.pop();
-  if (!entry) return;
-  const plan = plans.value[entry.planId];
-  if (!plan) return;
-  plans.value = {
-    ...plans.value,
-    [entry.planId]: setPath(plan, entry.path, entry.previousValue),
-  };
-}
-
 interface PersistedState {
   schemaVersion: number;
   activePlanId: string;
@@ -170,6 +138,7 @@ interface PersistedState {
 }
 
 interface ParsedPersisted {
+  skipped: number;
   plans: Record<string, Plan>;
   activePlanId: string;
   activeDocumentId: string;
@@ -222,6 +191,7 @@ export function parsePersisted(raw: unknown): ParsedPersisted | null {
   if (storedIds.length === 0) return null;
 
   const migratedPlans: Record<string, Plan> = {};
+  let skipped = 0;
   for (const id of storedIds) {
     const rawPlan = rawProfiles[id];
     // A persisted v3 `Plan` carries no `schemaVersion` field of its own —
@@ -235,6 +205,7 @@ export function parsePersisted(raw: unknown): ParsedPersisted | null {
         : rawPlan;
     const result = migrateProfile(id, taggedPlan);
     if (result.success) migratedPlans[id] = result.plan;
+    else skipped += 1;
   }
   if (Object.keys(migratedPlans).length === 0) return null;
 
@@ -246,6 +217,7 @@ export function parsePersisted(raw: unknown): ParsedPersisted | null {
   const rawDocumentId = obj.activeDocumentId;
 
   return {
+    skipped,
     plans: migratedPlans,
     activePlanId:
       typeof rawActiveId === "string" && rawActiveId in migratedPlans
@@ -259,20 +231,22 @@ export function parsePersisted(raw: unknown): ParsedPersisted | null {
   };
 }
 
-// Written to when `loadFromStorage()` can't make sense of `STORAGE_KEY`, so
-// the unreadable value survives instead of being silently dropped once the
-// app falls back to blank plans (see `backupUnparsed` below).
+// Written to when `loadFromStorage()` can't make sense of all or part of
+// `STORAGE_KEY`, so the unreadable value survives instead of being silently
+// dropped by the next autosave.
 function backupUnparsed(raw: string): void {
-  try {
-    window.localStorage.setItem(STORAGE_KEY_UNPARSED, raw);
-  } catch {
-    // Best-effort, same as `persist()` below.
-  }
+  writeStorage(STORAGE_KEY_UNPARSED, raw);
+  storageNotice.value = UNREADABLE_NOTICE;
+}
+
+function applyParsed(parsed: ParsedPersisted): void {
+  plans.value = parsed.plans;
+  activePlanId.value = parsed.activePlanId;
+  activeDocumentId.value = parsed.activeDocumentId;
 }
 
 export function loadFromStorage(): boolean {
-  if (typeof window === "undefined" || !window.localStorage) return false;
-  const raw = window.localStorage.getItem(STORAGE_KEY);
+  const raw = readStorage(STORAGE_KEY);
   try {
     if (!raw) return false;
     const parsed = parsePersisted(JSON.parse(raw));
@@ -280,10 +254,9 @@ export function loadFromStorage(): boolean {
       backupUnparsed(raw);
       return false;
     }
+    if (parsed.skipped > 0) backupUnparsed(raw);
 
-    plans.value = parsed.plans;
-    activePlanId.value = parsed.activePlanId;
-    activeDocumentId.value = parsed.activeDocumentId;
+    applyParsed(parsed);
     return true;
   } catch {
     if (raw) backupUnparsed(raw);
@@ -298,18 +271,16 @@ export function loadFromStorage(): boolean {
 }
 
 function persist(): void {
-  if (typeof window === "undefined" || !window.localStorage) return;
   const data: PersistedState = {
     schemaVersion: CURRENT_SCHEMA_VERSION,
     activePlanId: activePlanId.value,
     activeDocumentId: activeDocumentId.value,
     plans: plans.value,
   };
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  } catch {
-    // Storage may be unavailable (private browsing, quota) — persistence is
-    // best-effort, not a hard dependency of the in-memory store.
+  if (writeStorage(STORAGE_KEY, JSON.stringify(data))) {
+    if (storageNotice.value === SAVE_FAILED_NOTICE) storageNotice.value = null;
+  } else {
+    storageNotice.value = SAVE_FAILED_NOTICE;
   }
 }
 
@@ -333,5 +304,30 @@ effect(() => {
   if (!loadAttempted.value) return;
 
   if (persistTimer) clearTimeout(persistTimer);
-  persistTimer = setTimeout(persist, PERSIST_DEBOUNCE_MS);
+  persistTimer = setTimeout(() => {
+    persistTimer = undefined;
+    persist();
+  }, PERSIST_DEBOUNCE_MS);
 });
+
+function flushPersist(): void {
+  if (!persistTimer) return;
+  clearTimeout(persistTimer);
+  persistTimer = undefined;
+  persist();
+}
+
+export function installStorageSync(): () => void {
+  if (typeof window === "undefined") return () => {};
+
+  const handleStorage = (event: StorageEvent) => {
+    if (event.key === null || event.key === STORAGE_KEY) loadFromStorage();
+  };
+
+  window.addEventListener("pagehide", flushPersist);
+  window.addEventListener("storage", handleStorage);
+  return () => {
+    window.removeEventListener("pagehide", flushPersist);
+    window.removeEventListener("storage", handleStorage);
+  };
+}

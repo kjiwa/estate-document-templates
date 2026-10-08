@@ -17,6 +17,10 @@ test.describe("Execute flow (signing day)", () => {
     await expect(page.locator(".rail-progress-label")).toHaveText(
       "Group 1 of 4 — City and date of execution"
     );
+    await expect(page.locator(".execute-flow h1")).toBeFocused();
+    await expect(page.locator("a.skip-link")).toHaveText(
+      "Skip to signing steps"
+    );
   });
 
   test("Back/Continue walks all four groups, and Back at group 1 exits to the document", async ({
@@ -74,5 +78,26 @@ test.describe("Execute flow (signing day)", () => {
     await page.getByRole("button", { name: "Continue →" }).click();
 
     await expect(cityRow.locator(".rail-check.done")).toHaveCount(1);
+  });
+
+  test("switching to a document with fewer groups resets to group 1", async ({
+    page,
+  }) => {
+    await page.getByRole("button", { name: "Execute" }).click();
+    for (let i = 0; i < 3; i++) {
+      await page.getByRole("button", { name: "Continue →" }).click();
+    }
+    await expect(page.locator(".rail-progress-label")).toHaveText(
+      /^Group 4 of 4/
+    );
+
+    await page
+      .getByLabel("Active document")
+      .selectOption("general-power-of-attorney");
+
+    await expect(page.locator(".execute-flow")).toBeVisible();
+    await expect(page.locator(".rail-progress-label")).toHaveText(
+      /^Group 1 of \d/
+    );
   });
 });

@@ -28,11 +28,19 @@ export function isFieldAnswered(plan: Plan, field: FieldSpec): boolean {
   return hasValue(plan, field);
 }
 
+function hasRowContent(row: unknown): boolean {
+  if (typeof row === "string") return row.trim() !== "";
+  if (row === null || typeof row !== "object") return false;
+  return Object.values(row).some(
+    (cell) => typeof cell === "string" && cell.trim() !== ""
+  );
+}
+
 export function hasValue(plan: Plan, field: LeafFieldSpec): boolean {
   const value = getPath(plan, field.path);
   if (field.kind === "checkbox") return value === true;
   if (field.kind === "list") {
-    return Array.isArray(value) && value.length > 0;
+    return Array.isArray(value) && value.some(hasRowContent);
   }
   if (field.kind === "executionDate") {
     const stored = (value ?? {}) as Partial<StoredExecutionDate>;
@@ -48,10 +56,6 @@ export function hasValue(plan: Plan, field: LeafFieldSpec): boolean {
   return typeof value === "string" && value.trim() !== "";
 }
 
-// A section's own `complete` overrides the field-derived count when present
-// — some sections' "done" state depends on cross-field logic no per-field
-// scan can express (e.g. a spousal-gift section only some of whose fields
-// apply, depending on another field's value).
 export function sectionCompletion(
   plan: Plan,
   section: Section
@@ -61,10 +65,7 @@ export function sectionCompletion(
   );
   const answered = fields.filter((f) => isFieldAnswered(plan, f)).length;
   const total = fields.length;
-  const complete = section.complete
-    ? section.complete(plan)
-    : answered === total;
-  return { answered, total, complete };
+  return { answered, total, complete: answered === total };
 }
 
 export function documentCompletion(

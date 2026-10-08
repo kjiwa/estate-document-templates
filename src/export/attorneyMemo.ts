@@ -8,7 +8,8 @@ const OPEN_QUESTIONS_FOR_COUNSEL = [
 ];
 
 function formatChoice(label: string, value: unknown): string {
-  return `- ${label}: ${value || "(unset)"}`;
+  const unset = value === undefined || value === null || value === "";
+  return `- ${label}: ${unset ? "(unset)" : value}`;
 }
 
 // A plain-text companion document listing every choice made and every

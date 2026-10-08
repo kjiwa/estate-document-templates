@@ -1,12 +1,13 @@
 import { effect, signal } from "@preact/signals";
 
+import { readStorage, writeStorage } from "./storage";
+
 const STORAGE_KEY = "estate_templates_theme_v1";
 
 export type Theme = "system" | "light" | "dark";
 
 function readStoredTheme(): Theme {
-  if (typeof window === "undefined" || !window.localStorage) return "system";
-  const raw = window.localStorage.getItem(STORAGE_KEY);
+  const raw = readStorage(STORAGE_KEY);
   return raw === "light" || raw === "dark" ? raw : "system";
 }
 
@@ -22,17 +23,7 @@ function applyTheme(value: Theme): void {
 }
 
 function persistTheme(value: Theme): void {
-  if (typeof window === "undefined" || !window.localStorage) return;
-  try {
-    if (value === "system") {
-      window.localStorage.removeItem(STORAGE_KEY);
-    } else {
-      window.localStorage.setItem(STORAGE_KEY, value);
-    }
-  } catch {
-    // Storage may be unavailable (private browsing, quota) — persistence is
-    // best-effort, not a hard dependency of the theme signal.
-  }
+  writeStorage(STORAGE_KEY, value);
 }
 
 effect(() => {

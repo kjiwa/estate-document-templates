@@ -10,10 +10,13 @@ import "./styles/print.css";
 
 import { App } from "./App";
 import { installPrintPresentationSwitch } from "./ui/presentation";
-import { loadFromStorage } from "./store/index";
+import { installPrintLabels } from "./ui/print";
+import { installStorageSync, loadFromStorage } from "./store/index";
 
 loadFromStorage();
 installPrintPresentationSwitch();
+installPrintLabels();
+installStorageSync();
 
 const root = document.getElementById("app");
 if (root) render(<App />, root);

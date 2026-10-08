@@ -83,6 +83,27 @@ export function overviewAdvisories(
   ];
 }
 
+export interface AdvisoryGroup {
+  title: string;
+  count: number;
+  first: Advisory;
+}
+
+export function groupByTitle(advisories: Advisory[]): AdvisoryGroup[] {
+  const groups = new Map<string, AdvisoryGroup>();
+  for (const advisory of advisories) {
+    const group = groups.get(advisory.title);
+    if (group) group.count += 1;
+    else
+      groups.set(advisory.title, {
+        title: advisory.title,
+        count: 1,
+        first: advisory,
+      });
+  }
+  return [...groups.values()];
+}
+
 export function showAdvisory(
   advisory: Advisory,
   trigger?: HTMLElement | null

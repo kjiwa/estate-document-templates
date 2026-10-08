@@ -9,6 +9,7 @@ import {
   type SectionState,
 } from "../ui/completion";
 import { activeSectionId, openSection } from "../ui/editing";
+import { isNarrow } from "../ui/viewport";
 
 const STATE_LABELS: Record<SectionState, string> = {
   done: "Complete",
@@ -31,7 +32,7 @@ export function Rail({ document, plan }: RailProps) {
   const bySection = advisoriesBySection.value;
   const allAdvisories = [...bySection.values()].flat();
 
-  return (
+  const rail = (
     <aside class="app-rail" aria-label="Document sections">
       {stage !== "in-progress" ? (
         <div class="stage-chip ready">{STAGE_LABELS[stage]}</div>
@@ -98,5 +99,15 @@ export function Rail({ document, plan }: RailProps) {
         </div>
       ) : null}
     </aside>
+  );
+
+  if (!isNarrow.value) return rail;
+  return (
+    <details class="rail-details">
+      <summary>
+        {answered} / {total} required fields, {STAGE_LABELS[stage]}
+      </summary>
+      {rail}
+    </details>
   );
 }
