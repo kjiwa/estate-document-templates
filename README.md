@@ -1,6 +1,6 @@
 # Estate Document Templates
 
-A client-side web application for generating, customizing, and printing legally structured estate planning documents compliant with Washington State law. Ships five document types today — a Last Will and Testament (RCW Title 11), a Disposition of Remains Directive (RCW 68.50.160), a Health Care Directive (RCW 70.122.030, the Natural Death Act), a General Power of Attorney (RCW 11.125), and a Durable Power of Attorney (RCW 11.125) — switchable from the header picker, drafted from one shared plan.
+A client-side web application ([live site](https://kjiwa.github.io/estate-document-templates/)) for generating, customizing, and printing legally structured estate planning documents compliant with Washington State law. Ships five document types today — a Last Will and Testament (RCW Title 11), a Disposition of Remains Directive (RCW 68.50.160), a Health Care Directive (RCW 70.122.030, the Natural Death Act), a General Power of Attorney (RCW 11.125), and a Durable Power of Attorney (RCW 11.125) — switchable from the header picker, drafted from one shared plan.
 
 ## Features
 
@@ -17,10 +17,10 @@ A client-side web application for generating, customizing, and printing legally 
   - **RCW 11.02.005(18)**: Representation (not per stirpes) for gifts to a deceased beneficiary's descendants; the survivorship period is editable per plan rather than tracking a statutory default.
   - **RCW 11.68.011**: Nonintervention powers, requested by petition rather than directed outright.
   - **RCW 11.20.020 & RCW 42.45.130**: Self-proving affidavit with testator and witness signature lines, and a dated notarial jurat.
-  - **RCW 70.122.020 & RCW 70.122.030**: Health Care Directive under the Natural Death Act — terminal/permanent unconscious condition elections and witness or notarial execution.
+  - **RCW 70.122.020 & RCW 70.122.030**: Health Care Directive under the Natural Death Act — terminal/permanent unconscious condition elections and two-witness execution.
   - **RCW 11.125.050 & RCW 11.125.100**: General Power of Attorney — execution by notarial acknowledgment, and the statutory termination provisions, recited verbatim for a non-durable power of attorney.
   - **RCW 11.125.040, 11.125.090, 11.125.400 & 11.125.410**: Durable Power of Attorney — the durability statement, determination of incapacity, health care authority bounded by the guardian limits of RCW 11.130.335(3), and authority over minor children.
-- **Guidance Layer**: Every decision-bearing field carries a native `<details>` disclosure explaining what it does, the options, what's typical, and its impact — content only, never part of the printed document. A live Review panel raises advisories (e.g. an interested witness, a missing alternate fiduciary) computed by a pure `analyzeProfile()` function. An Attorney Memo export lists every choice and advisory for counsel.
+- **Guidance Layer**: Every decision-bearing field carries a native `<details>` disclosure explaining what it does, the options, what's typical, and its impact — content only, never part of the printed document. A live Review panel raises advisories (e.g. an interested witness, a missing alternate fiduciary) computed by a pure `analyzeProfile()` function. A will-only Attorney Memo export lists every choice and advisory for counsel.
 - **Plan Switching & Pronoun Agreement**: Toggle between reciprocal spousal plans, with automatic updates to pronouns, fiduciary appointments, and beneficiary declarations.
 - **Variable Highlighting**: Toggle dynamic field indicators on screen to audit customizable terms without affecting printed output.
 - **Screen-to-Print Fidelity**: Print stylesheets configured for standard Letter portrait dimensions (`8.5in x 11in`), calibrated margins, `@page` margin-box page numbers and testator initials, widow/orphan controls, and unbreakable signature and notary blocks.
@@ -51,10 +51,11 @@ A client-side web application for generating, customizing, and printing legally 
 
 1. **Title & Declaration**: Declarant identification, domicile declaration, and revocation of prior remains directives.
 2. **Article 1: Designation of Agent**: Agent and alternate to control disposition of remains, with an optional non-binding statement of wishes (RCW 68.50.160(3)(b)).
-3. **Article 2: Effect, Priority, and Revocation**: Priority over the statutory next-of-kin order (RCW 68.50.160(3)(c)-(g)) and revocation of prior designations.
-4. **Article 3: Severability and Governing Law**: Clause independence and choice of Washington law.
-5. **Testimonium & Attestation**: Execution statement, declarant signature block, and a two-witness attestation that the declarant signed and dated the instrument in their presence (RCW 68.50.160(1)).
-6. **Notarial Acknowledgment**: Not required by RCW 68.50.160 — included, and stated as not required in the document's own text, so a funeral establishment or cemetery authority receiving the instrument cold has independent proof of the declarant's signature.
+3. **Article 2: Funeral and Disposition Instructions** (optional, present only when an instruction is set): Prior arrangements, burial or cremation, disposition of cremated remains, the arranger, and persons to notify. The articles below renumber to follow it.
+4. **Article 2 (or 3): Effect, Priority, and Revocation**: Priority over the statutory next-of-kin order (RCW 68.50.160(3)(c)-(g)) and revocation of prior designations.
+5. **Article 3 (or 4): Severability and Governing Law**: Clause independence and choice of Washington law.
+6. **Testimonium & Attestation**: Execution statement, declarant signature block, and a two-witness attestation that the declarant signed and dated the instrument in their presence (RCW 68.50.160(1)).
+7. **Notarial Acknowledgment**: Not required by RCW 68.50.160 — included, and stated as not required in the document's own text, so a funeral establishment or cemetery authority receiving the instrument cold has independent proof of the declarant's signature.
 
 ### Health Care Directive
 
@@ -65,7 +66,7 @@ Unlike the will and the remains directive, this instrument has no Article/Clause
 3. **Paragraph (B)**: Instruction that the Directive be honored by family, physicians, and any health care decision-maker.
 4. **Paragraph (C)**: The statutory boxed check-one election table for artificial nutrition and hydration.
 5. **Paragraphs (D)-(G)**: Capacity statement, right to amend, severability, and revocation of prior directives.
-6. **Testimonium & Attestation**: Execution statement, declarer signature block, and witness declaration conforming to RCW 70.122.030(1)'s two-witness or notarial-acknowledgment alternative.
+6. **Testimonium & Attestation**: Execution statement, declarer signature block, and a two-witness declaration conforming to RCW 70.122.030(1). No notarial acknowledgment.
 
 ### General Power of Attorney
 
@@ -151,6 +152,14 @@ npm run build && npm run preview
 
 ### Testing
 
+Run the static checks (type check, lint, and format check):
+
+```sh
+npm run typecheck
+npm run lint
+npm run format:check
+```
+
 Run the unit test suite (Vitest — store, model, and pure logic):
 
 ```sh
@@ -175,7 +184,9 @@ npm run check:citations
 
 Every draft lives in the browser's `localStorage`, on the machine that typed it.
 Nothing is uploaded and there is no server. **Export JSON is the only backup** —
-clearing site data, using a private window, or switching browsers loses the draft.
+save a backup file from the Plans view; clearing site data, using a private window,
+or switching browsers loses the draft. Data is tied to the site address: a fork or
+a different URL starts empty.
 
 ## Disclaimer
 

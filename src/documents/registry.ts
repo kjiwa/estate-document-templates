@@ -39,7 +39,6 @@ export interface DocumentDefinition {
   // document body itself (the print checklist's page-footer initials
   // prompt), so it lives on the registry rather than only inside `Body`.
   roleNoun: string;
-  statutes: readonly string[];
   sections: Section[];
   guidance: Record<string, GuidanceEntry>;
   executeGroups: ExecuteGroupDef[];
@@ -51,51 +50,11 @@ export interface DocumentDefinition {
   memo?: (plan: Plan) => string;
 }
 
-const WILL_STATUTES = [
-  "RCW 6.32.250",
-  "RCW 11.02.005",
-  "RCW 11.12.020",
-  "RCW 11.12.091",
-  "RCW 11.12.160",
-  "RCW 11.12.260",
-  "RCW 11.120.070",
-  "RCW 11.130.010",
-  "RCW 11.20.020",
-  "RCW 11.28.120",
-  "RCW 11.36.010",
-  "RCW 11.68.011",
-  "RCW 11.86.031",
-  "RCW 11.98.039",
-  "RCW 11.98.070",
-  "RCW 26.16.030",
-  "RCW 26.16.120",
-  "RCW 42.45.130",
-  "RCW 68.50.160",
-];
-
-const DIRECTIVE_STATUTES = ["RCW 11.20.020", "RCW 42.45.130", "RCW 68.50.160"];
-
-const HEALTH_CARE_STATUTES = ["RCW 70.122.020", "RCW 70.122.030"];
-
-const GENERAL_POA_STATUTES = ["RCW 11.125.050", "RCW 11.125.100"];
-
-const DURABLE_POA_STATUTES = [
-  "RCW 11.125.020",
-  "RCW 11.125.040",
-  "RCW 11.125.050",
-  "RCW 11.125.090",
-  "RCW 11.125.200",
-  "RCW 11.125.400",
-  "RCW 11.125.410",
-  "RCW 11.130.335",
-];
-
 export const DOCUMENTS: DocumentDefinition[] = [
   {
     id: "will",
     title: "Last Will and Testament",
     roleNoun: "Testator",
-    statutes: WILL_STATUTES,
     sections: WILL_SECTIONS,
     guidance: GUIDANCE,
     executeGroups: WILL_EXECUTE_GROUPS,
@@ -107,7 +66,6 @@ export const DOCUMENTS: DocumentDefinition[] = [
     id: "remains-directive",
     title: "Disposition of Remains Directive",
     roleNoun: "Declarant",
-    statutes: DIRECTIVE_STATUTES,
     sections: DIRECTIVE_SECTIONS,
     guidance: DIRECTIVE_GUIDANCE,
     executeGroups: DIRECTIVE_EXECUTE_GROUPS,
@@ -118,7 +76,6 @@ export const DOCUMENTS: DocumentDefinition[] = [
     id: "health-care-directive",
     title: "Health Care Directive",
     roleNoun: "Declarer",
-    statutes: HEALTH_CARE_STATUTES,
     sections: HEALTH_CARE_SECTIONS,
     guidance: HEALTH_CARE_GUIDANCE,
     executeGroups: HEALTH_CARE_EXECUTE_GROUPS,
@@ -129,7 +86,6 @@ export const DOCUMENTS: DocumentDefinition[] = [
     id: "general-power-of-attorney",
     title: "General Power of Attorney",
     roleNoun: "Principal",
-    statutes: GENERAL_POA_STATUTES,
     sections: GENERAL_POA_SECTIONS,
     guidance: GENERAL_POA_GUIDANCE,
     executeGroups: GENERAL_POA_EXECUTE_GROUPS,
@@ -140,7 +96,6 @@ export const DOCUMENTS: DocumentDefinition[] = [
     id: "durable-power-of-attorney",
     title: "Durable Power of Attorney",
     roleNoun: "Principal",
-    statutes: DURABLE_POA_STATUTES,
     sections: DURABLE_POA_SECTIONS,
     guidance: DURABLE_POA_GUIDANCE,
     executeGroups: DURABLE_POA_EXECUTE_GROUPS,

@@ -1,9 +1,10 @@
 {
   "name": "estate-document-templates",
   "version": "1.0.0",
-  "description": "Templates for estate planning documents.",
-  "directories": {
-    "test": "test"
+  "description": "Client-side drafting tool for Washington State estate planning documents.",
+  "private": true,
+  "engines": {
+    "node": ">=22"
   },
   "scripts": {
     "dev": "vite",
@@ -24,12 +25,12 @@
     "url": "git+https://github.com/kjiwa/estate-document-templates.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Kamil Jiwa",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/kjiwa/estate-document-templates/issues"
   },
-  "homepage": "https://github.com/kjiwa/estate-document-templates#readme",
+  "homepage": "https://kjiwa.github.io/estate-document-templates/",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.63.0",

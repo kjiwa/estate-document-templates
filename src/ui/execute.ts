@@ -4,7 +4,7 @@
 // group defs (`DocumentDefinition.executeGroups`) as field paths resolved
 // through `resolveFieldPath`, so labels and hints come from the one
 // registry rather than being retyped.
-import { computed, signal } from "@preact/signals";
+import { computed, effect, signal } from "@preact/signals";
 
 import { DOCUMENTS } from "../documents/registry";
 import type { Section } from "../form/field-spec";
@@ -47,6 +47,11 @@ export const executeGroupComplete = computed<boolean[]>(() => {
 });
 
 export const executeGroupIndex = signal<number>(0);
+
+effect(() => {
+  void activeDocumentId.value;
+  executeGroupIndex.value = 0;
+});
 
 export const currentExecuteGroup = computed<ExecuteGroup | null>(
   () => executeGroups.value[executeGroupIndex.value] ?? null

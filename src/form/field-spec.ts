@@ -56,7 +56,6 @@ export interface Section {
   guidance?: GuidanceId | readonly GuidanceId[];
   fields: FieldSpec[];
   hidden?: (plan: Plan) => boolean;
-  complete?: (plan: Plan) => boolean;
 }
 
 // One step of the Execute flow (mockup 06: "signing day") — a title, lead

@@ -1,4 +1,5 @@
-import { useRef } from "preact/hooks";
+import type { RefObject } from "preact";
+import { useEffect, useRef } from "preact/hooks";
 
 import {
   accepted,
@@ -22,10 +23,36 @@ export function AppFooter() {
   );
 }
 
+// The dialog renders inside the app root, so the root's other children are
+// made inert rather than the root itself. Declared before `useFocusTrap` so
+// the opener is captured before focus moves into the dialog.
+function useInertBackground(
+  open: boolean,
+  dialogRef: RefObject<HTMLElement | null>
+): void {
+  useEffect(() => {
+    if (!open) return;
+    const opener = document.activeElement as HTMLElement | null;
+    const backdrop = dialogRef.current?.parentElement;
+    const background = Array.from(
+      backdrop?.parentElement?.children ?? []
+    ).filter(
+      (el): el is HTMLElement => el instanceof HTMLElement && el !== backdrop
+    );
+    for (const el of background) el.inert = true;
+    return () => {
+      for (const el of background) el.inert = false;
+      opener?.focus();
+    };
+  }, [open, dialogRef]);
+}
+
 export function Disclaimer() {
   const dialogRef = useRef<HTMLDivElement>(null);
   const firstVisit = !accepted.value;
   const open = firstVisit || reviewing.value;
+
+  useInertBackground(open, dialogRef);
 
   useFocusTrap(
     dialogRef,
@@ -65,7 +92,10 @@ export function Disclaimer() {
             You are responsible for having a licensed Washington attorney review
             any document before you sign it.
           </p>
-          <p>Your entries stay in this browser. Nothing is sent to a server.</p>
+          <p>
+            Your entries stay in this browser. Nothing is sent to a server. Save
+            a backup file from the Plans page.
+          </p>
         </div>
         <div class="disclaimer-actions">
           {firstVisit ? (

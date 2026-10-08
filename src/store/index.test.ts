@@ -8,6 +8,7 @@ import {
   createReciprocalPlan,
   deletePlan,
   duplicatePlan,
+  installStorageSync,
   loadFromStorage,
   nextPlanId,
   parsePersisted,
@@ -16,6 +17,7 @@ import {
   setActiveDocument,
   setActivePlan,
   setField,
+  storageNotice,
 } from "./index";
 
 const STORAGE_KEY = "estate_templates_state_v1";
@@ -322,5 +324,90 @@ describe("loadFromStorage", () => {
     expect(loadFromStorage()).toBe(false);
 
     expect(storage.getItem(`${STORAGE_KEY}__unparsed`)).toBe(originalRaw);
+  });
+});
+
+describe("storage failures", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.useRealTimers();
+  });
+
+  function throwingStorage(): Storage {
+    const fail = () => {
+      throw new Error("SecurityError");
+    };
+    return {
+      getItem: fail,
+      setItem: fail,
+      removeItem: fail,
+      clear: fail,
+      key: () => null,
+      length: 0,
+    } as Storage;
+  }
+
+  it("loadFromStorage does not throw when reading is blocked", () => {
+    vi.stubGlobal("window", { localStorage: throwingStorage() });
+    expect(loadFromStorage()).toBe(false);
+  });
+
+  it("sets the storage notice when a write fails", async () => {
+    vi.useFakeTimers();
+    vi.stubGlobal("window", { localStorage: throwingStorage() });
+    vi.resetModules();
+    const mod = await import("./index");
+
+    mod.loadFromStorage();
+    mod.setField("party.testator.name", "Jordan");
+    vi.advanceTimersByTime(1000);
+
+    expect(mod.storageNotice.value).toMatch(/aren't being saved/);
+  });
+
+  it("backs up the raw value and sets the notice when only some plans fail to migrate", () => {
+    const storage = fakeLocalStorage();
+    const good = JSON.parse(JSON.stringify(BASE_PLAN));
+    const originalRaw = JSON.stringify({
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      activePlanId: "profile-1",
+      plans: { "profile-1": good, "profile-2": { not: "a plan" } },
+    });
+    storage.setItem(STORAGE_KEY, originalRaw);
+    vi.stubGlobal("window", { localStorage: storage });
+
+    expect(loadFromStorage()).toBe(true);
+
+    expect(Object.keys(plans.value)).toEqual(["profile-1"]);
+    expect(storage.getItem(`${STORAGE_KEY}__unparsed`)).toBe(originalRaw);
+    expect(storageNotice.value).toMatch(/couldn't be read/);
+  });
+
+  it("reloads state when another tab writes the storage key", async () => {
+    const listeners: Record<string, (event: unknown) => void> = {};
+    const storage = fakeLocalStorage();
+    vi.stubGlobal("window", {
+      localStorage: storage,
+      addEventListener: (name: string, fn: (event: unknown) => void) => {
+        listeners[name] = fn;
+      },
+      removeEventListener: () => {},
+    });
+    installStorageSync();
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    const other = JSON.parse(JSON.stringify(BASE_PLAN));
+    other.label = "From another tab";
+    storage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+        activePlanId: "profile-1",
+        plans: { "profile-1": other },
+      })
+    );
+    listeners.storage!({ key: STORAGE_KEY });
+
+    expect(plans.value["profile-1"]!.label).toBe("From another tab");
   });
 });

@@ -15,6 +15,32 @@ test.describe("Pre-print checklist and output", () => {
     await page.goto("/");
   });
 
+  test("shows the document's stage and an advisory link that opens it", async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      const KEY = "estate_templates_state_v1";
+      const data = JSON.parse(window.localStorage.getItem(KEY));
+      data.plans["profile-1"].execution.witnesses[0].name = "Devin Okafor";
+      window.localStorage.setItem(KEY, JSON.stringify(data));
+    });
+    await page.reload();
+    await openChecklist(page);
+
+    await expect(page.locator(".print-checklist .stage-chip")).toHaveText(
+      /In progress|Ready to sign|Ready to print/
+    );
+    await page
+      .locator(".print-checklist")
+      .getByRole("button", { name: "Interested witness" })
+      .click();
+
+    await expect(page.locator(".print-checklist")).toBeHidden();
+    await expect(
+      page.locator(".context-panel .advisory, .bottom-sheet .advisory")
+    ).toContainText("Witness Devin Okafor is also named as");
+  });
+
   test("renders both checklist items and both buttons", async ({ page }) => {
     await openChecklist(page);
 

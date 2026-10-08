@@ -7,7 +7,7 @@ import { DOCUMENTS } from "../documents/registry";
 import { PlanContext } from "../documents/shared/PlanContext";
 import { migrateProfile } from "../model/migrate";
 import type { Plan } from "../model/plan";
-import { Field } from "./Field";
+import { Field, parseNumberInput } from "./Field";
 import { sectionFields, type LeafFieldSpec } from "./registry";
 
 function blankPlan(): Plan {
@@ -72,5 +72,17 @@ describe("Field optional suffix", () => {
     };
     expect(labelText(plan, field).suffix).toBe(true);
     expect(labelText(withAgreement, field).suffix).toBe(false);
+  });
+});
+
+describe("parseNumberInput", () => {
+  it("stores a cleared number field as unset, not zero", () => {
+    expect(parseNumberInput("")).toBeUndefined();
+    expect(parseNumberInput("  ")).toBeUndefined();
+  });
+
+  it("keeps zero and other entered numbers", () => {
+    expect(parseNumberInput("0")).toBe(0);
+    expect(parseNumberInput("90")).toBe(90);
   });
 });

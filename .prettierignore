@@ -7,3 +7,4 @@ profiles.local.json
 test/golden/
 design/mockups/
 design/index.html
+dist/

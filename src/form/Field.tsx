@@ -16,6 +16,10 @@ interface FieldProps {
   field: LeafFieldSpec;
 }
 
+export function parseNumberInput(raw: string): number | undefined {
+  return raw.trim() === "" ? undefined : Number(raw);
+}
+
 export function fieldId(path: string): string {
   return `field-${path.replace(/\./g, "-")}`;
 }
@@ -67,7 +71,7 @@ export function Field({ field }: FieldProps) {
             onInput={(event) =>
               setField(
                 field.path,
-                Number((event.target as HTMLInputElement).value)
+                parseNumberInput((event.target as HTMLInputElement).value)
               )
             }
           />

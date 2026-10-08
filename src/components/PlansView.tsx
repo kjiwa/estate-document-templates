@@ -2,7 +2,6 @@ import { useRef, useState } from "preact/hooks";
 
 import { DOCUMENTS, type DocumentDefinition } from "../documents/registry";
 import { CURRENT_SCHEMA_VERSION } from "../model/migrate";
-import type { Advisory } from "../model/advisory";
 import type { Plan } from "../model/plan";
 import {
   activeDocumentId,
@@ -18,7 +17,11 @@ import {
   setActiveDocument,
   setActivePlan,
 } from "../store/index";
-import { overviewAdvisories, showAdvisory } from "../ui/advisories";
+import {
+  groupByTitle,
+  overviewAdvisories,
+  showAdvisory,
+} from "../ui/advisories";
 import {
   documentReadiness,
   STAGE_LABELS,
@@ -45,32 +48,11 @@ function detailLines(readiness: DocumentReadiness): string[] {
   } else if (stage === "ready-to-sign") {
     lines.push(`Signing day: ${remainingSigningGroups.join(", ")}`);
   }
-  if (readiness.blankOptionalSections.length > 0) {
+  if (stage !== "in-progress" && readiness.blankOptionalSections.length > 0) {
     const legends = readiness.blankOptionalSections.map((s) => s.legend);
     lines.push(`Left blank (optional): ${legends.join(", ")}`);
   }
   return lines;
-}
-
-interface AdvisoryGroup {
-  title: string;
-  count: number;
-  first: Advisory;
-}
-
-function groupByTitle(advisories: Advisory[]): AdvisoryGroup[] {
-  const groups = new Map<string, AdvisoryGroup>();
-  for (const advisory of advisories) {
-    const group = groups.get(advisory.title);
-    if (group) group.count += 1;
-    else
-      groups.set(advisory.title, {
-        title: advisory.title,
-        count: 1,
-        first: advisory,
-      });
-  }
-  return [...groups.values()];
 }
 
 interface DocumentRowProps {
@@ -128,16 +110,19 @@ function DocumentRow({ plan, document }: DocumentRowProps) {
 
 function stageSummary(plan: Plan): string {
   const counts = new Map<ReadinessStage, number>();
+  let toReview = 0;
   for (const document of DOCUMENTS) {
     const { stage } = documentReadiness(plan, document);
     counts.set(stage, (counts.get(stage) ?? 0) + 1);
+    toReview += overviewAdvisories(plan, document).length;
   }
-  const parts = (Object.keys(STAGE_LABELS) as ReadinessStage[])
+  const stages = (Object.keys(STAGE_LABELS) as ReadinessStage[])
     .filter((stage) => counts.has(stage))
-    .map(
-      (stage) => `${counts.get(stage)} ${STAGE_LABELS[stage].toLowerCase()}`
-    );
-  return `Documents: ${parts.join(", ")}`;
+    .map((stage) => `${counts.get(stage)} ${STAGE_LABELS[stage].toLowerCase()}`)
+    .join(", ");
+  return toReview > 0
+    ? `Documents: ${stages}; ${toReview} to review`
+    : `Documents: ${stages}`;
 }
 
 interface PlanCardProps {
@@ -158,8 +143,13 @@ function PlanCard({ plan, canDelete }: PlanCardProps) {
     setRenaming(false);
   }
 
+  function cancelRename() {
+    inputRef.current = null;
+    setRenaming(false);
+  }
+
   return (
-    <div class="card plan-card">
+    <div class={`card plan-card${isActive ? " plan-card-active" : ""}`}>
       <div>
         {renaming ? (
           <input
@@ -172,7 +162,7 @@ function PlanCard({ plan, canDelete }: PlanCardProps) {
             aria-label="Plan name"
             onKeyDown={(event) => {
               if (event.key === "Enter") commitRename();
-              if (event.key === "Escape") setRenaming(false);
+              if (event.key === "Escape") cancelRename();
             }}
             onBlur={commitRename}
           />
@@ -212,6 +202,12 @@ function PlanCard({ plan, canDelete }: PlanCardProps) {
           type="button"
           class="btn btn-danger"
           disabled={!canDelete}
+          aria-label={
+            confirmingDelete
+              ? `Confirm delete ${plan.label}`
+              : `Delete ${plan.label}`
+          }
+          onBlur={() => setConfirmingDelete(false)}
           onClick={() => {
             if (confirmingDelete) {
               deletePlan(plan.id);
@@ -223,7 +219,7 @@ function PlanCard({ plan, canDelete }: PlanCardProps) {
           {confirmingDelete ? "Confirm delete" : "Delete"}
         </button>
       </div>
-      <details class="plan-documents" open={isActive}>
+      <details class="plan-documents">
         <summary>{stageSummary(plan)}</summary>
         <ul class="plan-overview">
           {DOCUMENTS.map((document) => (
@@ -235,6 +231,10 @@ function PlanCard({ plan, canDelete }: PlanCardProps) {
   );
 }
 
+function planCount(n: number): string {
+  return `${n} ${n === 1 ? "plan" : "plans"}`;
+}
+
 function formatLastSaved(date: Date | null): string {
   if (!date) return "Not saved this session";
   return `Last saved ${date.toLocaleTimeString()}`;
@@ -244,8 +244,16 @@ function formatLastSaved(date: Date | null): string {
 // pair: this card carries the attorney memo and the full-state JSON
 // backup/restore, since neither is part of getting the document onto
 // paper.
+interface PendingImport {
+  fileName: string;
+  parsed: NonNullable<ReturnType<typeof parsePersisted>>;
+}
+
 function DataCard() {
   const [importError, setImportError] = useState<string | null>(null);
+  const [pendingImport, setPendingImport] = useState<PendingImport | null>(
+    null
+  );
 
   const activeDocument = DOCUMENTS.find((d) => d.id === activeDocumentId.value);
   const memo = activeDocument?.memo;
@@ -277,11 +285,12 @@ function DataCard() {
 
   async function handleOpen() {
     setImportError(null);
-    const contents = await openFile(".json");
-    if (contents === null) return;
+    setPendingImport(null);
+    const file = await openFile(".json");
+    if (file === null) return;
     let raw: unknown;
     try {
-      raw = JSON.parse(contents);
+      raw = JSON.parse(file.contents);
     } catch {
       setImportError("That file isn't valid JSON.");
       return;
@@ -291,9 +300,16 @@ function DataCard() {
       setImportError("That file doesn't look like a saved plans export.");
       return;
     }
+    setPendingImport({ fileName: file.name, parsed });
+  }
+
+  function confirmImport() {
+    if (!pendingImport) return;
+    const { parsed } = pendingImport;
     plans.value = parsed.plans;
     activePlanId.value = parsed.activePlanId;
     activeDocumentId.value = parsed.activeDocumentId;
+    setPendingImport(null);
   }
 
   return (
@@ -312,7 +328,34 @@ function DataCard() {
           Open plans from file
         </button>
       </div>
-      {importError ? <div class="field-hint">{importError}</div> : null}
+      {pendingImport ? (
+        <div class="card-list" style={{ marginTop: "var(--space-3)" }}>
+          <span>
+            Replace {planCount(Object.keys(plans.value).length)} with{" "}
+            {planCount(Object.keys(pendingImport.parsed.plans).length)} from{" "}
+            {pendingImport.fileName}
+            {pendingImport.parsed.skipped > 0
+              ? ` (${planCount(pendingImport.parsed.skipped)} in the file can't be read and will be skipped)`
+              : ""}
+            ?
+          </span>
+          <button type="button" class="btn btn-danger" onClick={confirmImport}>
+            Confirm replace
+          </button>
+          <button
+            type="button"
+            class="btn"
+            onClick={() => setPendingImport(null)}
+          >
+            Cancel
+          </button>
+        </div>
+      ) : null}
+      {importError ? (
+        <div class="field-hint" role="alert">
+          {importError}
+        </div>
+      ) : null}
       <div class="field-hint">{formatLastSaved(lastSavedAt.value)}</div>
     </div>
   );

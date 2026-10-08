@@ -1,32 +1,25 @@
 import { effect, signal } from "@preact/signals";
 
+import { readStorage, writeStorage } from "./storage";
+
 const STORAGE_KEY = "estate_templates_presentation_v1";
 
 export type Presentation = "reading" | "paper";
 
 function defaultPresentation(): Presentation {
   if (typeof window === "undefined" || !window.matchMedia) return "reading";
-  return window.matchMedia("(min-width: 900px)").matches ? "paper" : "reading";
+  return window.matchMedia("(min-width: 901px)").matches ? "paper" : "reading";
 }
 
 function readStoredPresentation(): Presentation {
-  if (typeof window === "undefined" || !window.localStorage) {
-    return defaultPresentation();
-  }
-  const raw = window.localStorage.getItem(STORAGE_KEY);
+  const raw = readStorage(STORAGE_KEY);
   return raw === "reading" || raw === "paper" ? raw : defaultPresentation();
 }
 
 export const presentation = signal<Presentation>(readStoredPresentation());
 
 function persistPresentation(value: Presentation): void {
-  if (typeof window === "undefined" || !window.localStorage) return;
-  try {
-    window.localStorage.setItem(STORAGE_KEY, value);
-  } catch {
-    // Storage may be unavailable (private browsing, quota) — persistence is
-    // best-effort, not a hard dependency of the presentation signal.
-  }
+  writeStorage(STORAGE_KEY, value);
 }
 
 effect(() => {

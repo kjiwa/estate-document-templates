@@ -232,4 +232,25 @@ test.describe("Contextual editing", () => {
     expect(consoleErrors).toEqual([]);
     expect(externalRequests).toEqual([]);
   });
+
+  test("Escape closes the desktop context panel", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto("/");
+    await page.locator('[data-path="party.testator.name"]').first().click();
+    await expect(page.locator(".context-panel")).toBeVisible();
+
+    await page.keyboard.press("Escape");
+
+    await expect(page.locator(".context-panel")).toHaveCount(0);
+  });
+
+  test("the mobile bottom sheet focuses the field input, not Close", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 393, height: 852 });
+    await page.goto("/");
+    await page.locator('[data-path="party.testator.name"]').first().click();
+
+    await expect(page.locator("#field-party-testator-name")).toBeFocused();
+  });
 });

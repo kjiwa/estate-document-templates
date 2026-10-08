@@ -1,21 +1,15 @@
 import { signal } from "@preact/signals";
 
+import { readStorage, writeStorage } from "./storage";
+
 const STORAGE_KEY = "estate_templates_disclaimer_v1";
 
 function readAccepted(): boolean {
-  try {
-    return window.localStorage.getItem(STORAGE_KEY) !== null;
-  } catch {
-    return false;
-  }
+  return readStorage(STORAGE_KEY) !== null;
 }
 
 function writeAccepted(): void {
-  try {
-    window.localStorage.setItem(STORAGE_KEY, "accepted");
-  } catch {
-    // Storage unavailable: the notice shows again next visit.
-  }
+  writeStorage(STORAGE_KEY, "accepted");
 }
 
 export const accepted = signal(readAccepted());

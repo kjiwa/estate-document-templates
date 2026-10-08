@@ -1,5 +1,11 @@
 import { DOCUMENTS } from "../documents/registry";
-import { activeDocumentId, setActiveDocument } from "../store/index";
+import {
+  activeDocumentId,
+  activePlanId,
+  plans,
+  setActiveDocument,
+  setActivePlan,
+} from "../store/index";
 import { closeEditor } from "../ui/editing";
 import { startExecuteFlow } from "../ui/execute";
 import { view } from "../ui/view";
@@ -29,6 +35,26 @@ function DocumentPicker() {
   );
 }
 
+function PlanPicker() {
+  return (
+    <select
+      class="btn"
+      aria-label="Active plan"
+      value={activePlanId.value}
+      onChange={(event) => {
+        closeEditor();
+        setActivePlan((event.target as HTMLSelectElement).value);
+      }}
+    >
+      {Object.values(plans.value).map((plan) => (
+        <option value={plan.id} key={plan.id}>
+          {plan.label}
+        </option>
+      ))}
+    </select>
+  );
+}
+
 export function AppHeader() {
   const onPlansView = view.value === "plans";
   const onExecuteView = view.value === "execute" || view.value === "print";
@@ -50,6 +76,7 @@ export function AppHeader() {
         <strong class="app-title">Estate Document Templates</strong>
       </div>
       <div class="header-controls">
+        <PlanPicker />
         <DocumentPicker />
         <button
           type="button"

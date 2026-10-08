@@ -1,6 +1,6 @@
-import { useRef } from "preact/hooks";
+import { useEffect, useRef } from "preact/hooks";
 
-import { Field } from "../form/Field";
+import { Field, fieldId } from "../form/Field";
 import { advisoriesByPath } from "../ui/advisories";
 import {
   activeEntryIndex,
@@ -26,6 +26,16 @@ export function BottomSheet() {
     closeEditor,
     entry?.field.path ?? null
   );
+
+  // Declared after `useFocusTrap` so it overrides the trap's first-focusable
+  // default (the close button) with the field being edited.
+  const path = entry?.field.path ?? null;
+  useEffect(() => {
+    if (!path) return;
+    sheetRef.current
+      ?.querySelector<HTMLElement>(`#${CSS.escape(fieldId(path))}`)
+      ?.focus();
+  }, [path]);
 
   if (!entry) return null;
 
