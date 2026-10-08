@@ -30,7 +30,7 @@ export function isFieldAnswered(plan: Plan, field: FieldSpec): boolean {
 
 export function hasValue(plan: Plan, field: LeafFieldSpec): boolean {
   const value = getPath(plan, field.path);
-  if (field.kind === "checkbox") return false;
+  if (field.kind === "checkbox") return value === true;
   if (field.kind === "list") {
     return Array.isArray(value) && value.length > 0;
   }
@@ -138,7 +138,11 @@ function remainingGroupTitles(
     .filter((group) =>
       group.paths.some((path) => {
         const entry = resolveFieldPath(plan, document.sections, path);
-        return entry && !isFieldAnswered(plan, entry.field);
+        return (
+          entry &&
+          !entry.section.hidden?.(plan) &&
+          !isFieldAnswered(plan, entry.field)
+        );
       })
     )
     .map((group) => group.title);

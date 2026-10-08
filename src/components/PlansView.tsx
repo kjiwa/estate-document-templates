@@ -82,7 +82,7 @@ function DocumentRow({ plan, document }: DocumentRowProps) {
   const advisories = overviewAdvisories(plan, document);
   const ready = readiness.stage !== "in-progress";
   const chip =
-    readiness.stage === "ready-to-sign" && advisories.length > 0
+    ready && advisories.length > 0
       ? `${STAGE_LABELS[readiness.stage]}, ${advisories.length} to review`
       : STAGE_LABELS[readiness.stage];
 
@@ -332,9 +332,9 @@ export function PlansView() {
         ))}
       </div>
       <p class="field-hint plan-overview-note">
-        Ready to sign means every required field is filled. Have a Washington
-        attorney review each document, including optional sections left blank,
-        before signing.
+        Ready to sign means everything except the signing-day details (date,
+        witnesses, notary) is filled. Have a Washington attorney review each
+        document, including optional sections left blank, before signing.
       </p>
       <DataCard />
     </main>

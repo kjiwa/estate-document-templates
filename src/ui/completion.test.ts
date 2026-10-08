@@ -15,6 +15,7 @@ import {
   documentCompletion,
   documentReadiness,
   flattenFields,
+  hasValue,
   isFieldAnswered,
   isRequired,
   sectionCompletion,
@@ -336,5 +337,20 @@ describe("document readiness", () => {
 
   it("marks a section open while a required field is unanswered", () => {
     expect(sectionState(plan, sectionById("will", "testator"))).toBe("open");
+  });
+});
+
+describe("hasValue", () => {
+  it("reads a checked checkbox as a value, so a checkbox-only section is not blank", () => {
+    const field: LeafFieldSpec = {
+      kind: "checkbox",
+      path: "documents.will.communityPropertyAgreement.exists",
+      label: "x",
+    };
+    const plan = migrateProfile("p", { label: "p" });
+    if (!plan.success) throw new Error(plan.error);
+    expect(hasValue(plan.plan, field)).toBe(false);
+    const checked = setPath(plan.plan, field.path, true);
+    expect(hasValue(checked, field)).toBe(true);
   });
 });
