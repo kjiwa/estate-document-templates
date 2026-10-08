@@ -137,10 +137,19 @@ const RemainsDirectiveDocument = z
     notify: [],
   });
 
+// Literal default for the same reason as `HealthCareDirectiveDocument`.
+const DurablePowerOfAttorneyDocument = z
+  .object({
+    minorChildren: z.boolean().default(false),
+    lastGoodbyes: z.boolean().default(false),
+  })
+  .default({ minorChildren: false, lastGoodbyes: false });
+
 const Documents = z.object({
   will: WillDocument,
   healthCareDirective: HealthCareDirectiveDocument,
   remainsDirective: RemainsDirectiveDocument,
+  durablePowerOfAttorney: DurablePowerOfAttorneyDocument,
 });
 
 export const Plan = z.object({

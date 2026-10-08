@@ -1,6 +1,6 @@
 # Estate Document Templates
 
-A client-side web application for generating, customizing, and printing legally structured estate planning documents compliant with Washington State law. Ships four document types today — a Last Will and Testament (RCW Title 11), a Disposition of Remains Directive (RCW 68.50.160), a Health Care Directive (RCW 70.122.030, the Natural Death Act), and a General Power of Attorney (RCW 11.125) — switchable from the header picker, drafted from one shared plan.
+A client-side web application for generating, customizing, and printing legally structured estate planning documents compliant with Washington State law. Ships five document types today — a Last Will and Testament (RCW Title 11), a Disposition of Remains Directive (RCW 68.50.160), a Health Care Directive (RCW 70.122.030, the Natural Death Act), a General Power of Attorney (RCW 11.125), and a Durable Power of Attorney (RCW 11.125) — switchable from the header picker, drafted from one shared plan.
 
 ## Features
 
@@ -19,6 +19,7 @@ A client-side web application for generating, customizing, and printing legally 
   - **RCW 11.20.020 & RCW 42.45.130**: Self-proving affidavit with testator and witness signature lines, and a dated notarial jurat.
   - **RCW 70.122.020 & RCW 70.122.030**: Health Care Directive under the Natural Death Act — terminal/permanent unconscious condition elections and witness or notarial execution.
   - **RCW 11.125.050 & RCW 11.125.100**: General Power of Attorney — execution by notarial acknowledgment, and the statutory termination provisions, recited verbatim for a non-durable power of attorney.
+  - **RCW 11.125.040, 11.125.090, 11.125.400 & 11.125.410**: Durable Power of Attorney — the durability statement, determination of incapacity, health care authority bounded by the guardian limits of RCW 11.130.335(3), and authority over minor children.
 - **Guidance Layer**: Every decision-bearing field carries a native `<details>` disclosure explaining what it does, the options, what's typical, and its impact — content only, never part of the printed document. A live Review panel raises advisories (e.g. an interested witness, a missing alternate fiduciary) computed by a pure `analyzeProfile()` function. An Attorney Memo export lists every choice and advisory for counsel.
 - **Plan Switching & Pronoun Agreement**: Toggle between reciprocal spousal plans, with automatic updates to pronouns, fiduciary appointments, and beneficiary declarations.
 - **Variable Highlighting**: Toggle dynamic field indicators on screen to audit customizable terms without affecting printed output.
@@ -75,6 +76,16 @@ A non-durable power of attorney: it ends on the principal's incapacity, so it is
 3. **Termination**: Revocation, death, third-party reliance, nomination of the attorney-in-fact as guardian, and RCW 11.125.100 recited verbatim.
 4. **Testimonium & Acknowledgment**: Execution statement, principal signature block, and the notarial acknowledgment RCW 11.125.050 provides for.
 
+### Durable Power of Attorney
+
+A springing, durable power of attorney: the powers begin on the principal's incapacity and continue through it (RCW 11.125.040). Like the general power of attorney, it numbers its own paragraphs rather than using Article/Clause numbering; the two optional paragraphs are filtered before numbering, so numbers never gap.
+
+1. **Title & Preamble**: Principal identification, domicile, and revocation of prior durable powers of attorney.
+2. **Paragraphs 1-6**: Appointment of a primary and alternate attorney-in-fact, effectiveness on incapacity (RCW 11.125.020(5), RCW 11.125.090), powers (A)-(K) including health care decisions (RCW 11.125.400) and financial and digital-account powers, taxes, duration, and revocation.
+3. **Paragraphs 7-11 and the closing paragraphs**: Reliance, applicable law, indemnity, limitation of power, HIPAA release, optional authority over minor children (RCW 11.125.410), digital assets (chapter 11.120 RCW), photocopies, and the optional last-goodbyes direction.
+4. **Testimonium & Acknowledgment**: Execution statement, principal signature block, and the notarial acknowledgment RCW 11.125.050 provides for.
+5. **Certification page**: A separate page, completed by the agent or physicians at the time of incapacity, not at signing.
+
 ## Project Structure
 
 ```
@@ -90,7 +101,8 @@ A non-durable power of attorney: it ends on the principal's incapacity, so it is
 │   │   ├── will/             # Washington Last Will & Testament: sections, body, guidance, review
 │   │   ├── remains-directive/ # Disposition of Remains Directive: sections, body, guidance, review
 │   │   ├── health-care-directive/ # Health Care Directive: sections, body, guidance, review
-│   │   └── general-power-of-attorney/ # General Power of Attorney: sections, body, guidance, review
+│   │   ├── general-power-of-attorney/ # General Power of Attorney: sections, body, guidance, review
+│   │   └── durable-power-of-attorney/ # Durable Power of Attorney: sections, body, certification page, guidance, review
 │   ├── export/               # Attorney memo and standalone HTML generation
 │   ├── form/                 # FieldSpec union, <Field> renderer, field registry/traversal
 │   ├── model/                 # Plan schema (zod), paths, migrations, pronouns, dates

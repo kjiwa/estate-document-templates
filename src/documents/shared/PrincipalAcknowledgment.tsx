@@ -1,11 +1,11 @@
 import { useContext } from "preact/hooks";
 
 import { getPronouns } from "../../model/pronouns";
-import { Blank } from "../shared/Blank";
-import { NotarySignature } from "../shared/NotarySignature";
-import { NotaryVenue } from "../shared/NotaryVenue";
-import { PlanContext } from "../shared/PlanContext";
-import { Value } from "../shared/Value";
+import { Blank } from "./Blank";
+import { NotarySignature } from "./NotarySignature";
+import { NotaryVenue } from "./NotaryVenue";
+import { PlanContext } from "./PlanContext";
+import { Value } from "./Value";
 
 export function PrincipalAcknowledgment() {
   const plan = useContext(PlanContext);
