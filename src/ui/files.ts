@@ -6,6 +6,15 @@ export const lastSavedAt = signal<Date | null>(null);
 
 const REVOKE_DELAY_MS = 1000;
 
+// Lowercase `[a-z0-9-]` filename stem for a user-entered name.
+export function fileSlug(name: string, fallback: string): string {
+  const slug = name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return slug || fallback;
+}
+
 function extensionFor(mimeType: string): string {
   if (mimeType === "application/json") return "json";
   if (mimeType === "text/html") return "html";

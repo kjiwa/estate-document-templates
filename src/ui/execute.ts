@@ -70,23 +70,27 @@ export function stepExecuteGroup(delta: number): void {
 
 type ExecutionRecord = Plan["executions"][keyof Plan["executions"]];
 
-function hasValue(value: unknown): boolean {
+function recordHasAnswers(value: unknown): boolean {
   if (typeof value === "string") return value !== "";
-  if (Array.isArray(value)) return value.some(hasValue);
+  if (Array.isArray(value)) return value.some(recordHasAnswers);
   if (value && typeof value === "object") {
-    return Object.values(value).some(hasValue);
+    return Object.values(value).some(recordHasAnswers);
   }
   return false;
 }
 
 // Other documents whose execution record has any answer, offered as the
-// source of a one-click copy into the active document's record.
+// source of a one-click copy into the active document's record — only while
+// that record is still empty, so a copy never overwrites entered answers.
 export const copySources = computed<DocumentDefinition[]>(() => {
   const plan = activePlan.value;
   const active = activeDocument.value;
   if (!plan || !active) return [];
+  if (recordHasAnswers(plan.executions[active.executionKey])) return [];
   return DOCUMENTS.filter(
-    (doc) => doc.id !== active.id && hasValue(plan.executions[doc.executionKey])
+    (doc) =>
+      doc.id !== active.id &&
+      recordHasAnswers(plan.executions[doc.executionKey])
   );
 });
 

@@ -19,10 +19,20 @@ export function printInitialsLabel(document: DocumentDefinition): string {
   return `${document.roleNoun} initials: ________`;
 }
 
-// A CSS custom property's value is a quoted string; escape both characters
-// that would otherwise terminate or escape it early.
+// A CSS custom property's value is a quoted string, inlined into a `<style>`
+// block: escape what would end the string early, break out of the element
+// (`<`), or be a CSS newline/control character.
 export function escapeCssString(value: string): string {
-  return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+  return Array.from(value, escapeCssChar).join("");
+}
+
+function escapeCssChar(char: string): string {
+  if (char === "\\" || char === '"') return `\\${char}`;
+  const code = char.charCodeAt(0);
+  const isControl = code < 0x20 || code === 0x7f;
+  return char === "<" || isControl
+    ? `\\${code.toString(16).toUpperCase()} `
+    : char;
 }
 
 export function printPageName(document: DocumentDefinition): string {

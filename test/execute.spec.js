@@ -120,6 +120,9 @@ test.describe("Execute flow (signing day)", () => {
     await expect(
       page.locator("#field-executions-remainsDirective-city")
     ).toHaveValue("Tacoma");
+    await expect(
+      page.getByRole("button", { name: /Copy signing details from/ })
+    ).toHaveCount(0);
 
     await page
       .locator("#field-executions-remainsDirective-city")

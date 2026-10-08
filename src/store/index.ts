@@ -186,7 +186,7 @@ export function parsePersisted(raw: unknown): ParsedPersisted | null {
 
   const isEnvelope = Boolean(obj.plans && typeof obj.plans === "object");
   const envelopeVersion =
-    typeof obj.schemaVersion === "number" ? obj.schemaVersion : 3;
+    typeof obj.schemaVersion === "number" ? Math.max(obj.schemaVersion, 3) : 3;
   const rawProfiles = isEnvelope
     ? (obj.plans as Record<string, unknown>)
     : obj.profiles && typeof obj.profiles === "object"

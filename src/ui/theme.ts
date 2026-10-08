@@ -17,6 +17,7 @@ const DARK_QUERY = "(prefers-color-scheme: dark)";
 
 function resolveTheme(value: Theme): "light" | "dark" {
   if (value !== "system") return value;
+  if (typeof window.matchMedia !== "function") return "light";
   return window.matchMedia(DARK_QUERY).matches ? "dark" : "light";
 }
 
@@ -34,7 +35,7 @@ effect(() => {
   persistTheme(theme.value);
 });
 
-if (typeof window !== "undefined") {
+if (typeof window !== "undefined" && typeof window.matchMedia === "function") {
   window.matchMedia(DARK_QUERY).addEventListener("change", () => {
     if (theme.value === "system") applyTheme("system");
   });

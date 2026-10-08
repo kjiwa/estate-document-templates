@@ -90,3 +90,29 @@ describe("Plan schema", () => {
     expect(plan.party.children).toEqual(["Rowan"]);
   });
 });
+
+describe("execution record identity", () => {
+  it("gives each document its own record when a blank plan is parsed", () => {
+    const plan = Plan.parse({
+      id: "profile-1",
+      label: "Profile 1",
+      party: { testator: {}, spouse: {} },
+      fiduciaries: {
+        guardians: {},
+        conservators: {},
+        personalRepresentatives: {},
+        trustees: {},
+        remains: {},
+      },
+      executions: {},
+      documents: {
+        will: { communityPropertyAgreement: {}, ultimateBeneficiary: {} },
+      },
+    });
+    const records = Object.values(plan.executions);
+    expect(records).toHaveLength(5);
+    expect(new Set(records).size).toBe(5);
+    expect(new Set(records.map((r) => r.witnesses)).size).toBe(5);
+    expect(new Set(records.map((r) => r.notary)).size).toBe(5);
+  });
+});

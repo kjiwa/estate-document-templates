@@ -56,9 +56,13 @@ function printAfterPaint(): void {
 }
 
 // While set, the app renders every document of that plan in sequence in
-// place of the current view (`components/PrintAll.tsx`); `afterprint`
-// clears it.
+// place of the current view (`components/PrintAll.tsx`); cleared by
+// `installPrintAllReset`'s events.
 export const printAllPlanId = signal<string | null>(null);
+
+function resetPrintAll(): void {
+  printAllPlanId.value = null;
+}
 
 export function printAllDocuments(planId: string): void {
   closeEditor();
@@ -66,12 +70,17 @@ export function printAllDocuments(planId: string): void {
   printAfterPaint();
 }
 
+const PRINT_ALL_RESET_EVENTS = ["afterprint", "pagehide", "hashchange"];
+
 export function installPrintAllReset(): () => void {
-  const reset = () => {
-    printAllPlanId.value = null;
+  for (const type of PRINT_ALL_RESET_EVENTS) {
+    window.addEventListener(type, resetPrintAll);
+  }
+  return () => {
+    for (const type of PRINT_ALL_RESET_EVENTS) {
+      window.removeEventListener(type, resetPrintAll);
+    }
   };
-  window.addEventListener("afterprint", reset);
-  return () => window.removeEventListener("afterprint", reset);
 }
 
 // Cmd+P bypasses `printDocument`, so the labels are also set when the

@@ -29,7 +29,7 @@ import {
   type DocumentReadiness,
   type ReadinessStage,
 } from "../ui/completion";
-import { lastSavedAt, openFile, saveFile } from "../ui/files";
+import { fileSlug, lastSavedAt, openFile, saveFile } from "../ui/files";
 import { printAllDocuments } from "../ui/print";
 import { view } from "../ui/view";
 
@@ -128,9 +128,8 @@ function stageSummary(plan: Plan): string {
 }
 
 function downloadAll(plan: Plan) {
-  const name = plan.party.testator.name || "plan";
   void saveFile(
-    `${name.replace(/\s+/g, "-").toLowerCase()}-all-documents.html`,
+    `${fileSlug(plan.party.testator.name, "plan")}-all-documents.html`,
     "text/html",
     generateStandaloneBundle(plan, DOCUMENTS)
   );
@@ -282,9 +281,8 @@ function DataCard() {
   function handleMemo() {
     const plan = activePlan.value;
     if (!plan || !memo) return;
-    const name = plan.party.testator.name || "plan";
     void saveFile(
-      `${name.replace(/\s+/g, "-").toLowerCase()}-memo.txt`,
+      `${fileSlug(plan.party.testator.name, "plan")}-memo.txt`,
       "text/plain",
       memo(plan)
     );

@@ -194,6 +194,25 @@ describe("parsePersisted", () => {
     expect(result!.plans["profile-1"]?.party.testator.name).toBe("Jordan");
   });
 
+  it("treats an envelope-level schemaVersion below 3 as v3 for plans in the v3 shape", () => {
+    const base = plans.value["profile-1"]!;
+    const named = {
+      ...base,
+      party: {
+        ...base.party,
+        testator: { ...base.party.testator, name: "Jo" },
+      },
+    };
+    const result = parsePersisted({
+      schemaVersion: 2,
+      activePlanId: "profile-1",
+      plans: { "profile-1": named },
+    });
+    expect(result).not.toBeNull();
+    expect(result!.skipped).toBe(0);
+    expect(result!.plans["profile-1"]?.party.testator.name).toBe("Jo");
+  });
+
   it("restores a stored activeDocumentId that resolves against DOCUMENTS", () => {
     const persisted = {
       schemaVersion: 3,

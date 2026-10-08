@@ -119,7 +119,8 @@ const EXECUTION_KEYS = [
 function v3ToV4(raw: Unknown): Unknown {
   const { execution, ...rest } = raw;
   const executions: Unknown = {};
-  for (const key of EXECUTION_KEYS) executions[key] = execution;
+  for (const key of EXECUTION_KEYS)
+    executions[key] = structuredClone(execution);
   return { ...rest, executions };
 }
 

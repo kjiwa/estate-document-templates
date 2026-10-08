@@ -220,6 +220,24 @@ describe("migrateProfile", () => {
     expect(result.plan.documents.healthCareDirective.cpr).toBe("");
   });
 
+  it("gives each document its own execution record when migrating v3", () => {
+    const step = MIGRATIONS[1]!;
+    const shared = {
+      city: "Tacoma",
+      witnesses: [{ name: "A" }],
+      notary: { name: "N" },
+    };
+    const out = step({ execution: shared }) as {
+      executions: Record<string, typeof shared>;
+    };
+    const records = Object.values(out.executions);
+    expect(records).toHaveLength(5);
+    expect(new Set(records).size).toBe(5);
+    expect(new Set(records.map((r) => r.witnesses)).size).toBe(5);
+    expect(new Set(records.map((r) => r.notary)).size).toBe(5);
+    for (const record of records) expect(record).toEqual(shared);
+  });
+
   const DEFAULT_REMAINS_DIRECTIVE = {
     arrangementsMade: "",
     arrangementsWith: "",

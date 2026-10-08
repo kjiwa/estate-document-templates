@@ -58,7 +58,7 @@ const Notary = z.object({
   commissionExpires: z.string().default(""),
 });
 
-const EMPTY_EXECUTION = {
+const emptyExecution = () => ({
   city: "",
   executionDate: { day: "", month: "", year: "" },
   witnesses: [
@@ -66,7 +66,7 @@ const EMPTY_EXECUTION = {
     { name: "", address: "", cityStateZip: "" },
   ],
   notary: { name: "", commissionExpires: "" },
-};
+});
 
 // Literal default: zod substitutes it verbatim for a missing key without
 // re-parsing it through the inner schema, so `.default({})` would leave
@@ -75,10 +75,10 @@ const Execution = z
   .object({
     city: z.string().default(""),
     executionDate: ExecutionDate,
-    witnesses: z.array(Witness).default(EMPTY_EXECUTION.witnesses),
+    witnesses: z.array(Witness).default(() => emptyExecution().witnesses),
     notary: Notary,
   })
-  .default(EMPTY_EXECUTION);
+  .default(emptyExecution);
 
 const Executions = z.object({
   will: Execution,
