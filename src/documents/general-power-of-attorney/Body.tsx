@@ -3,7 +3,7 @@ import { Fragment } from "preact";
 import { Blank } from "../shared/Blank";
 import { SignatureBlock } from "../shared/SignatureBlock";
 import { Testimonium } from "../shared/Testimonium";
-import { PrincipalAcknowledgment } from "./PrincipalAcknowledgment";
+import { PrincipalAcknowledgment } from "../shared/PrincipalAcknowledgment";
 
 // A non-durable general power of attorney: Washington makes a power of
 // attorney durable only if it says so, and this one deliberately does not.

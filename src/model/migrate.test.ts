@@ -267,6 +267,51 @@ describe("migrateProfile", () => {
     );
   });
 
+  const DEFAULT_DURABLE_POWER_OF_ATTORNEY = {
+    minorChildren: false,
+    lastGoodbyes: false,
+  };
+
+  it("defaults the durable power of attorney namespace for a v2 payload", () => {
+    const result = migrateProfile("profile-1", {
+      label: "Profile 1",
+      testator: { name: "Jordan" },
+    });
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    expect(result.plan.documents.durablePowerOfAttorney).toEqual(
+      DEFAULT_DURABLE_POWER_OF_ATTORNEY
+    );
+  });
+
+  it("imports a pre-existing v3 export with no durablePowerOfAttorney key", () => {
+    const result = migrateProfile("profile-1", {
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      label: "Profile 1",
+      party: {
+        testator: { name: "Jordan", state: "Washington" },
+        spouse: {},
+        children: [],
+      },
+      fiduciaries: {
+        guardians: {},
+        conservators: {},
+        personalRepresentatives: {},
+        trustees: {},
+        remains: {},
+      },
+      execution: { executionDate: {}, notary: {} },
+      documents: {
+        will: { communityPropertyAgreement: {}, ultimateBeneficiary: {} },
+      },
+    });
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    expect(result.plan.documents.durablePowerOfAttorney).toEqual(
+      DEFAULT_DURABLE_POWER_OF_ATTORNEY
+    );
+  });
+
   it("defaults attorneysInFact for a v2 payload", () => {
     const result = migrateProfile("profile-1", {
       label: "Profile 1",

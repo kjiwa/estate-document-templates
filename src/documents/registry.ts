@@ -5,6 +5,11 @@ import type { ExecuteGroupDef, Section } from "../form/field-spec";
 import type { Advisory } from "../model/advisory";
 import type { Plan } from "../model/plan";
 import type { GuidanceEntry } from "./shared/guidance";
+import { Body as DurablePowerOfAttorneyBody } from "./durable-power-of-attorney/Body";
+import { DURABLE_POA_EXECUTE_GROUPS } from "./durable-power-of-attorney/executeGroups";
+import { DURABLE_POA_GUIDANCE } from "./durable-power-of-attorney/guidance";
+import { analyzeDurablePowerOfAttorney } from "./durable-power-of-attorney/review";
+import { DURABLE_POA_SECTIONS } from "./durable-power-of-attorney/sections";
 import { Body as GeneralPowerOfAttorneyBody } from "./general-power-of-attorney/Body";
 import { GENERAL_POA_EXECUTE_GROUPS } from "./general-power-of-attorney/executeGroups";
 import { GENERAL_POA_GUIDANCE } from "./general-power-of-attorney/guidance";
@@ -74,6 +79,17 @@ const HEALTH_CARE_STATUTES = ["RCW 70.122.020", "RCW 70.122.030"];
 
 const GENERAL_POA_STATUTES = ["RCW 11.125.050", "RCW 11.125.100"];
 
+const DURABLE_POA_STATUTES = [
+  "RCW 11.125.020",
+  "RCW 11.125.040",
+  "RCW 11.125.050",
+  "RCW 11.125.090",
+  "RCW 11.125.200",
+  "RCW 11.125.400",
+  "RCW 11.125.410",
+  "RCW 11.130.335",
+];
+
 export const DOCUMENTS: DocumentDefinition[] = [
   {
     id: "will",
@@ -119,5 +135,16 @@ export const DOCUMENTS: DocumentDefinition[] = [
     executeGroups: GENERAL_POA_EXECUTE_GROUPS,
     Body: GeneralPowerOfAttorneyBody,
     review: analyzeGeneralPowerOfAttorney,
+  },
+  {
+    id: "durable-power-of-attorney",
+    title: "Durable Power of Attorney",
+    roleNoun: "Principal",
+    statutes: DURABLE_POA_STATUTES,
+    sections: DURABLE_POA_SECTIONS,
+    guidance: DURABLE_POA_GUIDANCE,
+    executeGroups: DURABLE_POA_EXECUTE_GROUPS,
+    Body: DurablePowerOfAttorneyBody,
+    review: analyzeDurablePowerOfAttorney,
   },
 ];
