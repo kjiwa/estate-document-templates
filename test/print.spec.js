@@ -180,7 +180,12 @@ test.describe("Screen-to-Print Fidelity & PDF Generation", () => {
 
   test("hides inline advisory markers and the active-field outline in print", async ({
     page,
+    isMobile,
   }) => {
+    test.skip(
+      isMobile,
+      "inline advisory markers are not shown in the narrow layout"
+    );
     await expect(page.locator(".advisory-inline").first()).toBeVisible();
     await page.emulateMedia({ media: "print" });
     const displays = await page

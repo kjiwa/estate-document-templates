@@ -92,8 +92,10 @@ export function Disclaimer() {
             You are responsible for having a licensed Washington attorney review
             any document before you sign it.
           </p>
-          <p>Your entries stay in this browser. Nothing is sent to a server.</p>
-          <p>Your plans are stored only in this browser. Save a backup file.</p>
+          <p>
+            Your entries stay in this browser. Nothing is sent to a server. Save
+            a backup file from the Plans page.
+          </p>
         </div>
         <div class="disclaimer-actions">
           {firstVisit ? (

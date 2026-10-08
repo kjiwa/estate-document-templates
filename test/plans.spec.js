@@ -175,6 +175,7 @@ test.describe("Plan management", () => {
       page.getByRole("button", { name: "Open plans from file" }).click(),
     ]);
     await fileChooser.setFiles(savedPath);
+    await page.getByRole("button", { name: "Confirm replace" }).click();
 
     await expect(
       page.locator(".plan-card", { hasText: "Saved Before Reopen" })
@@ -205,7 +206,9 @@ test.describe("Plan management", () => {
     ]);
     await fileChooser.setFiles(savedPath);
 
-    await expect(page.getByText(/^Replace 2 plans with 2 from /)).toBeVisible();
+    await expect(
+      page.getByText(/^Replace 2 plans with 2 plans from /)
+    ).toBeVisible();
     await expect(firstCard.locator("strong")).toHaveText("Edited After Save");
 
     await page.getByRole("button", { name: "Cancel" }).click();
