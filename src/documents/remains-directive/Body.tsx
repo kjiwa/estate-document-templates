@@ -1,4 +1,4 @@
-import type { ComponentChildren } from "preact";
+import { Fragment } from "preact";
 
 import { Article } from "../shared/Article";
 import { Blank } from "../shared/Blank";
@@ -163,15 +163,6 @@ function isContactSet(contact: RemainsContact): boolean {
   return CONTACT_FIELDS.some((key) => contact[key].trim() !== "");
 }
 
-function hasInstructions(instructions: RemainsDirective): boolean {
-  return (
-    instructions.method !== "" ||
-    instructions.arrangementsMade !== "" ||
-    instructions.arranger.name.trim() !== "" ||
-    instructions.notify.some(isContactSet)
-  );
-}
-
 function ContactLine({
   base,
   contact,
@@ -179,17 +170,22 @@ function ContactLine({
   base: string;
   contact: RemainsContact;
 }) {
-  const parts: ComponentChildren[] = CONTACT_FIELDS.filter(
-    (key) => contact[key].trim() !== ""
-  ).map((key) => <Value path={`${base}.${key}` as Path<Plan>} />);
+  const present = CONTACT_FIELDS.filter((key) => contact[key].trim() !== "");
+  const value = (key: (typeof CONTACT_FIELDS)[number]) => (
+    <Value path={`${base}.${key}` as Path<Plan>} />
+  );
+  const details = present.filter((key) => key !== "name");
+  const detailText = details.map((key, idx) => (
+    <Fragment key={key}>
+      {idx > 0 ? ", " : null}
+      {value(key)}
+    </Fragment>
+  ));
+  if (!present.includes("name")) return <>{detailText}</>;
   return (
     <>
-      {parts.map((part, idx) => (
-        <>
-          {idx > 0 ? ", " : null}
-          {part}
-        </>
-      ))}
+      {value("name")}
+      {details.length > 0 ? <> ({detailText})</> : null}
     </>
   );
 }
@@ -245,8 +241,14 @@ const CREMAINS_TEXT: Record<string, string> = {
 };
 
 function cremainsClause(instructions: RemainsDirective) {
-  const text = CREMAINS_TEXT[instructions.cremainsDisposition];
-  if (instructions.method !== "cremation" || text === undefined) return null;
+  const disposition = instructions.cremainsDisposition;
+  if (
+    instructions.method !== "cremation" ||
+    !Object.hasOwn(CREMAINS_TEXT, disposition)
+  ) {
+    return null;
+  }
+  const text = CREMAINS_TEXT[disposition];
   return {
     title: "Cremated Remains",
     body: (
@@ -259,7 +261,7 @@ function cremainsClause(instructions: RemainsDirective) {
 }
 
 function arrangerClause(instructions: RemainsDirective) {
-  if (instructions.arranger.name.trim() === "") return null;
+  if (!isContactSet(instructions.arranger)) return null;
   return {
     title: "Arrangements",
     body: (
@@ -287,13 +289,13 @@ function notifyClause(instructions: RemainsDirective) {
       <>
         Upon my death, I direct that the following persons be notified:{" "}
         {rows.map(({ contact, index }, idx) => (
-          <>
+          <Fragment key={index}>
             {idx > 0 ? "; " : null}
             <ContactLine
               base={`documents.remainsDirective.notify.${index}`}
               contact={contact}
             />
-          </>
+          </Fragment>
         ))}
         .
       </>
@@ -301,23 +303,29 @@ function notifyClause(instructions: RemainsDirective) {
   };
 }
 
+function optionalClauses(instructions: RemainsDirective) {
+  return [
+    priorArrangementsClause(instructions),
+    methodClause(instructions),
+    cremainsClause(instructions),
+    arrangerClause(instructions),
+    notifyClause(instructions),
+  ];
+}
+
 function InstructionsArticle({
   number,
-  instructions,
+  clauses,
 }: {
   number: number;
-  instructions: RemainsDirective;
+  clauses: ReturnType<typeof optionalClauses>;
 }) {
   return (
     <Article number={number} title="Funeral and Disposition Instructions">
       <Clause
         articleNum={number}
         clauses={[
-          priorArrangementsClause(instructions),
-          methodClause(instructions),
-          cremainsClause(instructions),
-          arrangerClause(instructions),
-          notifyClause(instructions),
+          ...clauses,
           {
             title: "Direction",
             body: (
@@ -338,8 +346,8 @@ function InstructionsArticle({
 // principal signature, witness attestation, notarial acknowledgment.
 export function Body() {
   const plan = usePlan();
-  const instructions = plan.documents.remainsDirective;
-  const withInstructions = hasInstructions(instructions);
+  const clauses = optionalClauses(plan.documents.remainsDirective);
+  const withInstructions = clauses.some(Boolean);
   return (
     <>
       <TitleAndPreamble />
@@ -348,7 +356,7 @@ export function Body() {
       {"\n"}
       {withInstructions ? (
         <>
-          <InstructionsArticle number={2} instructions={instructions} />
+          <InstructionsArticle number={2} clauses={clauses} />
           {"\n"}
         </>
       ) : null}

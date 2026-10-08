@@ -39,9 +39,9 @@ export function analyzeDirective(plan: Plan): Advisory[] {
   ) {
     advisories.push({
       id: "remains-preference-contradiction",
-      severity: "warning",
-      title: "Wishes contradict the elected method",
-      message: `Your wishes mention ${method === "burial" ? "cremation" : "burial"}, but Article 2 directs ${method}. The same wishes text appears in the will's Article 2.`,
+      severity: "info",
+      title: "Wishes mention the other method",
+      message: `Your wishes mention ${method === "burial" ? "cremation" : "burial"}, but Article 2 directs ${method}. Confirm they agree; wording such as "not cremated" is also flagged. The same wishes text appears in the will's Article 2.`,
       path: "fiduciaries.remains.preference",
     });
   }

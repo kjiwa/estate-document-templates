@@ -69,7 +69,7 @@ describe("analyzeDirective", () => {
     const advisory = analyzeDirective(plan).find(
       (a) => a.id === "remains-preference-contradiction"
     );
-    expect(advisory?.severity).toBe("warning");
+    expect(advisory?.severity).toBe("info");
     expect(advisory?.path).toBe("fiduciaries.remains.preference");
   });
 

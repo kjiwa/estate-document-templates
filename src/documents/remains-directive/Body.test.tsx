@@ -158,7 +158,7 @@ describe("remains-directive Body", () => {
       })
     );
     expect(html).toContain("Persons to Notify");
-    expect(html).toContain("Person Beta</mark>, <mark");
+    expect(html).toContain("Person Beta</mark> (<mark");
     expect(html).toContain(
       'data-path="documents.remainsDirective.notify.1.name"'
     );
@@ -175,11 +175,11 @@ describe("remains-directive Body", () => {
     expect(html).not.toContain("Persons to Notify");
   });
 
-  it("omits the arrangements clause when the arranger name is blank", () => {
+  it("omits the arrangements clause when every arranger field is blank", () => {
     const html = renderBody(
       withInstructions(planWith(), {
         method: "burial",
-        arranger: { name: "", address: "Addr", telephone: "555-0101" },
+        arranger: { name: "", address: "", telephone: "" },
       })
     );
     expect(html).not.toContain("Arrangements.");
