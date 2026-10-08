@@ -20,7 +20,11 @@ export const GENERAL_POA_SECTIONS: Section[] = [
         label: "County of Residence",
       },
       { kind: "text", path: "party.testator.state", label: "State" },
-      { kind: "text", path: "execution.city", label: "City of Execution" },
+      {
+        kind: "text",
+        path: "executions.generalPowerOfAttorney.city",
+        label: "City of Execution",
+      },
     ],
   },
   {
@@ -41,10 +45,14 @@ export const GENERAL_POA_SECTIONS: Section[] = [
     article: "Notarial Acknowledgment",
     guidance: "notary",
     fields: [
-      { kind: "text", path: "execution.notary.name", label: "Notary Name" },
       {
         kind: "text",
-        path: "execution.notary.commissionExpires",
+        path: "executions.generalPowerOfAttorney.notary.name",
+        label: "Notary Name",
+      },
+      {
+        kind: "text",
+        path: "executions.generalPowerOfAttorney.notary.commissionExpires",
         label: "Commission Expires",
       },
     ],
@@ -56,7 +64,7 @@ export const GENERAL_POA_SECTIONS: Section[] = [
     fields: [
       {
         kind: "executionDate",
-        path: "execution.executionDate",
+        path: "executions.generalPowerOfAttorney.executionDate",
         label: "Date of Execution",
       },
     ],

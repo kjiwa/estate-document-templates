@@ -3,8 +3,8 @@ const { test, expect } = require("@playwright/test");
 const { PLAN_1, acceptDisclaimer } = require("./fixtures");
 
 // PLAN_1 with witness 1 renamed to match the PR alternate ("Devin Okafor"),
-// so `analyzeProfile` fires an interested-witness advisory concerning
-// `execution.witnesses.0.name` — the scenario the rail badge, the rail's
+// so `analyzeWill` fires an interested-witness advisory concerning
+// `executions.will.witnesses.0.name` — the scenario the rail badge, the rail's
 // advisory list, and the inline marker beside the attestation blank all
 // need something real to render.
 // Also fills in the execution date, which PLAN_1 leaves blank — otherwise
@@ -12,17 +12,20 @@ const { PLAN_1, acceptDisclaimer } = require("./fixtures");
 // muddying the single-advisory assertions below.
 const PLAN_WITH_INTERESTED_WITNESS = {
   ...PLAN_1,
-  execution: {
-    ...PLAN_1.execution,
-    executionDate: { day: "1st", month: "September", year: "2026" },
-    witnesses: [
-      {
-        name: "Devin Okafor",
-        address: "1 Main St",
-        cityStateZip: "Tacoma, WA",
-      },
-      { name: "", address: "", cityStateZip: "" },
-    ],
+  executions: {
+    ...PLAN_1.executions,
+    will: {
+      ...PLAN_1.executions.will,
+      executionDate: { day: "1st", month: "September", year: "2026" },
+      witnesses: [
+        {
+          name: "Devin Okafor",
+          address: "1 Main St",
+          cityStateZip: "Tacoma, WA",
+        },
+        { name: "", address: "", cityStateZip: "" },
+      ],
+    },
   },
 };
 
@@ -32,7 +35,7 @@ async function seedInterestedWitnessPlan(page) {
     window.localStorage.setItem(
       KEY,
       JSON.stringify({
-        schemaVersion: 3,
+        schemaVersion: 4,
         activePlanId: "profile-1",
         activeDocumentId: "will",
         plans: { "profile-1": plan },
@@ -82,7 +85,7 @@ test.describe("Review advisories", () => {
     await page.goto("/");
 
     const marker = page
-      .locator('[data-path="execution.witnesses.0.name"]')
+      .locator('[data-path="executions.will.witnesses.0.name"]')
       .locator(
         "xpath=following-sibling::button[contains(@class,'advisory-inline')]"
       )
@@ -96,7 +99,7 @@ test.describe("Review advisories", () => {
       "Witness Devin Okafor is also named as alternate personal representative"
     );
     await expect(
-      page.locator("#field-execution-witnesses-0-name")
+      page.locator("#field-executions-will-witnesses-0-name")
     ).toBeVisible();
   });
 
@@ -132,7 +135,7 @@ test.describe("Review advisories", () => {
     await page.goto("/");
 
     const marker = page
-      .locator('[data-path="execution.witnesses.0.name"]')
+      .locator('[data-path="executions.will.witnesses.0.name"]')
       .locator(
         "xpath=following-sibling::button[contains(@class,'advisory-inline')]"
       )

@@ -4,12 +4,12 @@ import { Blank } from "../shared/Blank";
 import { SignatureBlock } from "../shared/SignatureBlock";
 import { Testimonium } from "../shared/Testimonium";
 import { Value } from "../shared/Value";
-import { usePlan } from "../shared/PlanContext";
+import { ExecutionContext, usePlan } from "../shared/PlanContext";
 import { ElectionTable } from "./ElectionTable";
 import { WitnessDeclaration } from "./WitnessDeclaration";
 
 // The Health Care Directive under the Natural Death Act, RCW 70.122.030.
-// Every value below reads `party.testator`, `execution`, and the new
+// Every value below reads `party.testator`, its own execution record, and the new
 // `documents.healthCareDirective` namespace — the first schema addition
 // since `documents.will`. RCW text quoted below was fetched live from
 // app.leg.wa.gov this session; see the child plan's Progress section for
@@ -157,7 +157,7 @@ function StaticParagraphs() {
   );
 }
 
-export function Body() {
+function BodyContent() {
   return (
     <>
       <TitleAndPreamble />
@@ -175,5 +175,13 @@ export function Body() {
       {"\n"}
       <WitnessDeclaration />
     </>
+  );
+}
+
+export function Body() {
+  return (
+    <ExecutionContext.Provider value="executions.healthCareDirective">
+      <BodyContent />
+    </ExecutionContext.Provider>
   );
 }

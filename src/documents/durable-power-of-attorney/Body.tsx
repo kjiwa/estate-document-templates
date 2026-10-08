@@ -3,7 +3,7 @@ import type { ComponentChildren } from "preact";
 import { useContext } from "preact/hooks";
 
 import { Blank } from "../shared/Blank";
-import { PlanContext } from "../shared/PlanContext";
+import { ExecutionContext, PlanContext } from "../shared/PlanContext";
 import { PrincipalAcknowledgment } from "../shared/PrincipalAcknowledgment";
 import { SignatureBlock } from "../shared/SignatureBlock";
 import { Testimonium } from "../shared/Testimonium";
@@ -355,7 +355,7 @@ const PHOTOCOPIES =
 const LAST_GOODBYES =
   "It is important to me that my loved ones be given the chance to say their farewells to me, even if I am not capable of interacting with them. Therefore, I direct my agent to keep me alive for a reasonable period to allow loved ones to travel to where I am if this is feasible.";
 
-export function Body() {
+function BodyContent() {
   const plan = useContext(PlanContext);
   const elections = plan?.documents.durablePowerOfAttorney;
 
@@ -407,5 +407,13 @@ export function Body() {
       {"\n"}
       <CertificationPage />
     </>
+  );
+}
+
+export function Body() {
+  return (
+    <ExecutionContext.Provider value="executions.durablePowerOfAttorney">
+      <BodyContent />
+    </ExecutionContext.Provider>
   );
 }

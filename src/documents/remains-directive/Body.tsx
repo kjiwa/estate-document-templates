@@ -7,14 +7,14 @@ import { SignatureBlock } from "../shared/SignatureBlock";
 import { Testimonium } from "../shared/Testimonium";
 import { Value } from "../shared/Value";
 import type { Path } from "../../model/paths";
-import { usePlan } from "../shared/PlanContext";
+import { ExecutionContext, usePlan } from "../shared/PlanContext";
 import type { Plan } from "../../model/plan";
 import { DeclarantAcknowledgment } from "./DeclarantAcknowledgment";
 import { DeclarantAttestation } from "./DeclarantAttestation";
 
 // The Disposition of Remains Directive under RCW 68.50.160. Phase 5's proof
 // of the Phase 3 seam: every value below reads `party.testator`,
-// `fiduciaries.remains`, and `execution` — fields the will already declares
+// `fiduciaries.remains`, and its own execution record — fields the will already declares
 // — so this document adds zero schema. RCW text quoted in comments below
 // was fetched live from app.leg.wa.gov this session; see the child plan's
 // Progress section for the full text.
@@ -344,7 +344,7 @@ function InstructionsArticle({
 
 // Ports the will's `Body` structure: preamble, articles, testimonium +
 // principal signature, witness attestation, notarial acknowledgment.
-export function Body() {
+function BodyContent() {
   const plan = usePlan();
   const clauses = optionalClauses(plan.documents.remainsDirective);
   const withInstructions = clauses.some(Boolean);
@@ -372,5 +372,13 @@ export function Body() {
       {"\n"}
       <DeclarantAcknowledgment />
     </>
+  );
+}
+
+export function Body() {
+  return (
+    <ExecutionContext.Provider value="executions.remainsDirective">
+      <BodyContent />
+    </ExecutionContext.Provider>
   );
 }

@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 3,
+  "activePlanId": "profile-1",
+  "activeDocumentId": "will",
+  "plans": {
+    "profile-1": {
+      "id": "profile-1",
+      "label": "Imported V3 Plan",
+      "party": {
+        "testator": {
+          "name": "Ingrid Solberg",
+          "gender": "female",
+          "county": "Spokane",
+          "state": "Washington"
+        },
+        "maritalStatus": "married",
+        "spouse": { "name": "Tobias Solberg", "gender": "male" },
+        "children": ["Linnea Solberg"]
+      },
+      "fiduciaries": {
+        "guardians": { "primary": "Mara Lindqvist", "alternate": "" },
+        "conservators": { "primary": "Mara Lindqvist", "alternate": "" },
+        "personalRepresentatives": {
+          "primary": "Tobias Solberg",
+          "alternate": "Mara Lindqvist"
+        },
+        "trustees": { "primary": "Mara Lindqvist", "alternate": "" },
+        "remains": { "agent": "", "alternate": "", "preference": "" }
+      },
+      "execution": {
+        "city": "Spokane",
+        "executionDate": { "day": "3rd", "month": "October", "year": "2026" },
+        "witnesses": [
+          {
+            "name": "Lena Brandt",
+            "address": "5 Elm St",
+            "cityStateZip": "Spokane, WA"
+          },
+          {
+            "name": "Oskar Veidt",
+            "address": "9 Oak Ave",
+            "cityStateZip": "Spokane, WA"
+          }
+        ],
+        "notary": { "name": "Greta Holm", "commissionExpires": "2029-01-15" }
+      },
+      "documents": {
+        "will": {
+          "spousalGift": "outright",
+          "communityPropertyAgreement": { "exists": false, "date": "" },
+          "ultimateBeneficiary": {
+            "relationship": "",
+            "name": "",
+            "gender": ""
+          },
+          "survivorshipDays": 60
+        }
+      }
+    }
+  }
+}

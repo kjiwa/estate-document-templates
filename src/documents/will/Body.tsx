@@ -10,7 +10,7 @@ import { SignatureBlock } from "../shared/SignatureBlock";
 import { Testimonium } from "../shared/Testimonium";
 import { Value } from "../shared/Value";
 import { WitnessAttestation } from "../shared/WitnessAttestation";
-import { usePlan } from "../shared/PlanContext";
+import { ExecutionContext, usePlan } from "../shared/PlanContext";
 
 const COUNT_WORDS = [
   "no",
@@ -645,7 +645,7 @@ function Article10() {
 // Ports `js/templates/will.js`'s `renderWill`, article by article, in its
 // original order: preamble, Articles 1-10, testimonium + principal
 // signature, witness attestation, notary certificate.
-export function Body() {
+function BodyContent() {
   return (
     <>
       <TitleAndPreamble />
@@ -678,5 +678,13 @@ export function Body() {
       {"\n"}
       <NotaryCertificate />
     </>
+  );
+}
+
+export function Body() {
+  return (
+    <ExecutionContext.Provider value="executions.will">
+      <BodyContent />
+    </ExecutionContext.Provider>
   );
 }

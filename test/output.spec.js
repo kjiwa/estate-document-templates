@@ -21,7 +21,8 @@ test.describe("Pre-print checklist and output", () => {
     await page.addInitScript(() => {
       const KEY = "estate_templates_state_v1";
       const data = JSON.parse(window.localStorage.getItem(KEY));
-      data.plans["profile-1"].execution.witnesses[0].name = "Devin Okafor";
+      data.plans["profile-1"].executions.will.witnesses[0].name =
+        "Devin Okafor";
       window.localStorage.setItem(KEY, JSON.stringify(data));
     });
     await page.reload();

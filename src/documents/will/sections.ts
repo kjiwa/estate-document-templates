@@ -25,7 +25,11 @@ export const WILL_SECTIONS: Section[] = [
         label: "County of Residence",
       },
       { kind: "text", path: "party.testator.state", label: "State" },
-      { kind: "text", path: "execution.city", label: "City of Execution" },
+      {
+        kind: "text",
+        path: "executions.will.city",
+        label: "City of Execution",
+      },
     ],
   },
   {
@@ -223,32 +227,32 @@ export const WILL_SECTIONS: Section[] = [
     fields: [
       {
         kind: "text",
-        path: "execution.witnesses.0.name",
+        path: "executions.will.witnesses.0.name",
         label: "Witness 1 Name",
       },
       {
         kind: "text",
-        path: "execution.witnesses.0.address",
+        path: "executions.will.witnesses.0.address",
         label: "Witness 1 Address",
       },
       {
         kind: "text",
-        path: "execution.witnesses.0.cityStateZip",
+        path: "executions.will.witnesses.0.cityStateZip",
         label: "Witness 1 City, State, Zip",
       },
       {
         kind: "text",
-        path: "execution.witnesses.1.name",
+        path: "executions.will.witnesses.1.name",
         label: "Witness 2 Name",
       },
       {
         kind: "text",
-        path: "execution.witnesses.1.address",
+        path: "executions.will.witnesses.1.address",
         label: "Witness 2 Address",
       },
       {
         kind: "text",
-        path: "execution.witnesses.1.cityStateZip",
+        path: "executions.will.witnesses.1.cityStateZip",
         label: "Witness 2 City, State, Zip",
       },
     ],
@@ -261,12 +265,12 @@ export const WILL_SECTIONS: Section[] = [
     fields: [
       {
         kind: "text",
-        path: "execution.notary.name",
+        path: "executions.will.notary.name",
         label: "Notary Name",
       },
       {
         kind: "text",
-        path: "execution.notary.commissionExpires",
+        path: "executions.will.notary.commissionExpires",
         label: "Commission Expires",
       },
     ],
@@ -278,7 +282,7 @@ export const WILL_SECTIONS: Section[] = [
     fields: [
       {
         kind: "executionDate",
-        path: "execution.executionDate",
+        path: "executions.will.executionDate",
         label: "Date of Execution",
       },
     ],

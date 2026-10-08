@@ -46,3 +46,18 @@ export function usePlanField(path: Path<Plan>): unknown {
   const plan = usePlan();
   return getPath(plan, path);
 }
+
+// Base path of the document's own execution record, e.g. "executions.will".
+// Each document's Body provides it so the shared signature components read
+// and write that document's record rather than a shared one.
+export const ExecutionContext = createContext<string | null>(null);
+
+export function useExecutionPath(): (suffix: string) => Path<Plan> {
+  const base = useContext(ExecutionContext);
+  if (!base) {
+    throw new Error(
+      "useExecutionPath() called outside an <ExecutionContext.Provider>"
+    );
+  }
+  return (suffix) => `${base}.${suffix}` as Path<Plan>;
+}

@@ -7,24 +7,27 @@ export const HEALTH_CARE_EXECUTE_GROUPS: ExecuteGroupDef[] = [
   {
     title: "City and date of execution",
     lead: "Confirm where and when this Directive is being signed today.",
-    paths: ["execution.city", "execution.executionDate"],
+    paths: [
+      "executions.healthCareDirective.city",
+      "executions.healthCareDirective.executionDate",
+    ],
   },
   {
     title: "Witness one",
     lead: "Have your first witness fill in their own name and address.",
     paths: [
-      "execution.witnesses.0.name",
-      "execution.witnesses.0.address",
-      "execution.witnesses.0.cityStateZip",
+      "executions.healthCareDirective.witnesses.0.name",
+      "executions.healthCareDirective.witnesses.0.address",
+      "executions.healthCareDirective.witnesses.0.cityStateZip",
     ],
   },
   {
     title: "Witness two",
     lead: "Have your second witness fill in their own name and address.",
     paths: [
-      "execution.witnesses.1.name",
-      "execution.witnesses.1.address",
-      "execution.witnesses.1.cityStateZip",
+      "executions.healthCareDirective.witnesses.1.name",
+      "executions.healthCareDirective.witnesses.1.address",
+      "executions.healthCareDirective.witnesses.1.cityStateZip",
     ],
   },
 ];

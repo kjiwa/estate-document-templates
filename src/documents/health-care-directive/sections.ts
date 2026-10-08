@@ -30,7 +30,11 @@ export const HEALTH_CARE_SECTIONS: Section[] = [
         label: "County of Residence",
       },
       { kind: "text", path: "party.testator.state", label: "State" },
-      { kind: "text", path: "execution.city", label: "City of Execution" },
+      {
+        kind: "text",
+        path: "executions.healthCareDirective.city",
+        label: "City of Execution",
+      },
     ],
   },
   {
@@ -82,32 +86,32 @@ export const HEALTH_CARE_SECTIONS: Section[] = [
     fields: [
       {
         kind: "text",
-        path: "execution.witnesses.0.name",
+        path: "executions.healthCareDirective.witnesses.0.name",
         label: "Witness 1 Name",
       },
       {
         kind: "text",
-        path: "execution.witnesses.0.address",
+        path: "executions.healthCareDirective.witnesses.0.address",
         label: "Witness 1 Address",
       },
       {
         kind: "text",
-        path: "execution.witnesses.0.cityStateZip",
+        path: "executions.healthCareDirective.witnesses.0.cityStateZip",
         label: "Witness 1 City, State, Zip",
       },
       {
         kind: "text",
-        path: "execution.witnesses.1.name",
+        path: "executions.healthCareDirective.witnesses.1.name",
         label: "Witness 2 Name",
       },
       {
         kind: "text",
-        path: "execution.witnesses.1.address",
+        path: "executions.healthCareDirective.witnesses.1.address",
         label: "Witness 2 Address",
       },
       {
         kind: "text",
-        path: "execution.witnesses.1.cityStateZip",
+        path: "executions.healthCareDirective.witnesses.1.cityStateZip",
         label: "Witness 2 City, State, Zip",
       },
     ],
@@ -119,7 +123,7 @@ export const HEALTH_CARE_SECTIONS: Section[] = [
     fields: [
       {
         kind: "executionDate",
-        path: "execution.executionDate",
+        path: "executions.healthCareDirective.executionDate",
         label: "Date of Execution",
       },
     ],

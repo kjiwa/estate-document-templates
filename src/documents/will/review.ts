@@ -89,7 +89,7 @@ function interestedWitnessAdvisories(
   holders: RoleHolder[]
 ): Advisory[] {
   const advisories: Advisory[] = [];
-  (plan.execution.witnesses || []).forEach((witness, index) => {
+  (plan.executions.will.witnesses || []).forEach((witness, index) => {
     const normalized = normalizeName(witness?.name);
     if (!normalized) return;
 
@@ -107,7 +107,7 @@ function interestedWitnessAdvisories(
       severity: "warning",
       title: "Interested witness",
       message: `Witness ${witness.name} is also named as ${roles.join(", ")}. Under ${RCW_INTERESTED_WITNESS}, an interested witness creates a rebuttable presumption that a gift to them was procured by duress, menace, fraud, or undue influence, unless there are two other disinterested subscribing witnesses; unrebutted, they take only their intestate share.`,
-      path: `execution.witnesses.${index}.name` as Path<Plan>,
+      path: `executions.will.witnesses.${index}.name` as Path<Plan>,
     });
   });
   return advisories;
@@ -196,7 +196,7 @@ function missingAlternateAdvisories(plan: Plan): Advisory[] {
 function completenessAdvisories(plan: Plan): Advisory[] {
   const advisories: Advisory[] = [];
 
-  const date = plan.execution.executionDate;
+  const date = plan.executions.will.executionDate;
   if (!date.day || !date.month || !date.year) {
     advisories.push({
       id: "execution-date-unset",
@@ -204,7 +204,7 @@ function completenessAdvisories(plan: Plan): Advisory[] {
       title: "Execution date unset",
       message:
         "The execution date is not fully set. Expected before signing, but confirm it is completed at execution.",
-      path: "execution.executionDate.day",
+      path: "executions.will.executionDate.day",
     });
   }
 

@@ -4,7 +4,7 @@ import { getPronouns } from "../../model/pronouns";
 import { Blank } from "../shared/Blank";
 import { NotarySignature } from "../shared/NotarySignature";
 import { NotaryVenue } from "../shared/NotaryVenue";
-import { PlanContext } from "../shared/PlanContext";
+import { PlanContext, useExecutionPath } from "../shared/PlanContext";
 import { Value } from "../shared/Value";
 
 // Not `../shared/NotaryCertificate` — that component is a Will's
@@ -14,6 +14,7 @@ import { Value } from "../shared/Value";
 // included because it is not required, so its prose must not claim
 // otherwise. See `../guidance.ts`'s "notary" entry.
 export function DeclarantAcknowledgment() {
+  const at = useExecutionPath();
   const plan = useContext(PlanContext);
   const declarantPronouns = getPronouns(plan?.party.testator.gender);
   const state = plan?.party.testator.state ?? "";
@@ -55,22 +56,22 @@ export function DeclarantAcknowledgment() {
           <div class="sig-field-line" />
           <div class="sig-field-label">
             Witness Signature —{" "}
-            <Blank path="execution.witnesses.0.name" chars={12} />
+            <Blank path={at("witnesses.0.name")} chars={12} />
           </div>
         </div>
         <div class="sig-field">
           <div class="sig-field-line" />
           <div class="sig-field-label">
             Witness Signature —{" "}
-            <Blank path="execution.witnesses.1.name" chars={12} />
+            <Blank path={at("witnesses.1.name")} chars={12} />
           </div>
         </div>
       </div>
       <div class="notary-jurat">
         Subscribed and acknowledged before me this{" "}
-        <Blank path="execution.executionDate.day" chars={5} /> day of{" "}
-        <Blank path="execution.executionDate.month" chars={14} />,{" "}
-        <Blank path="execution.executionDate.year" chars={6} />.
+        <Blank path={at("executionDate.day")} chars={5} /> day of{" "}
+        <Blank path={at("executionDate.month")} chars={14} />,{" "}
+        <Blank path={at("executionDate.year")} chars={6} />.
       </div>
       <NotarySignature />
     </div>

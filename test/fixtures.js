@@ -5,8 +5,39 @@
 // trustee, ultimate contingent beneficiary) so a future "one person holds
 // four roles" advisory test still has something to assert on.
 //
-// Written in the v3 persisted shape (`plans` / `activePlanId`) that
+// Written in the v4 persisted shape (`plans` / `activePlanId`) that
 // `persist()` writes and `parsePersisted()` reads — see src/store/index.ts.
+const EXECUTION = {
+  city: "Tacoma",
+  executionDate: { day: "", month: "", year: "" },
+  witnesses: [
+    { name: "", address: "", cityStateZip: "" },
+    { name: "", address: "", cityStateZip: "" },
+  ],
+  notary: { name: "", commissionExpires: "" },
+};
+
+const BLANK_EXECUTION = {
+  city: "",
+  executionDate: { day: "", month: "", year: "" },
+  witnesses: [
+    { name: "", address: "", cityStateZip: "" },
+    { name: "", address: "", cityStateZip: "" },
+  ],
+  notary: { name: "", commissionExpires: "" },
+};
+
+// Only the will has signing details; the other documents start blank.
+function executionsFromRecord(record) {
+  return {
+    will: record,
+    remainsDirective: BLANK_EXECUTION,
+    healthCareDirective: BLANK_EXECUTION,
+    durablePowerOfAttorney: BLANK_EXECUTION,
+    generalPowerOfAttorney: BLANK_EXECUTION,
+  };
+}
+
 const PLAN_1 = {
   id: "profile-1",
   label: "Avery Q. Ramos",
@@ -47,22 +78,7 @@ const PLAN_1 = {
       preference: "",
     },
   },
-  execution: {
-    city: "Tacoma",
-    executionDate: {
-      day: "",
-      month: "",
-      year: "",
-    },
-    witnesses: [
-      { name: "", address: "", cityStateZip: "" },
-      { name: "", address: "", cityStateZip: "" },
-    ],
-    notary: {
-      name: "",
-      commissionExpires: "",
-    },
-  },
+  executions: executionsFromRecord(EXECUTION),
   documents: {
     will: {
       spousalGift: "outright",
@@ -120,22 +136,7 @@ const PLAN_2 = {
       preference: "",
     },
   },
-  execution: {
-    city: "Tacoma",
-    executionDate: {
-      day: "",
-      month: "",
-      year: "",
-    },
-    witnesses: [
-      { name: "", address: "", cityStateZip: "" },
-      { name: "", address: "", cityStateZip: "" },
-    ],
-    notary: {
-      name: "",
-      commissionExpires: "",
-    },
-  },
+  executions: executionsFromRecord(EXECUTION),
   documents: {
     will: {
       spousalGift: "outright",
@@ -171,7 +172,7 @@ async function seedPlans(page) {
     window.localStorage.setItem(
       KEY,
       JSON.stringify({
-        schemaVersion: 3,
+        schemaVersion: 4,
         activePlanId: "profile-1",
         activeDocumentId: "will",
         plans,

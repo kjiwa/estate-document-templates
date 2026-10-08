@@ -4,11 +4,17 @@ export const GENERAL_POA_EXECUTE_GROUPS: ExecuteGroupDef[] = [
   {
     title: "City and date of execution",
     lead: "Confirm where and when this Power of Attorney is being signed today.",
-    paths: ["execution.city", "execution.executionDate"],
+    paths: [
+      "executions.generalPowerOfAttorney.city",
+      "executions.generalPowerOfAttorney.executionDate",
+    ],
   },
   {
     title: "Notary",
     lead: "Fill in the notary's name and commission expiration once the acknowledgment is notarized.",
-    paths: ["execution.notary.name", "execution.notary.commissionExpires"],
+    paths: [
+      "executions.generalPowerOfAttorney.notary.name",
+      "executions.generalPowerOfAttorney.notary.commissionExpires",
+    ],
   },
 ];

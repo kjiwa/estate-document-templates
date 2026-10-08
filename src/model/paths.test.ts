@@ -18,12 +18,12 @@ describe("paths", () => {
 
   it("reads an array element by numeric path segment", () => {
     const plan = blankPlan();
-    expect(getPath(plan, "execution.witnesses.0.name")).toBe("");
+    expect(getPath(plan, "executions.will.witnesses.0.name")).toBe("");
   });
 
   it("returns undefined past a missing branch", () => {
     const plan = blankPlan();
-    expect(getPath(plan, "execution.witnesses.5.name")).toBeUndefined();
+    expect(getPath(plan, "executions.will.witnesses.5.name")).toBeUndefined();
   });
 
   it("sets a nested scalar without mutating the source", () => {
@@ -36,9 +36,9 @@ describe("paths", () => {
 
   it("sets an array element without mutating sibling elements", () => {
     const plan = blankPlan();
-    const updated = setPath(plan, "execution.witnesses.0.name", "Alex");
-    expect(updated.execution.witnesses[0]?.name).toBe("Alex");
-    expect(updated.execution.witnesses[1]?.name).toBe("");
-    expect(plan.execution.witnesses[0]?.name).toBe("");
+    const updated = setPath(plan, "executions.will.witnesses.0.name", "Alex");
+    expect(updated.executions.will.witnesses[0]?.name).toBe("Alex");
+    expect(updated.executions.will.witnesses[1]?.name).toBe("");
+    expect(plan.executions.will.witnesses[0]?.name).toBe("");
   });
 });

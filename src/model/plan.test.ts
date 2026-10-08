@@ -15,7 +15,7 @@ describe("Plan schema", () => {
         trustees: {},
         remains: {},
       },
-      execution: { executionDate: {}, notary: {} },
+      executions: { will: { executionDate: {}, notary: {} } },
       documents: {
         will: { communityPropertyAgreement: {}, ultimateBeneficiary: {} },
       },
@@ -23,7 +23,7 @@ describe("Plan schema", () => {
     expect(plan.party.testator.state).toBe("Washington");
     expect(plan.party.maritalStatus).toBe("married");
     expect(plan.party.children).toEqual([]);
-    expect(plan.execution.witnesses).toHaveLength(2);
+    expect(plan.executions.will.witnesses).toHaveLength(2);
     expect(plan.documents.will.spousalGift).toBe("outright");
     expect(plan.documents.will.survivorshipDays).toBe(60);
     expect(plan.documents.will.communityPropertyAgreement.exists).toBe(false);
@@ -31,7 +31,7 @@ describe("Plan schema", () => {
 
   it("requires every group object to be present — group-level fields have no default", () => {
     // Documents `migrate.ts`'s reason for existing: `Plan.parse` alone
-    // will not backfill a wholly absent `party`/`fiduciaries`/`execution`/
+    // will not backfill a wholly absent `party`/`fiduciaries`/`executions`/
     // `documents` group, only the leaf fields inside a present group.
     const result = Plan.safeParse({ id: "profile-1", label: "Profile 1" });
     expect(result.success).toBe(false);
@@ -68,11 +68,13 @@ describe("Plan schema", () => {
         trustees: { primary: "A", alternate: "B" },
         remains: { agent: "A", alternate: "B", preference: "" },
       },
-      execution: {
-        city: "Tacoma",
-        executionDate: { day: "1", month: "March", year: "2026" },
-        witnesses: [{ name: "W1", address: "", cityStateZip: "" }],
-        notary: { name: "", commissionExpires: "" },
+      executions: {
+        will: {
+          city: "Tacoma",
+          executionDate: { day: "1", month: "March", year: "2026" },
+          witnesses: [{ name: "W1", address: "", cityStateZip: "" }],
+          notary: { name: "", commissionExpires: "" },
+        },
       },
       documents: {
         will: {
@@ -84,7 +86,7 @@ describe("Plan schema", () => {
       },
     };
     const plan = Plan.parse(input);
-    expect(plan.execution.witnesses).toHaveLength(1);
+    expect(plan.executions.will.witnesses).toHaveLength(1);
     expect(plan.party.children).toEqual(["Rowan"]);
   });
 });

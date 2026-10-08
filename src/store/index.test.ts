@@ -68,10 +68,19 @@ describe("store", () => {
   });
 
   it("setField on an array path updates only that element", () => {
-    setField("execution.witnesses.0.name", "Alex");
+    setField("executions.will.witnesses.0.name", "Alex");
     const plan = plans.value["profile-1"]!;
-    expect(plan.execution.witnesses[0]?.name).toBe("Alex");
-    expect(plan.execution.witnesses[1]?.name).toBe("");
+    expect(plan.executions.will.witnesses[0]?.name).toBe("Alex");
+    expect(plan.executions.will.witnesses[1]?.name).toBe("");
+  });
+
+  it("editing one document's execution date leaves every other document's unchanged", () => {
+    setField("executions.will.executionDate.day", "3rd");
+    setField("executions.durablePowerOfAttorney.executionDate.day", "9th");
+    const { executions } = plans.value["profile-1"]!;
+    expect(executions.will.executionDate.day).toBe("3rd");
+    expect(executions.durablePowerOfAttorney.executionDate.day).toBe("9th");
+    expect(executions.remainsDirective.executionDate.day).toBe("");
   });
 });
 
