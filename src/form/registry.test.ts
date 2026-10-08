@@ -121,6 +121,28 @@ describe("resolveFieldPath", () => {
     expect(entry?.section.id).toBe("b");
   });
 
+  it("resolves a cell of a columned list row to the list field", () => {
+    const section: Section = {
+      id: "notify",
+      legend: "Notify",
+      fields: [
+        {
+          kind: "list",
+          path: "documents.remainsDirective.notify",
+          label: "Persons to notify",
+          addLabel: "Add person",
+          columns: [{ key: "name", label: "Name" }],
+        },
+      ],
+    };
+    const entry = resolveFieldPath(
+      planWith(),
+      [section],
+      "documents.remainsDirective.notify.0.name"
+    );
+    expect(entry?.field.path).toBe("documents.remainsDirective.notify");
+  });
+
   it("returns undefined when no prefix resolves", () => {
     const plan = planWith();
     expect(

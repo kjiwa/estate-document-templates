@@ -144,23 +144,60 @@ export function Field({ field }: FieldProps) {
       );
 
     case "list": {
-      const items = Array.isArray(value) ? (value as string[]) : [];
+      const columns = field.columns;
+      const blank = columns
+        ? Object.fromEntries(columns.map((column) => [column.key, ""]))
+        : "";
+      const items = Array.isArray(value) ? (value as unknown[]) : [];
+      const replaceAt = (i: number, entry: unknown) => {
+        const next = items.slice();
+        next[i] = entry;
+        setField(field.path, next);
+      };
       return (
         <div class="field">
           <label>{field.label}</label>
           <div class="field-list">
             {items.map((item, i) => (
-              <div class="field-list-row" key={i}>
-                <input
-                  type="text"
-                  aria-label={`${field.label} ${i + 1}`}
-                  value={item}
-                  onInput={(event) => {
-                    const next = items.slice();
-                    next[i] = (event.target as HTMLInputElement).value;
-                    setField(field.path, next);
-                  }}
-                />
+              <div
+                class={
+                  columns
+                    ? "field-list-row field-list-row-columns"
+                    : "field-list-row"
+                }
+                key={i}
+              >
+                {columns ? (
+                  columns.map((column) => (
+                    <input
+                      key={column.key}
+                      type="text"
+                      aria-label={`${field.label} ${i + 1} ${column.label}`}
+                      placeholder={column.label}
+                      value={
+                        (item as Record<string, string | undefined>)[
+                          column.key
+                        ] ?? ""
+                      }
+                      onInput={(event) =>
+                        replaceAt(i, {
+                          ...(item as Record<string, string>),
+                          [column.key]: (event.target as HTMLInputElement)
+                            .value,
+                        })
+                      }
+                    />
+                  ))
+                ) : (
+                  <input
+                    type="text"
+                    aria-label={`${field.label} ${i + 1}`}
+                    value={item as string}
+                    onInput={(event) =>
+                      replaceAt(i, (event.target as HTMLInputElement).value)
+                    }
+                  />
+                )}
                 <button
                   type="button"
                   class="btn"
@@ -177,7 +214,7 @@ export function Field({ field }: FieldProps) {
             <button
               type="button"
               class="btn"
-              onClick={() => setField(field.path, [...items, ""])}
+              onClick={() => setField(field.path, [...items, blank])}
             >
               {field.addLabel}
             </button>

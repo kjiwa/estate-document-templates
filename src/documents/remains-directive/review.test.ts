@@ -14,6 +14,21 @@ function planWith(overlay: Record<string, unknown> = {}): Plan {
   return result.plan;
 }
 
+// `documents.remainsDirective` is a namespace v2 never had, so `planWith`'s
+// overlay cannot reach it; override the migrated plan's values directly.
+function withInstructions(
+  plan: Plan,
+  overrides: Partial<Plan["documents"]["remainsDirective"]>
+): Plan {
+  return {
+    ...plan,
+    documents: {
+      ...plan.documents,
+      remainsDirective: { ...plan.documents.remainsDirective, ...overrides },
+    },
+  };
+}
+
 describe("analyzeDirective", () => {
   it("warns when no agent is named", () => {
     const plan = planWith({ remains: { agent: "", alternate: "" } });
@@ -42,5 +57,29 @@ describe("analyzeDirective", () => {
     for (const advisory of analyzeDirective(plan)) {
       expect(advisory.path.startsWith("fiduciaries.remains.")).toBe(true);
     }
+  });
+
+  it("warns when the wishes mention the opposite of the elected method", () => {
+    const plan = withInstructions(
+      planWith({
+        remains: { agent: "A", alternate: "B", preference: "Cremation" },
+      }),
+      { method: "burial" }
+    );
+    const advisory = analyzeDirective(plan).find(
+      (a) => a.id === "remains-preference-contradiction"
+    );
+    expect(advisory?.severity).toBe("warning");
+    expect(advisory?.path).toBe("fiduciaries.remains.preference");
+  });
+
+  it("does not warn when the wishes agree with, or no method is elected", () => {
+    const remains = { agent: "A", alternate: "B", preference: "Burial" };
+    const agrees = withInstructions(planWith({ remains }), {
+      method: "burial",
+    });
+    const unset = withInstructions(planWith({ remains }), { method: "" });
+    expect(analyzeDirective(agrees)).toEqual([]);
+    expect(analyzeDirective(unset)).toEqual([]);
   });
 });

@@ -109,9 +109,37 @@ const HealthCareDirectiveDocument = z
     cpr: "",
   });
 
+const RemainsContact = z.object({
+  name: z.string().default(""),
+  address: z.string().default(""),
+  telephone: z.string().default(""),
+});
+
+// Literal default for the same reason as `HealthCareDirectiveDocument`.
+const RemainsDirectiveDocument = z
+  .object({
+    arrangementsMade: z.string().default(""),
+    arrangementsWith: z.string().default(""),
+    method: z.string().default(""),
+    cremainsDisposition: z.string().default(""),
+    cremainsDetail: z.string().default(""),
+    arranger: RemainsContact.default({ name: "", address: "", telephone: "" }),
+    notify: z.array(RemainsContact).default([]),
+  })
+  .default({
+    arrangementsMade: "",
+    arrangementsWith: "",
+    method: "",
+    cremainsDisposition: "",
+    cremainsDetail: "",
+    arranger: { name: "", address: "", telephone: "" },
+    notify: [],
+  });
+
 const Documents = z.object({
   will: WillDocument,
   healthCareDirective: HealthCareDirectiveDocument,
+  remainsDirective: RemainsDirectiveDocument,
 });
 
 export const Plan = z.object({

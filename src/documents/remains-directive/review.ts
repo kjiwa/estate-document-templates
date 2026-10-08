@@ -30,5 +30,21 @@ export function analyzeDirective(plan: Plan): Advisory[] {
     });
   }
 
+  const preference = plan.fiduciaries.remains.preference;
+  const method = plan.documents.remainsDirective.method;
+  const opposite = method === "burial" ? /cremat/i : /buri/i;
+  if (
+    (method === "burial" || method === "cremation") &&
+    opposite.test(preference)
+  ) {
+    advisories.push({
+      id: "remains-preference-contradiction",
+      severity: "warning",
+      title: "Wishes contradict the elected method",
+      message: `Your wishes mention ${method === "burial" ? "cremation" : "burial"}, but Article 2 directs ${method}. The same wishes text appears in the will's Article 2.`,
+      path: "fiduciaries.remains.preference",
+    });
+  }
+
   return advisories;
 }
