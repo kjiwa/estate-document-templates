@@ -6,6 +6,11 @@ export interface Option {
   label: string;
 }
 
+// A blank optional field never counts as unanswered. A predicate makes the
+// field optional only while it holds, for fields the document prints only
+// under some other field's value.
+export type Optional = true | ((plan: Plan) => boolean);
+
 // A closed set of input kinds, not a plugin point — adding a kind means
 // extending this union and every switch over it.
 export type FieldSpec =
@@ -14,7 +19,7 @@ export type FieldSpec =
       path: Path<Plan>;
       label: string;
       hint?: string;
-      optional?: true;
+      optional?: Optional;
     }
   | { kind: "number"; path: Path<Plan>; label: string; min?: number }
   | { kind: "date"; path: Path<Plan>; label: string }
@@ -24,7 +29,7 @@ export type FieldSpec =
       path: Path<Plan>;
       label: string;
       options: readonly Option[];
-      optional?: true;
+      optional?: Optional;
     }
   | { kind: "checkbox"; path: Path<Plan>; label: string }
   | {
@@ -33,7 +38,7 @@ export type FieldSpec =
       label: string;
       addLabel: string;
       columns?: readonly { key: string; label: string }[];
-      optional?: true;
+      optional?: Optional;
     }
   | { kind: "group"; label: string; fields: FieldSpec[] };
 

@@ -9,13 +9,18 @@ export function flattenFields(fields: FieldSpec[]): FieldSpec[] {
   );
 }
 
+export function isOptional(plan: Plan, field: FieldSpec): boolean {
+  if (!("optional" in field) || field.optional === undefined) return false;
+  return field.optional === true || field.optional(plan);
+}
+
 export function isFieldAnswered(plan: Plan, field: FieldSpec): boolean {
   if (field.kind === "group") {
     return flattenFields(field.fields).every((f) => isFieldAnswered(plan, f));
   }
   const value = getPath(plan, field.path);
   if (field.kind === "checkbox") return true;
-  if ("optional" in field && field.optional) return true;
+  if (isOptional(plan, field)) return true;
   if (field.kind === "list") {
     return Array.isArray(value) && value.length > 0;
   }

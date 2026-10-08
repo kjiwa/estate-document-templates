@@ -9,7 +9,7 @@ import { sectionFields } from "../form/registry";
 import { migrateProfile } from "../model/migrate";
 import type { Plan } from "../model/plan";
 import { getPath } from "../model/paths";
-import { isFieldAnswered, sectionCompletion } from "./completion";
+import { isFieldAnswered, isOptional, sectionCompletion } from "./completion";
 
 function blankPlan(): Plan {
   const result = migrateProfile("profile-1", { label: "Profile 1" });
@@ -56,7 +56,7 @@ describe("completion matches the rendered fill-ins", () => {
 
       it("never prints an optional field as a fill-in", () => {
         const offenders = leaves
-          .filter((f) => "optional" in f && f.optional)
+          .filter((f) => isOptional(plan, f))
           .map((f) => (f as { path: string }).path)
           .filter((path) => fillIns.has(path));
         expect(offenders).toEqual([]);
@@ -65,11 +65,7 @@ describe("completion matches the rendered fill-ins", () => {
       it("counts a text field as required exactly when it prints a fill-in", () => {
         const mismatched = leaves
           .filter((f) => f.kind === "text" && getPath(plan, f.path) === "")
-          .filter(
-            (f) =>
-              (!("optional" in f && f.optional) as boolean) !==
-              fillIns.has(f.path)
-          )
+          .filter((f) => !isOptional(plan, f) !== fillIns.has(f.path))
           .map((f) => f.path);
         expect(mismatched).toEqual([]);
       });
@@ -116,6 +112,30 @@ describe("completion matches the rendered fill-ins", () => {
     expect(
       sectionCompletion(withAgreement(true, "2020-01-01"), section).complete
     ).toBe(true);
+  });
+
+  it("prints the agreement date as a fill-in exactly when it counts as required", () => {
+    const will = DOCUMENTS.find((d) => d.id === "will")!;
+    const path = "documents.will.communityPropertyAgreement.date";
+    const base = blankPlan();
+    const withAgreement: Plan = {
+      ...base,
+      party: { ...base.party, maritalStatus: "married" },
+      documents: {
+        ...base.documents,
+        will: {
+          ...base.documents.will,
+          communityPropertyAgreement: { exists: true, date: "" },
+        },
+      },
+    };
+    const field = sectionFields(sectionById("will", "property")).find(
+      (f) => "path" in f && f.path === path
+    )!;
+    expect(isOptional(withAgreement, field)).toBe(false);
+    expect(fillInPaths(will, withAgreement).has(path)).toBe(true);
+    expect(isOptional(base, field)).toBe(true);
+    expect(fillInPaths(will, base).has(path)).toBe(false);
   });
 
   it("still counts a blank required text field as unanswered", () => {

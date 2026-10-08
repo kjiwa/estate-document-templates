@@ -130,10 +130,6 @@ export const WILL_SECTIONS: Section[] = [
     legend: "Disposition of Property (Article 3)",
     article: "3",
     guidance: ["spousalGift", "communityPropertyAgreement"],
-    complete: ({ documents: { will } }) =>
-      will.spousalGift !== "" &&
-      (!will.communityPropertyAgreement.exists ||
-        will.communityPropertyAgreement.date.trim() !== ""),
     fields: [
       {
         kind: "select",
@@ -152,7 +148,8 @@ export const WILL_SECTIONS: Section[] = [
       {
         kind: "text",
         path: "documents.will.communityPropertyAgreement.date",
-        optional: true,
+        optional: (plan) =>
+          !plan.documents.will.communityPropertyAgreement.exists,
         label: "Agreement Date",
       },
     ],
