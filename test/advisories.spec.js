@@ -1,6 +1,6 @@
 // @ts-check
 const { test, expect } = require("@playwright/test");
-const { PLAN_1 } = require("./fixtures");
+const { PLAN_1, acceptDisclaimer } = require("./fixtures");
 
 // PLAN_1 with witness 1 renamed to match the PR alternate ("Devin Okafor"),
 // so `analyzeProfile` fires an interested-witness advisory concerning
@@ -43,6 +43,7 @@ async function seedInterestedWitnessPlan(page) {
 
 test.describe("Review advisories", () => {
   test.beforeEach(async ({ page }) => {
+    await acceptDisclaimer(page);
     await seedInterestedWitnessPlan(page);
   });
 

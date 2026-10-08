@@ -113,7 +113,7 @@ a {
   #app {
     height: 100dvh;
     display: grid;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto 1fr auto;
   }
   .app-body {
     min-height: 0;
@@ -212,6 +212,11 @@ a {
 .rail-check.done {
   border-color: var(--accent);
   background: var(--accent);
+}
+
+.rail-check.blank-optional {
+  border-style: dashed;
+  background: transparent;
 }
 
 .rail-advisory-count {
@@ -616,4 +621,158 @@ button {
 .theme-toggle button[aria-pressed="true"] {
   background: var(--accent);
   color: var(--accent-on);
+}
+
+.stage-chip {
+  display: inline-block;
+  align-self: flex-start;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--rule-strong);
+  border-radius: 999px;
+  font-size: var(--font-size-xs);
+  color: var(--ink-muted);
+}
+
+.stage-chip.ready {
+  border-color: var(--accent);
+  background: var(--accent-ink);
+  color: var(--accent);
+}
+
+.app-rail > .stage-chip {
+  margin: var(--space-2) var(--space-2) 0;
+}
+
+.plan-overview {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex-basis: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.plan-overview-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--rule-hairline);
+}
+
+.plan-overview-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.plan-overview-title,
+.plan-overview-advisory {
+  border: none;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  color: var(--accent);
+  text-align: left;
+  text-decoration: underline;
+  cursor: pointer;
+  min-height: var(--tap-target);
+}
+
+.plan-overview-title {
+  font-weight: var(--font-weight-medium);
+}
+
+.plan-overview-advisory {
+  font-size: var(--font-size-sm);
+  color: var(--advisory-text);
+}
+
+.plan-overview-advisories {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: var(--space-4);
+}
+
+.plan-overview-note {
+  margin: var(--space-3) 0 0;
+}
+
+/* ----------------------------------------------------------------------
+   Footer and disclaimer dialog
+   ---------------------------------------------------------------------- */
+
+.app-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1) var(--space-4);
+  padding: var(--space-2) var(--space-4);
+  background: var(--surface-1);
+  border-top: 1px solid var(--rule-hairline);
+  color: var(--ink-muted);
+  font-size: var(--font-size-xs);
+}
+
+.link-button {
+  min-height: var(--tap-target);
+  padding: 0 var(--space-2);
+  border: none;
+  background: none;
+  color: var(--accent);
+  font-size: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.disclaimer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3);
+  background: rgba(27, 25, 23, 0.6);
+}
+
+.disclaimer-dialog {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 34rem;
+  max-height: 100%;
+  padding: var(--space-5);
+  background: var(--surface-2);
+  color: var(--ink-body);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-lg);
+}
+
+.disclaimer-dialog h2 {
+  margin: 0 0 var(--space-3);
+  font-size: var(--font-size-lg);
+  color: var(--ink-strong);
+}
+
+.disclaimer-body {
+  min-height: 0;
+  overflow-y: auto;
+  font-size: var(--font-size-sm);
+}
+
+.disclaimer-body p {
+  margin: 0 0 var(--space-3);
+}
+
+.disclaimer-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: var(--space-3);
 }

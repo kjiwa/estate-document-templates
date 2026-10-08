@@ -164,6 +164,7 @@ const FIXTURE_PLANS = {
 // while the absent-key case still re-seeds after localStorage.clear();
 // reload().
 async function seedPlans(page) {
+  await acceptDisclaimer(page);
   await page.addInitScript((plans) => {
     const KEY = "estate_templates_state_v1";
     if (window.localStorage.getItem(KEY)) return;
@@ -177,6 +178,14 @@ async function seedPlans(page) {
       })
     );
   }, FIXTURE_PLANS);
+}
+
+// The click-through disclaimer blocks the page until accepted; specs that are
+// not about it start from the accepted state.
+async function acceptDisclaimer(page) {
+  await page.addInitScript(() => {
+    window.localStorage.setItem("estate_templates_disclaimer_v1", "accepted");
+  });
 }
 
 // `window.showSaveFilePicker`/`showOpenFilePicker` exist as functions on
@@ -200,5 +209,6 @@ module.exports = {
   PLAN_2,
   FIXTURE_PLANS,
   seedPlans,
+  acceptDisclaimer,
   disableFilePickers,
 };
