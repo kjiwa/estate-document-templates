@@ -81,7 +81,7 @@ describe("migrateProfile", () => {
       name: "Jordan",
       gender: "male",
       county: "King",
-      state: "WA",
+      state: "Washington",
     });
     expect(plan.party.spouse.name).toBe("Taylor");
     expect(plan.fiduciaries.guardians).toEqual({

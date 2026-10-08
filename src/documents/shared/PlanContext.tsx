@@ -21,6 +21,9 @@ export interface EditingState {
   // which mount `<Value>`/`<Blank>` with no provider, on plain markup.
   interactive: boolean;
   labelFor: (path: string) => string;
+  // A path with no field in the active document (a locked value such as the
+  // domicile) renders as plain markup with no edit affordance.
+  isEditable: (path: string) => boolean;
   // Advisories concerning a path — defaulting to a no-op keeps
   // `standaloneHtml.ts` and every golden render, which mount
   // `<Value>`/`<Blank>` with no provider, on plain markup.
@@ -31,6 +34,7 @@ export const EditingContext = createContext<EditingState>({
   activePath: null,
   interactive: false,
   labelFor: (path) => path,
+  isEditable: () => false,
   advisoriesFor: () => [],
 });
 

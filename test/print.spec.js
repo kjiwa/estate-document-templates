@@ -253,4 +253,32 @@ test.describe("Screen-to-Print Fidelity & PDF Generation", () => {
     expect(allPages).toBeGreaterThanOrEqual(singleTotal);
     expect(consoleErrors).toEqual([]);
   });
+
+  test("print all lists every document by page name and Done returns to Plans", async ({
+    page,
+  }) => {
+    await page.evaluate(() => {
+      window.print = () => {};
+    });
+    await page.getByRole("button", { name: "Plans" }).click();
+    await page
+      .locator(".plan-card")
+      .first()
+      .getByRole("button", { name: "Print all" })
+      .click();
+    await page.emulateMedia({ media: "print" });
+
+    const sheets = page.locator(".print-all .paged-sheet");
+    await expect(sheets).toHaveCount(DOCUMENT_IDS.length);
+    const pageNames = await sheets.evaluateAll((els) =>
+      els.map((el) => el.style.getPropertyValue("page"))
+    );
+    expect(pageNames).toEqual(DOCUMENT_IDS.map((id) => `doc-${id}`));
+    await expect(page.getByRole("button", { name: "Done" })).toBeHidden();
+
+    await page.emulateMedia({ media: "screen" });
+    await page.getByRole("button", { name: "Done" }).click();
+    await expect(page.locator(".print-all")).toHaveCount(0);
+    await expect(page.locator(".plans-view")).toBeVisible();
+  });
 });

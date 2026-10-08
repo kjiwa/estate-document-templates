@@ -57,10 +57,10 @@ function printAfterPaint(): void {
 
 // While set, the app renders every document of that plan in sequence in
 // place of the current view (`components/PrintAll.tsx`); cleared by
-// `installPrintAllReset`'s events.
+// `installPrintAllReset`'s events or the on-screen Done control.
 export const printAllPlanId = signal<string | null>(null);
 
-function resetPrintAll(): void {
+export function resetPrintAll(): void {
   printAllPlanId.value = null;
 }
 

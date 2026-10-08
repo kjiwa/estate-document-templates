@@ -37,12 +37,15 @@ export function DocumentSurface({ document, plan }: DocumentSurfaceProps) {
 
   usePaperFit(viewportRef, fitRef, sheetRef, isPaper);
 
-  const labelFor = useMemo(() => {
+  const { labelFor, isEditable } = useMemo(() => {
     const map = new Map<string, string>();
     for (const entry of orderedFields(plan, document.sections)) {
       map.set(entry.field.path, entry.field.label);
     }
-    return (path: string) => map.get(path) ?? path;
+    return {
+      labelFor: (path: string) => map.get(path) ?? path,
+      isEditable: (path: string) => map.has(path),
+    };
   }, [plan, document.sections]);
 
   const activePath = activeFieldPath.value;
@@ -89,7 +92,13 @@ export function DocumentSurface({ document, plan }: DocumentSurfaceProps) {
       <PlanContext.Provider value={plan}>
         <HighlightContext.Provider value={true}>
           <EditingContext.Provider
-            value={{ activePath, interactive: true, labelFor, advisoriesFor }}
+            value={{
+              activePath,
+              interactive: true,
+              labelFor,
+              isEditable,
+              advisoriesFor,
+            }}
           >
             {isPaper ? (
               <div class="paper-viewport" ref={viewportRef}>

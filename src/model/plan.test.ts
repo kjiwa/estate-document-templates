@@ -29,6 +29,30 @@ describe("Plan schema", () => {
     expect(plan.documents.will.communityPropertyAgreement.exists).toBe(false);
   });
 
+  it.each([
+    ["a missing value", {}],
+    ["Oregon", { state: "Oregon" }],
+    ["Washington", { state: "Washington" }],
+  ])("parses %s to Washington", (_label, testator) => {
+    const plan = Plan.parse({
+      id: "profile-1",
+      label: "Profile 1",
+      party: { testator, spouse: {} },
+      fiduciaries: {
+        guardians: {},
+        conservators: {},
+        personalRepresentatives: {},
+        trustees: {},
+        remains: {},
+      },
+      executions: { will: { executionDate: {}, notary: {} } },
+      documents: {
+        will: { communityPropertyAgreement: {}, ultimateBeneficiary: {} },
+      },
+    });
+    expect(plan.party.testator.state).toBe("Washington");
+  });
+
   it("requires every group object to be present — group-level fields have no default", () => {
     // Documents `migrate.ts`'s reason for existing: `Plan.parse` alone
     // will not backfill a wholly absent `party`/`fiduciaries`/`executions`/

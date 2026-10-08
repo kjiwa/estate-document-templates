@@ -1,4 +1,5 @@
 // @ts-check
+const fs = require("fs");
 const path = require("path");
 const { test, expect } = require("@playwright/test");
 const { seedPlans, disableFilePickers } = require("./fixtures");
@@ -131,6 +132,32 @@ test.describe("Plan management", () => {
     ]);
 
     expect(download.suggestedFilename()).toMatch(/\.txt$/);
+  });
+
+  test("Download all saves one HTML file with every document", async ({
+    page,
+  }) => {
+    const consoleErrors = [];
+    page.on("console", (msg) => {
+      if (msg.type() === "error") consoleErrors.push(msg.text());
+    });
+    await disableFilePickers(page);
+    await page.goto("/");
+    await page.getByRole("button", { name: "Plans" }).click();
+
+    const [download] = await Promise.all([
+      page.waitForEvent("download"),
+      page
+        .locator(".plan-card")
+        .first()
+        .getByRole("button", { name: "Download all" })
+        .click(),
+    ]);
+
+    expect(download.suggestedFilename()).toMatch(/-all-documents\.html$/);
+    const html = fs.readFileSync(await download.path(), "utf8");
+    expect(html.match(/<article\b[^>]*\bpaged-sheet\b/g)).toHaveLength(5);
+    expect(consoleErrors).toEqual([]);
   });
 
   test("the Data card downloads a JSON save of every plan", async ({

@@ -642,9 +642,8 @@ function Article10() {
   );
 }
 
-// Ports `js/templates/will.js`'s `renderWill`, article by article, in its
-// original order: preamble, Articles 1-10, testimonium + principal
-// signature, witness attestation, notary certificate.
+// Preamble, Articles 1-10, testimonium + principal signature, witness
+// attestation, notary certificate.
 function BodyContent() {
   return (
     <>

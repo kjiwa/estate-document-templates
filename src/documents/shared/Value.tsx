@@ -28,8 +28,8 @@ function AdvisoryMarker({ advisories }: { advisories: Advisory[] }) {
 
 interface ValueProps {
   path?: Path<Plan>;
-  // Overrides the value read from `path` — e.g. `will.js`'s uppercased
-  // notary venue. When both are given, `path` still supplies `data-path`.
+  // Overrides the value read from `path`. When both are given, `path` still
+  // supplies `data-path`.
   value?: unknown;
 }
 
@@ -53,7 +53,8 @@ export function Value({ path, value }: ValueProps) {
   const text = toText(fieldValue);
 
   if (highlight) {
-    const interactive = editing.interactive && path !== undefined;
+    const interactive =
+      editing.interactive && path !== undefined && editing.isEditable(path);
     const activeClass =
       interactive && editing.activePath === path ? " field-active" : "";
     const editingProps = interactive

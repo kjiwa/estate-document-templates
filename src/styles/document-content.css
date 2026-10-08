@@ -46,7 +46,7 @@
   margin-bottom: var(--space-4);
 }
 
-/* A visible ruled blank for an unset field, sized in `ch` by fillIn(). */
+/* A visible ruled blank for an unset field, sized in `ch`. */
 .fill-in {
   display: inline-block;
   border-bottom: 1px solid var(--rule-on-paper);

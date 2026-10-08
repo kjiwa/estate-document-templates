@@ -29,13 +29,12 @@ function AdvisoryMarker({ advisories }: { advisories: Advisory[] }) {
 
 interface BlankProps {
   path?: Path<Plan>;
-  // Overrides the value read from `path` — e.g. `will.js`'s uppercased
-  // notary venue.
+  // Overrides the value read from `path`.
   value?: unknown;
   chars?: number;
 }
 
-// Reproduces `fillIn`: empty renders a ruled blank sized in `ch` units;
+// Empty renders a ruled blank sized in `ch` units;
 // otherwise defers to `<Value>`.
 export function Blank({ path, value, chars = 10 }: BlankProps) {
   const plan = useContext(PlanContext);
@@ -48,7 +47,8 @@ export function Blank({ path, value, chars = 10 }: BlankProps) {
         : undefined;
 
   if (raw === null || raw === undefined || raw === "") {
-    const interactive = editing.interactive && path !== undefined;
+    const interactive =
+      editing.interactive && path !== undefined && editing.isEditable(path);
     const activeClass =
       interactive && editing.activePath === path ? " field-active" : "";
     const editingProps = interactive

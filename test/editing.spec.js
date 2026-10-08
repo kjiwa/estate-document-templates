@@ -49,9 +49,9 @@ test.describe("Contextual editing", () => {
     const node = page.locator('[data-path="party.testator.name"]').first();
     await node.click();
 
-    // testator: name (active), gender, county, state, execution.city — then
-    // family: maritalStatus. Five "Next" presses from name lands there.
-    for (let i = 0; i < 5; i++) {
+    // testator: name (active), gender, county, execution.city — then
+    // family: maritalStatus. Four "Next" presses from name lands there.
+    for (let i = 0; i < 4; i++) {
       await page.getByRole("button", { name: "Next →" }).click();
     }
 

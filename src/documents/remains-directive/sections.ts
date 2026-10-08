@@ -41,7 +41,6 @@ export const DIRECTIVE_SECTIONS: Section[] = [
         path: "party.testator.county",
         label: "County of Residence",
       },
-      { kind: "text", path: "party.testator.state", label: "State" },
       {
         kind: "text",
         path: "executions.remainsDirective.city",
