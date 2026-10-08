@@ -824,3 +824,7 @@ button {
   justify-content: flex-end;
   padding-top: var(--space-3);
 }
+
+.print-all > .btn {
+  margin: var(--space-3);
+}

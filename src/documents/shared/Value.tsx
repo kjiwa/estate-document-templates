@@ -28,8 +28,8 @@ function AdvisoryMarker({ advisories }: { advisories: Advisory[] }) {
 
 interface ValueProps {
   path?: Path<Plan>;
-  // Overrides the value read from `path` — e.g. `will.js`'s uppercased
-  // notary venue. When both are given, `path` still supplies `data-path`.
+  // Overrides the value read from `path`. When both are given, `path` still
+  // supplies `data-path`.
   value?: unknown;
 }
 

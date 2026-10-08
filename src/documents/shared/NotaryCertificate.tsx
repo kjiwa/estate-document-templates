@@ -7,8 +7,7 @@ import { NotaryVenue } from "./NotaryVenue";
 import { PlanContext, useExecutionPath } from "./PlanContext";
 import { Value } from "./Value";
 
-// Reproduces `renderNotaryCertificate`. The venue lines are the one site
-// that uppercases before interpolating (`will.js:420-421`).
+// The venue lines are the one site that uppercases before interpolating.
 export function NotaryCertificate() {
   const at = useExecutionPath();
   const plan = useContext(PlanContext);

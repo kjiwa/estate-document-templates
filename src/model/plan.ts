@@ -22,7 +22,7 @@ const Testator = z.object({
   name: z.string().default(""),
   gender: Gender,
   county: z.string().default(""),
-  state: z.string().default("Washington"),
+  state: z.literal("Washington").catch("Washington"),
 });
 
 const Party = z.object({

@@ -1,11 +1,7 @@
 import type { Section } from "../../form/field-spec";
 import { GENDER_OPTIONS } from "../shared/genderOptions";
 
-// Populated from today's real form: `js/app.js`'s `FIELD_BINDINGS` (36
-// entries) plus its one `CHECKBOX_BINDINGS` entry, grouped by `index.html`'s
-// 12 content fieldsets. Article numbers are taken only from legends that
-// already name one; "Active Profile" and "Data Management & Export" are
-// chrome and do not appear here.
+// Article numbers are taken only from legends that already name one.
 export const WILL_SECTIONS: Section[] = [
   {
     id: "testator",
@@ -24,7 +20,6 @@ export const WILL_SECTIONS: Section[] = [
         path: "party.testator.county",
         label: "County of Residence",
       },
-      { kind: "text", path: "party.testator.state", label: "State" },
       {
         kind: "text",
         path: "executions.will.city",

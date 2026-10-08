@@ -259,10 +259,10 @@ export const GOLDEN_CASES: GoldenCase[] = [
     },
   },
   {
-    slug: "20-blank-county-state",
+    slug: "20-blank-county",
     overlay: {
       ...BASE_OVERLAY,
-      testator: { ...BASE_OVERLAY.testator, county: "", state: "" },
+      testator: { ...BASE_OVERLAY.testator, county: "" },
     },
   },
 ];
