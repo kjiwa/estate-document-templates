@@ -1,3 +1,5 @@
+import { Fragment } from "preact";
+
 import { Blank } from "../shared/Blank";
 import { SignatureBlock } from "../shared/SignatureBlock";
 import { Testimonium } from "../shared/Testimonium";
@@ -189,12 +191,10 @@ function StatuteRecital() {
   return (
     <>
       {RCW_11_125_100.map((subsection) => (
-        <>
-          <p class="clause" key={subsection}>
-            {subsection}
-          </p>
+        <Fragment key={subsection}>
+          <p class="clause">{subsection}</p>
           {"\n"}
-        </>
+        </Fragment>
       ))}
     </>
   );

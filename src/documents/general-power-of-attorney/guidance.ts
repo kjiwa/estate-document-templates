@@ -12,7 +12,7 @@ export const GENERAL_POA_GUIDANCE: Record<string, GuidanceEntry> = {
     typical:
       "Most principals name a spouse, adult child, or close friend. Choose someone who is willing, organized, and able to act without conflict.",
     impact:
-      "This power of attorney is not durable: under RCW 11.125.100 it ends when you become incapacitated, so it does not cover the situation people most often need an agent for. Pair it with a durable power of attorney. The guardianship nomination is a distinct effect: it asks a court to appoint this person as your guardian, and the court is not bound by it. The gifting paragraph lets your attorney-in-fact make gifts that exceed the annual gift tax exclusion for public-benefit qualification, so have counsel review it before you sign.",
+      "This power of attorney is not durable: under RCW 11.125.100 it ends when you become incapacitated, so it does not cover the situation people most often need an agent for. Pair it with a durable power of attorney, and sign this one first: it revokes your previous general powers of attorney, which could include a durable one signed earlier. The guardianship nomination is a distinct effect: it asks a court to appoint this person as your guardian, and the court is not bound by it. The gifting paragraph lets your attorney-in-fact make gifts that exceed the annual gift tax exclusion for public-benefit qualification, so have counsel review it before you sign.",
     statutes: ["RCW 11.125.050", "RCW 11.125.100"],
   },
   notary: {
@@ -25,7 +25,7 @@ export const GENERAL_POA_GUIDANCE: Record<string, GuidanceEntry> = {
     typical:
       "The same notary who completes your other documents at the same appointment.",
     impact:
-      "Without the acknowledgment, the power of attorney does not meet RCW 11.125.050's execution requirement, and third parties may refuse to honor it.",
+      "This document is set up for notarial acknowledgment, which RCW 11.125.050 accepts in place of two witnesses and which third parties expect. Sign before the notary.",
     statutes: ["RCW 11.125.050"],
   },
 };
