@@ -1,7 +1,8 @@
 import { useRef, useState } from "preact/hooks";
 
-import { DOCUMENTS } from "../documents/registry";
+import { DOCUMENTS, type DocumentDefinition } from "../documents/registry";
 import { CURRENT_SCHEMA_VERSION } from "../model/migrate";
+import type { Advisory } from "../model/advisory";
 import type { Plan } from "../model/plan";
 import {
   activeDocumentId,
@@ -14,11 +15,115 @@ import {
   parsePersisted,
   plans,
   renamePlan,
+  setActiveDocument,
   setActivePlan,
 } from "../store/index";
-import { documentCompletion } from "../ui/completion";
+import { overviewAdvisories, showAdvisory } from "../ui/advisories";
+import {
+  documentReadiness,
+  STAGE_LABELS,
+  type DocumentReadiness,
+} from "../ui/completion";
 import { lastSavedAt, openFile, saveFile } from "../ui/files";
 import { view } from "../ui/view";
+
+function openDocument(plan: Plan, document: DocumentDefinition) {
+  setActivePlan(plan.id);
+  setActiveDocument(document.id);
+  view.value = "document";
+}
+
+function detailLines(readiness: DocumentReadiness): string[] {
+  const { stage, content, signing, remainingSigningGroups } = readiness;
+  const lines: string[] = [];
+  if (stage === "in-progress") {
+    const answered = content.answered + signing.answered;
+    lines.push(
+      `${answered} / ${content.total + signing.total} required fields`
+    );
+  } else if (stage === "ready-to-sign") {
+    lines.push(`Signing day: ${remainingSigningGroups.join(", ")}`);
+  }
+  if (readiness.blankOptionalSections.length > 0) {
+    const legends = readiness.blankOptionalSections.map((s) => s.legend);
+    lines.push(`Left blank (optional): ${legends.join(", ")}`);
+  }
+  return lines;
+}
+
+interface AdvisoryGroup {
+  title: string;
+  count: number;
+  first: Advisory;
+}
+
+function groupByTitle(advisories: Advisory[]): AdvisoryGroup[] {
+  const groups = new Map<string, AdvisoryGroup>();
+  for (const advisory of advisories) {
+    const group = groups.get(advisory.title);
+    if (group) group.count += 1;
+    else
+      groups.set(advisory.title, {
+        title: advisory.title,
+        count: 1,
+        first: advisory,
+      });
+  }
+  return [...groups.values()];
+}
+
+interface DocumentRowProps {
+  plan: Plan;
+  document: DocumentDefinition;
+}
+
+function DocumentRow({ plan, document }: DocumentRowProps) {
+  const readiness = documentReadiness(plan, document);
+  const advisories = overviewAdvisories(plan, document);
+  const ready = readiness.stage !== "in-progress";
+  const chip =
+    readiness.stage === "ready-to-sign" && advisories.length > 0
+      ? `${STAGE_LABELS[readiness.stage]}, ${advisories.length} to review`
+      : STAGE_LABELS[readiness.stage];
+
+  return (
+    <li class="plan-overview-row">
+      <div class="plan-overview-head">
+        <button
+          type="button"
+          class="plan-overview-title"
+          onClick={() => openDocument(plan, document)}
+        >
+          {document.title}
+        </button>
+        <span class={`stage-chip ${ready ? "ready" : ""}`}>{chip}</span>
+      </div>
+      {detailLines(readiness).map((line) => (
+        <div class="field-hint" key={line}>
+          {line}
+        </div>
+      ))}
+      {advisories.length > 0 ? (
+        <ul class="plan-overview-advisories">
+          {groupByTitle(advisories).map(({ title, count, first }) => (
+            <li key={first.id}>
+              <button
+                type="button"
+                class="plan-overview-advisory"
+                onClick={() => {
+                  openDocument(plan, document);
+                  showAdvisory(first);
+                }}
+              >
+                {count > 1 ? `${title} (${count})` : title}
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </li>
+  );
+}
 
 interface PlanCardProps {
   plan: Plan;
@@ -26,11 +131,6 @@ interface PlanCardProps {
 }
 
 function PlanCard({ plan, canDelete }: PlanCardProps) {
-  const document = DOCUMENTS.find((d) => d.id === activeDocumentId.value);
-  const { answered, total } = document
-    ? documentCompletion(plan, document.sections)
-    : { answered: 0, total: 0 };
-  const percent = total > 0 ? Math.round((answered / total) * 100) : 0;
   const isActive = activePlanId.value === plan.id;
 
   const [renaming, setRenaming] = useState(false);
@@ -64,7 +164,6 @@ function PlanCard({ plan, canDelete }: PlanCardProps) {
         ) : (
           <strong>{plan.label}</strong>
         )}
-        <div class="field-hint">{percent}% complete</div>
       </div>
       <div class="plan-card-actions">
         <button
@@ -109,6 +208,11 @@ function PlanCard({ plan, canDelete }: PlanCardProps) {
           {confirmingDelete ? "Confirm delete" : "Delete"}
         </button>
       </div>
+      <ul class="plan-overview">
+        {DOCUMENTS.map((document) => (
+          <DocumentRow plan={plan} document={document} key={document.id} />
+        ))}
+      </ul>
     </div>
   );
 }
@@ -227,6 +331,11 @@ export function PlansView() {
           <PlanCard plan={plan} canDelete={canDelete} key={plan.id} />
         ))}
       </div>
+      <p class="field-hint plan-overview-note">
+        Ready to sign means every required field is filled. Have a Washington
+        attorney review each document, including optional sections left blank,
+        before signing.
+      </p>
       <DataCard />
     </main>
   );

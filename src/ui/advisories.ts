@@ -3,10 +3,12 @@
 // `showAdvisory` stays callable with just the id a click handler has in hand.
 import { computed } from "@preact/signals";
 
-import { DOCUMENTS } from "../documents/registry";
+import { DOCUMENTS, type DocumentDefinition } from "../documents/registry";
 import { resolveFieldPath } from "../form/registry";
 import type { Advisory } from "../model/advisory";
 import type { Section } from "../form/field-spec";
+import type { Plan } from "../model/plan";
+import { isFieldAnswered, isRequired } from "./completion";
 import { activeDocumentId, activePlan } from "../store/index";
 import { openField } from "./editing";
 
@@ -52,6 +54,34 @@ export const advisoriesBySection = computed<Map<string | null, Advisory[]>>(
     return map;
   }
 );
+
+function restatesMissingField(
+  plan: Plan,
+  document: DocumentDefinition,
+  advisory: Advisory
+): boolean {
+  const entry = resolveFieldPath(plan, document.sections, advisory.path);
+  return (
+    !!entry &&
+    isRequired(plan, entry.field) &&
+    !isFieldAnswered(plan, entry.field)
+  );
+}
+
+// Advisories for the plans overview: those restating an unanswered required
+// field are dropped (the progress count already says so); warnings first.
+export function overviewAdvisories(
+  plan: Plan,
+  document: DocumentDefinition
+): Advisory[] {
+  const kept = document
+    .review(plan)
+    .filter((advisory) => !restatesMissingField(plan, document, advisory));
+  return [
+    ...kept.filter((a) => a.severity === "warning"),
+    ...kept.filter((a) => a.severity !== "warning"),
+  ];
+}
 
 export function showAdvisory(
   advisory: Advisory,

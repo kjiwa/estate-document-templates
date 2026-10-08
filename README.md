@@ -182,3 +182,8 @@ clearing site data, using a private window, or switching browsers loses the draf
 This tool is a drafting aid, not legal advice, and using it does not create an
 attorney-client relationship. It generates documents under Washington State law
 only. Have a licensed attorney review any document before you sign it.
+
+The site is provided "as is" without warranty of any kind, and to the fullest
+extent permitted by law the author is not liable for any loss from its use. The
+site asks you to acknowledge this on your first visit and keeps the
+acknowledgment in this browser; the footer reopens the notice.

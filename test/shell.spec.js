@@ -1,7 +1,12 @@
 // @ts-check
 const { test, expect } = require("@playwright/test");
+const { acceptDisclaimer } = require("./fixtures");
 
 test.describe("Application Shell, Layout & Accessibility", () => {
+  test.beforeEach(async ({ page }) => {
+    await acceptDisclaimer(page);
+  });
+
   test("renders page without console errors and contains accessible landmarks", async ({
     page,
   }) => {
@@ -182,5 +187,80 @@ test.describe("Application Shell, Layout & Accessibility", () => {
       () => document.documentElement.scrollWidth > window.innerWidth + 1
     );
     expect(overflowsX).toBe(false);
+  });
+});
+
+test.describe("Disclaimer", () => {
+  test("first visit blocks the app until accepted; Escape does nothing", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    const dialog = page.getByRole("dialog", {
+      name: "Before you use this tool",
+    });
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByRole("button", { name: "Close" })).toHaveCount(0);
+
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeVisible();
+
+    await dialog
+      .getByRole("button", { name: "I understand and accept" })
+      .click();
+    await expect(dialog).toHaveCount(0);
+  });
+
+  test("acceptance persists across reload", async ({ page }) => {
+    await page.goto("/");
+    await page.getByRole("button", { name: "I understand and accept" }).click();
+    await page.reload();
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+  });
+
+  test("footer reopens the disclaimer with Close and Escape", async ({
+    page,
+  }) => {
+    await acceptDisclaimer(page);
+    await page.goto("/");
+    const footer = page.locator("footer.app-footer");
+    await expect(footer).toContainText("Drafting aid, not legal advice");
+
+    await footer.getByRole("button", { name: "Disclaimer" }).click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole("button", { name: "Close" }).click();
+    await expect(dialog).toHaveCount(0);
+
+    await footer.getByRole("button", { name: "Disclaimer" }).click();
+    await expect(dialog.getByRole("button", { name: "Close" })).toBeFocused();
+    await page.keyboard.press("Escape");
+    await expect(dialog).toHaveCount(0);
+  });
+
+  test("at 393px the dialog fits the viewport and its body scrolls", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 393, height: 480 });
+    await page.goto("/");
+    const box = await page.locator(".disclaimer-dialog").boundingBox();
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(393);
+    expect(box.y).toBeGreaterThanOrEqual(0);
+    expect(box.y + box.height).toBeLessThanOrEqual(480);
+    await expect(
+      page.getByRole("button", { name: "I understand and accept" })
+    ).toBeInViewport();
+  });
+
+  test("footer does not overlap the app body at desktop width", async ({
+    page,
+  }) => {
+    await acceptDisclaimer(page);
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto("/");
+    const body = await page.locator(".app-body").boundingBox();
+    const footer = await page.locator(".app-footer").boundingBox();
+    expect(footer.y).toBeGreaterThanOrEqual(body.y + body.height - 1);
+    expect(footer.y + footer.height).toBeLessThanOrEqual(900);
   });
 });

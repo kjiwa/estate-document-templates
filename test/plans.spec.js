@@ -200,4 +200,86 @@ test.describe("Plan management", () => {
       firstCard.getByRole("button", { name: "Create reciprocal spouse plan" })
     ).toHaveCount(0);
   });
+
+  test("each card lists the five documents with a stage chip", async ({
+    page,
+  }) => {
+    await page.getByRole("button", { name: "Plans" }).click();
+
+    const rows = page
+      .locator(".plan-card")
+      .first()
+      .locator(".plan-overview-row");
+    await expect(rows).toHaveCount(5);
+    await expect(rows.first().locator(".stage-chip")).toHaveText(
+      /In progress|Ready to sign|Ready to print/
+    );
+  });
+
+  test("a document row opens that document for that plan", async ({ page }) => {
+    await page.getByRole("button", { name: "Plans" }).click();
+
+    await page
+      .locator(".plan-card")
+      .nth(1)
+      .getByRole("button", { name: "Health Care Directive" })
+      .click();
+
+    await expect(page.locator(".plans-view")).toBeHidden();
+    await expect(
+      page.locator('[data-path="party.testator.name"]').first()
+    ).toHaveText("Morgan T. Ramos");
+    await expect(page.locator("#document-sheet")).toContainText(
+      "HEALTH CARE DIRECTIVE",
+      { ignoreCase: true }
+    );
+  });
+
+  test("a plan with every content field filled shows Ready to sign", async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      const KEY = "estate_templates_state_v1";
+      const data = JSON.parse(window.localStorage.getItem(KEY));
+      const remains = data.plans["profile-1"].fiduciaries.remains;
+      remains.agent = "Casey Delacroix";
+      remains.alternate = "Priya Nandakumar";
+      window.localStorage.setItem(KEY, JSON.stringify(data));
+    });
+    await page.reload();
+    await page.getByRole("button", { name: "Plans" }).click();
+
+    const willRow = page
+      .locator(".plan-card")
+      .first()
+      .locator(".plan-overview-row", { hasText: "Last Will and Testament" });
+    await expect(willRow.locator(".stage-chip")).toHaveText(
+      /^Ready to sign, \d+ to review$/
+    );
+    await expect(willRow).toContainText("Signing day:");
+  });
+
+  test("an advisory link opens the document with that advisory shown", async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      const KEY = "estate_templates_state_v1";
+      const data = JSON.parse(window.localStorage.getItem(KEY));
+      data.plans["profile-1"].execution.witnesses[0].name = "Devin Okafor";
+      window.localStorage.setItem(KEY, JSON.stringify(data));
+    });
+    await page.reload();
+    await page.getByRole("button", { name: "Plans" }).click();
+
+    await page
+      .locator(".plan-card")
+      .first()
+      .getByRole("button", { name: "Interested witness" })
+      .click();
+
+    await expect(page.locator(".plans-view")).toBeHidden();
+    await expect(
+      page.locator(".context-panel .advisory, .bottom-sheet .advisory")
+    ).toContainText("Witness Devin Okafor is also named as");
+  });
 });

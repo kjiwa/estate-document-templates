@@ -1,10 +1,12 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
+import { DOCUMENTS } from "../documents/registry";
 import { activePlanId, plans, setField } from "../store/index";
 import {
   advisories,
   advisoriesByPath,
   advisoriesBySection,
+  overviewAdvisories,
   showAdvisory,
 } from "./advisories";
 import { activeFieldPath, activeSectionId, closeEditor } from "./editing";
@@ -85,5 +87,29 @@ describe("showAdvisory", () => {
     });
 
     expect(activeFieldPath.value).toBeNull();
+  });
+});
+
+describe("overviewAdvisories", () => {
+  const remains = DOCUMENTS.find((d) => d.id === "remains-directive")!;
+  const will = DOCUMENTS.find((d) => d.id === "will")!;
+
+  it("drops an unset-agent advisory while the agent field is blank", () => {
+    const plan = plans.value["profile-1"]!;
+    expect(remains.review(plan).map((a) => a.id)).toContain(
+      "remains-agent-unset"
+    );
+    expect(overviewAdvisories(plan, remains).map((a) => a.id)).not.toContain(
+      "remains-agent-unset"
+    );
+  });
+
+  it("keeps an interested-witness advisory", () => {
+    setField("fiduciaries.personalRepresentatives.alternate", "Alex Kowalski");
+    setField("execution.witnesses.0.name", "Alex Kowalski");
+    const plan = plans.value["profile-1"]!;
+    expect(overviewAdvisories(plan, will).map((a) => a.title)).toContain(
+      "Interested witness"
+    );
   });
 });

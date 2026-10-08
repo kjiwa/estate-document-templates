@@ -6,16 +6,19 @@ import { describe, expect, it } from "vitest";
 import { DOCUMENTS, type DocumentDefinition } from "../documents/registry";
 import { HighlightContext, PlanContext } from "../documents/shared/PlanContext";
 import { isOptional } from "../form/field-spec";
-import { sectionFields } from "../form/registry";
+import type { LeafFieldSpec } from "../form/registry";
+import { resolveFieldPath, sectionFields } from "../form/registry";
 import { migrateProfile } from "../model/migrate";
 import type { Plan } from "../model/plan";
-import { getPath } from "../model/paths";
+import { getPath, setPath } from "../model/paths";
 import {
   documentCompletion,
+  documentReadiness,
   flattenFields,
   isFieldAnswered,
   isRequired,
   sectionCompletion,
+  sectionState,
 } from "./completion";
 
 function blankPlan(): Plan {
@@ -192,5 +195,146 @@ describe("completion matches the rendered fill-ins", () => {
     );
     expect(field).toBeDefined();
     expect(isFieldAnswered(plan, field!)).toBe(false);
+  });
+});
+
+function sampleValue(field: LeafFieldSpec): unknown {
+  switch (field.kind) {
+    case "select":
+      return field.options.find((o) => o.value !== "")?.value ?? "x";
+    case "date":
+      return "2020-01-01";
+    case "number":
+      return Math.max(field.min ?? 0, 1);
+    case "executionDate":
+      return { day: "1st", month: "January", year: "2030" };
+    case "list":
+      return [
+        Object.fromEntries((field.columns ?? []).map((c) => [c.key, "x"])),
+      ];
+    default:
+      return "x";
+  }
+}
+
+function fillLeaves(
+  doc: DocumentDefinition,
+  start: Plan,
+  include: (path: string) => boolean
+): Plan {
+  let plan = start;
+  for (let pass = 0; pass < 3; pass++) {
+    for (const field of visibleLeaves(doc, plan)) {
+      if (
+        field.kind !== "checkbox" &&
+        isRequired(plan, field) &&
+        include(field.path)
+      ) {
+        plan = setPath(plan, field.path, sampleValue(field));
+      }
+    }
+  }
+  return plan;
+}
+
+function signingPaths(doc: DocumentDefinition, plan: Plan): Set<string> {
+  return new Set(
+    doc.executeGroups.flatMap((group) =>
+      group.paths.map(
+        (path) => resolveFieldPath(plan, doc.sections, path)?.field.path ?? path
+      )
+    )
+  );
+}
+
+describe("document readiness", () => {
+  const plan = blankPlan();
+
+  for (const doc of DOCUMENTS) {
+    describe(doc.id, () => {
+      it("resolves every execute-group path to a required leaf", () => {
+        const required = new Set(
+          visibleLeaves(doc, plan)
+            .filter((f) => isRequired(plan, f))
+            .map((f) => f.path)
+        );
+        const offenders = doc.executeGroups
+          .flatMap((group) => group.paths)
+          .filter((path) => {
+            const resolved = resolveFieldPath(plan, doc.sections, path);
+            return !resolved || !required.has(resolved.field.path);
+          });
+        expect(offenders).toEqual([]);
+      });
+
+      it("partitions the required leaves into content and signing", () => {
+        const { content, signing } = documentReadiness(plan, doc);
+        const { total } = documentCompletion(plan, doc.sections);
+        expect(content.total + signing.total).toBe(total);
+        expect(signing.total).toBeGreaterThan(0);
+      });
+
+      it("marks every section without required leaves blank-optional on a blank plan", () => {
+        const offenders = doc.sections
+          .filter((s) => !s.hidden?.(plan))
+          .filter(
+            (s) => !flattenFields(s.fields).some((f) => isRequired(plan, f))
+          )
+          .filter((s) => sectionState(plan, s) !== "blank-optional")
+          .map((s) => s.id);
+        expect(offenders).toEqual([]);
+      });
+
+      it("is ready-to-sign with content filled, ready-to-print with signing filled", () => {
+        const signing = signingPaths(doc, plan);
+        const contentOnly = fillLeaves(doc, plan, (p) => !signing.has(p));
+        const ready = documentReadiness(contentOnly, doc);
+        expect(ready.stage).toBe("ready-to-sign");
+        expect(ready.remainingSigningGroups.length).toBeGreaterThan(0);
+        const all = fillLeaves(doc, contentOnly, () => true);
+        const printed = documentReadiness(all, doc);
+        expect(printed.stage).toBe("ready-to-print");
+        expect(printed.remainingSigningGroups).toEqual([]);
+      });
+
+      it("is in-progress on a blank plan", () => {
+        expect(documentReadiness(plan, doc).stage).toBe("in-progress");
+      });
+    });
+  }
+
+  it("marks the named optional sections blank-optional on a blank plan", () => {
+    const named: [string, string][] = [
+      ["health-care-directive", "directions"],
+      ["remains-directive", "instructions"],
+      ["remains-directive", "arranger"],
+      ["remains-directive", "notify"],
+    ];
+    for (const [docId, id] of named) {
+      expect(sectionState(plan, sectionById(docId, id)), id).toBe(
+        "blank-optional"
+      );
+    }
+  });
+
+  it("marks will Article 3 done when outright with no community property agreement", () => {
+    const section = sectionById("will", "property");
+    const will = plan.documents.will;
+    const outright: Plan = {
+      ...plan,
+      documents: {
+        ...plan.documents,
+        will: {
+          ...will,
+          spousalGift: "outright",
+          communityPropertyAgreement: { exists: false, date: "" },
+        },
+      },
+    };
+    expect(sectionState(outright, section)).toBe("done");
+  });
+
+  it("marks a section open while a required field is unanswered", () => {
+    expect(sectionState(plan, sectionById("will", "testator"))).toBe("open");
   });
 });
