@@ -2,6 +2,8 @@ import { useContext } from "preact/hooks";
 
 import { getPronouns } from "../../model/pronouns";
 import { Blank } from "./Blank";
+import { NotarySignature } from "./NotarySignature";
+import { NotaryVenue } from "./NotaryVenue";
 import { PlanContext } from "./PlanContext";
 import { Value } from "./Value";
 
@@ -18,23 +20,12 @@ export function NotaryCertificate() {
       <div class="notary-heading">
         Self-Proving Affidavit &amp; Notarial Certificate
       </div>
-      <div class="notary-venue">
-        STATE OF{" "}
-        <Blank
-          path="party.testator.state"
-          value={state ? state.toUpperCase() : ""}
-          chars={14}
-        />{" "}
-        )<br />
-        {"\n"}
-        COUNTY OF{" "}
-        <Blank
-          path="party.testator.county"
-          value={county ? county.toUpperCase() : ""}
-          chars={12}
-        />{" "}
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;) ss.
-      </div>
+      <NotaryVenue
+        statePath="party.testator.state"
+        countyPath="party.testator.county"
+        state={state}
+        county={county}
+      />
       <p class="notary-body">
         Each of the undersigned, being first duly sworn on oath, deposes and
         states under penalty of perjury under the laws of the State of{" "}
@@ -75,31 +66,7 @@ export function NotaryCertificate() {
         <Blank path="execution.executionDate.month" chars={14} />,{" "}
         <Blank path="execution.executionDate.year" chars={6} />.
       </div>
-      <div class="notary-sig-row">
-        <div class="sig-column">
-          <div class="sig-field">
-            <div class="sig-field-line" />
-            <div class="sig-field-label">Signature of Notary Public</div>
-          </div>
-          <div class="sig-field">
-            <div class="sig-field-line">
-              <Blank path="execution.notary.name" chars={20} />
-            </div>
-            <div class="sig-field-label">Printed Name</div>
-          </div>
-          <div class="sig-field">
-            <div class="sig-field-line" />
-            <div class="sig-field-label">Title</div>
-          </div>
-          <div class="sig-field">
-            <div class="sig-field-line">
-              <Blank path="execution.notary.commissionExpires" chars={20} />
-            </div>
-            <div class="sig-field-label">Commission Expires</div>
-          </div>
-        </div>
-        <div class="notary-seal-box">Notary Seal Box</div>
-      </div>
+      <NotarySignature />
     </div>
   );
 }

@@ -70,6 +70,10 @@ function substituteFiduciaries(
         primary: sub(plan.fiduciaries.trustees.primary),
         alternate: sub(plan.fiduciaries.trustees.alternate),
       },
+      attorneysInFact: {
+        primary: sub(plan.fiduciaries.attorneysInFact.primary),
+        alternate: sub(plan.fiduciaries.attorneysInFact.alternate),
+      },
       remains: {
         ...plan.fiduciaries.remains,
         agent: sub(plan.fiduciaries.remains.agent),
