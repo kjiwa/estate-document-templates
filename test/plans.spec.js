@@ -216,14 +216,41 @@ test.describe("Plan management", () => {
     );
   });
 
+  test("the active plan's document list is open and the others are collapsed", async ({
+    page,
+  }) => {
+    await page.getByRole("button", { name: "Plans" }).click();
+
+    const cards = page.locator(".plan-card");
+    await expect(cards.first().locator(".plan-documents")).toHaveJSProperty(
+      "open",
+      true
+    );
+    await expect(cards.first().locator("summary")).toHaveText(/^Documents: /);
+    const other = cards.nth(1).locator(".plan-documents");
+    await expect(other).toHaveJSProperty("open", false);
+    await other.locator("summary").click();
+    await expect(other).toHaveJSProperty("open", true);
+  });
+
+  test("the stage chip is vertically centered on the document title", async ({
+    page,
+  }) => {
+    await page.getByRole("button", { name: "Plans" }).click();
+
+    const head = page.locator(".plan-overview-head").first();
+    const title = await head.locator(".plan-overview-title").boundingBox();
+    const chip = await head.locator(".stage-chip").boundingBox();
+    const center = (box) => box.y + box.height / 2;
+    expect(Math.abs(center(title) - center(chip))).toBeLessThan(1);
+  });
+
   test("a document row opens that document for that plan", async ({ page }) => {
     await page.getByRole("button", { name: "Plans" }).click();
 
-    await page
-      .locator(".plan-card")
-      .nth(1)
-      .getByRole("button", { name: "Health Care Directive" })
-      .click();
+    const card = page.locator(".plan-card").nth(1);
+    await card.locator(".plan-documents > summary").click();
+    await card.getByRole("button", { name: "Health Care Directive" }).click();
 
     await expect(page.locator(".plans-view")).toBeHidden();
     await expect(
