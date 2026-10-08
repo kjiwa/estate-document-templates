@@ -5,6 +5,11 @@ import type { ExecuteGroupDef, Section } from "../form/field-spec";
 import type { Advisory } from "../model/advisory";
 import type { Plan } from "../model/plan";
 import type { GuidanceEntry } from "./shared/guidance";
+import { Body as GeneralPowerOfAttorneyBody } from "./general-power-of-attorney/Body";
+import { GENERAL_POA_EXECUTE_GROUPS } from "./general-power-of-attorney/executeGroups";
+import { GENERAL_POA_GUIDANCE } from "./general-power-of-attorney/guidance";
+import { analyzeGeneralPowerOfAttorney } from "./general-power-of-attorney/review";
+import { GENERAL_POA_SECTIONS } from "./general-power-of-attorney/sections";
 import { Body as HealthCareDirectiveBody } from "./health-care-directive/Body";
 import { HEALTH_CARE_EXECUTE_GROUPS } from "./health-care-directive/executeGroups";
 import { HEALTH_CARE_GUIDANCE } from "./health-care-directive/guidance";
@@ -67,6 +72,8 @@ const DIRECTIVE_STATUTES = ["RCW 11.20.020", "RCW 42.45.130", "RCW 68.50.160"];
 
 const HEALTH_CARE_STATUTES = ["RCW 70.122.020", "RCW 70.122.030"];
 
+const GENERAL_POA_STATUTES = ["RCW 11.125.050", "RCW 11.125.100"];
+
 export const DOCUMENTS: DocumentDefinition[] = [
   {
     id: "will",
@@ -101,5 +108,16 @@ export const DOCUMENTS: DocumentDefinition[] = [
     executeGroups: HEALTH_CARE_EXECUTE_GROUPS,
     Body: HealthCareDirectiveBody,
     review: analyzeHealthCareDirective,
+  },
+  {
+    id: "general-power-of-attorney",
+    title: "General Power of Attorney",
+    roleNoun: "Principal",
+    statutes: GENERAL_POA_STATUTES,
+    sections: GENERAL_POA_SECTIONS,
+    guidance: GENERAL_POA_GUIDANCE,
+    executeGroups: GENERAL_POA_EXECUTE_GROUPS,
+    Body: GeneralPowerOfAttorneyBody,
+    review: analyzeGeneralPowerOfAttorney,
   },
 ];

@@ -43,6 +43,7 @@ const Fiduciaries = z.object({
   conservators: RoleHolders,
   personalRepresentatives: RoleHolders,
   trustees: RoleHolders,
+  attorneysInFact: RoleHolders.default({ primary: "", alternate: "" }),
   remains: Remains,
 });
 

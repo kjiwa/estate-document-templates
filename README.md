@@ -1,6 +1,6 @@
 # Estate Document Templates
 
-A client-side web application for generating, customizing, and printing legally structured estate planning documents compliant with Washington State law. Ships three document types today — a Last Will and Testament (RCW Title 11), a Disposition of Remains Directive (RCW 68.50.160), and a Health Care Directive (RCW 70.122.030, the Natural Death Act) — switchable from the header picker, drafted from one shared plan.
+A client-side web application for generating, customizing, and printing legally structured estate planning documents compliant with Washington State law. Ships four document types today — a Last Will and Testament (RCW Title 11), a Disposition of Remains Directive (RCW 68.50.160), a Health Care Directive (RCW 70.122.030, the Natural Death Act), and a General Power of Attorney (RCW 11.125) — switchable from the header picker, drafted from one shared plan.
 
 ## Features
 
@@ -18,6 +18,7 @@ A client-side web application for generating, customizing, and printing legally 
   - **RCW 11.68.011**: Nonintervention powers, requested by petition rather than directed outright.
   - **RCW 11.20.020 & RCW 42.45.130**: Self-proving affidavit with testator and witness signature lines, and a dated notarial jurat.
   - **RCW 70.122.020 & RCW 70.122.030**: Health Care Directive under the Natural Death Act — terminal/permanent unconscious condition elections and witness or notarial execution.
+  - **RCW 11.125.050 & RCW 11.125.100**: General Power of Attorney — execution by notarial acknowledgment, and the statutory termination provisions, recited verbatim for a non-durable power of attorney.
 - **Guidance Layer**: Every decision-bearing field carries a native `<details>` disclosure explaining what it does, the options, what's typical, and its impact — content only, never part of the printed document. A live Review panel raises advisories (e.g. an interested witness, a missing alternate fiduciary) computed by a pure `analyzeProfile()` function. An Attorney Memo export lists every choice and advisory for counsel.
 - **Plan Switching & Pronoun Agreement**: Toggle between reciprocal spousal plans, with automatic updates to pronouns, fiduciary appointments, and beneficiary declarations.
 - **Variable Highlighting**: Toggle dynamic field indicators on screen to audit customizable terms without affecting printed output.
@@ -65,6 +66,15 @@ Unlike the will and the remains directive, this instrument has no Article/Clause
 5. **Paragraphs (D)-(G)**: Capacity statement, right to amend, severability, and revocation of prior directives.
 6. **Testimonium & Attestation**: Execution statement, declarer signature block, and witness declaration conforming to RCW 70.122.030(1)'s two-witness or notarial-acknowledgment alternative.
 
+### General Power of Attorney
+
+A non-durable power of attorney: it ends on the principal's incapacity, so it is meant to be paired with a durable power of attorney. Like the health care directive, it has no Article/Clause numbering.
+
+1. **Title & Appointment**: Principal identification, domicile, appointment of the attorney-in-fact, and revocation of prior general powers of attorney.
+2. **Powers**: Property transactions and collection of debts; goods, choses in action, and business; instruments; gifts for public-benefit qualification; digital assets (chapter 11.120 RCW); and the giving-and-granting ratification.
+3. **Termination**: Revocation, death, third-party reliance, nomination of the attorney-in-fact as guardian, and RCW 11.125.100 recited verbatim.
+4. **Testimonium & Acknowledgment**: Execution statement, principal signature block, and the notarial acknowledgment RCW 11.125.050 provides for.
+
 ## Project Structure
 
 ```
@@ -79,7 +89,8 @@ Unlike the will and the remains directive, this instrument has no Article/Clause
 │   │   ├── shared/          # Plan context and clauses shared across document types
 │   │   ├── will/             # Washington Last Will & Testament: sections, body, guidance, review
 │   │   ├── remains-directive/ # Disposition of Remains Directive: sections, body, guidance, review
-│   │   └── health-care-directive/ # Health Care Directive: sections, body, guidance, review
+│   │   ├── health-care-directive/ # Health Care Directive: sections, body, guidance, review
+│   │   └── general-power-of-attorney/ # General Power of Attorney: sections, body, guidance, review
 │   ├── export/               # Attorney memo and standalone HTML generation
 │   ├── form/                 # FieldSpec union, <Field> renderer, field registry/traversal
 │   ├── model/                 # Plan schema (zod), paths, migrations, pronouns, dates

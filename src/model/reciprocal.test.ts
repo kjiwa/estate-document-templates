@@ -120,6 +120,19 @@ describe("reciprocalPlan", () => {
     expect(clone.fiduciaries.remains.alternate).toBe("Devin G. Okafor");
   });
 
+  it("substitutes the attorney-in-fact when it matches testator/spouse", () => {
+    const plan = marriedPlan();
+    plan.fiduciaries.attorneysInFact = {
+      primary: "Taylor B. Whitfield",
+      alternate: "Devin G. Okafor",
+    };
+    const clone = reciprocalPlan(plan, "plan-3", "x");
+    expect(clone.fiduciaries.attorneysInFact.primary).toBe(
+      "Jordan A. Whitfield"
+    );
+    expect(clone.fiduciaries.attorneysInFact.alternate).toBe("Devin G. Okafor");
+  });
+
   it("leaves the remains preference alone", () => {
     const plan = marriedPlan();
     const clone = reciprocalPlan(plan, "plan-3", "x");

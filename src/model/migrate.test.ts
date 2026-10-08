@@ -266,4 +266,46 @@ describe("migrateProfile", () => {
       DEFAULT_REMAINS_DIRECTIVE
     );
   });
+
+  it("defaults attorneysInFact for a v2 payload", () => {
+    const result = migrateProfile("profile-1", {
+      label: "Profile 1",
+      testator: { name: "Jordan" },
+    });
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    expect(result.plan.fiduciaries.attorneysInFact).toEqual({
+      primary: "",
+      alternate: "",
+    });
+  });
+
+  it("imports a pre-existing v3 export with no attorneysInFact key", () => {
+    const result = migrateProfile("profile-1", {
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      label: "Profile 1",
+      party: {
+        testator: { name: "Jordan", state: "Washington" },
+        spouse: {},
+        children: [],
+      },
+      fiduciaries: {
+        guardians: {},
+        conservators: {},
+        personalRepresentatives: {},
+        trustees: {},
+        remains: {},
+      },
+      execution: { executionDate: {}, notary: {} },
+      documents: {
+        will: { communityPropertyAgreement: {}, ultimateBeneficiary: {} },
+      },
+    });
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    expect(result.plan.fiduciaries.attorneysInFact).toEqual({
+      primary: "",
+      alternate: "",
+    });
+  });
 });
