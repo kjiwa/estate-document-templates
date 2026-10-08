@@ -39,6 +39,7 @@ export const DIRECTIVE_SECTIONS: Section[] = [
       {
         kind: "select",
         path: "party.testator.gender",
+        optional: true,
         label: "Gender / Pronouns",
         options: GENDER_OPTIONS,
       },
@@ -70,6 +71,7 @@ export const DIRECTIVE_SECTIONS: Section[] = [
       {
         kind: "text",
         path: "fiduciaries.remains.preference",
+        optional: true,
         label: "Wishes (optional, non-binding)",
       },
     ],
@@ -83,17 +85,20 @@ export const DIRECTIVE_SECTIONS: Section[] = [
       {
         kind: "select",
         path: "documents.remainsDirective.arrangementsMade",
+        optional: true,
         label: "Prearrangements Made",
         options: ARRANGEMENTS_OPTIONS,
       },
       {
         kind: "text",
         path: "documents.remainsDirective.arrangementsWith",
+        optional: true,
         label: "Prearranged With (establishment)",
       },
       {
         kind: "select",
         path: "documents.remainsDirective.method",
+        optional: true,
         label: "Method of Disposition",
         options: METHOD_OPTIONS,
       },
@@ -109,12 +114,14 @@ export const DIRECTIVE_SECTIONS: Section[] = [
       {
         kind: "select",
         path: "documents.remainsDirective.cremainsDisposition",
+        optional: true,
         label: "Disposition of Cremated Remains",
         options: CREMAINS_OPTIONS,
       },
       {
         kind: "text",
         path: "documents.remainsDirective.cremainsDetail",
+        optional: true,
         label: "Place, or Person Holding the Remains",
       },
     ],
@@ -128,16 +135,19 @@ export const DIRECTIVE_SECTIONS: Section[] = [
       {
         kind: "text",
         path: "documents.remainsDirective.arranger.name",
+        optional: true,
         label: "Arranger Name",
       },
       {
         kind: "text",
         path: "documents.remainsDirective.arranger.address",
+        optional: true,
         label: "Arranger Address",
       },
       {
         kind: "text",
         path: "documents.remainsDirective.arranger.telephone",
+        optional: true,
         label: "Arranger Telephone",
       },
     ],
@@ -151,6 +161,7 @@ export const DIRECTIVE_SECTIONS: Section[] = [
       {
         kind: "list",
         path: "documents.remainsDirective.notify",
+        optional: true,
         label: "Persons to Notify",
         addLabel: "Add person",
         columns: [
