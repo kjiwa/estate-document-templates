@@ -72,7 +72,7 @@ export const DIRECTIVE_SECTIONS: Section[] = [
         kind: "text",
         path: "fiduciaries.remains.preference",
         optional: true,
-        label: "Wishes (optional, non-binding)",
+        label: "Non-binding wishes",
       },
     ],
   },

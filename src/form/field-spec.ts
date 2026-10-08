@@ -11,6 +11,11 @@ export interface Option {
 // under some other field's value.
 export type Optional = true | ((plan: Plan) => boolean);
 
+export function isOptional(plan: Plan, field: FieldSpec): boolean {
+  if (!("optional" in field) || field.optional === undefined) return false;
+  return field.optional === true || field.optional(plan);
+}
+
 // A closed set of input kinds, not a plugin point — adding a kind means
 // extending this union and every switch over it.
 export type FieldSpec =

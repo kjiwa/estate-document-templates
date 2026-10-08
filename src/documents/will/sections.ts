@@ -121,7 +121,7 @@ export const WILL_SECTIONS: Section[] = [
         kind: "text",
         path: "fiduciaries.remains.preference",
         optional: true,
-        label: "Preference (optional, non-binding)",
+        label: "Non-binding preference",
       },
     ],
   },

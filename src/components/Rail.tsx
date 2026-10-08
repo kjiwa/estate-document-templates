@@ -25,7 +25,7 @@ export function Rail({ document, plan }: RailProps) {
           <div class="rail-progress-fill" style={{ width: `${percent}%` }} />
         </div>
         <span class="rail-progress-label">
-          {answered} / {total} fields
+          {answered} / {total} required fields
         </span>
       </div>
       <nav>

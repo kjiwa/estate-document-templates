@@ -9,6 +9,7 @@ import { getPath } from "../model/paths";
 import type { Path } from "../model/paths";
 import type { Plan } from "../model/plan";
 import { setField } from "../store/index";
+import { isOptional } from "./field-spec";
 import type { LeafFieldSpec } from "./registry";
 
 interface FieldProps {
@@ -17,6 +18,17 @@ interface FieldProps {
 
 export function fieldId(path: string): string {
   return `field-${path.replace(/\./g, "-")}`;
+}
+
+function FieldLabel({ plan, field }: { plan: Plan; field: LeafFieldSpec }) {
+  return (
+    <>
+      {field.label}
+      {isOptional(plan, field) ? (
+        <span class="field-optional"> (optional)</span>
+      ) : null}
+    </>
+  );
 }
 
 export function Field({ field }: FieldProps) {
@@ -28,7 +40,9 @@ export function Field({ field }: FieldProps) {
     case "text":
       return (
         <div class="field">
-          <label for={id}>{field.label}</label>
+          <label for={id}>
+            <FieldLabel plan={plan} field={field} />
+          </label>
           <input
             id={id}
             type="text"
@@ -109,7 +123,9 @@ export function Field({ field }: FieldProps) {
     case "select":
       return (
         <div class="field">
-          <label for={id}>{field.label}</label>
+          <label for={id}>
+            <FieldLabel plan={plan} field={field} />
+          </label>
           <select
             id={id}
             value={typeof value === "string" ? value : ""}
@@ -156,7 +172,9 @@ export function Field({ field }: FieldProps) {
       };
       return (
         <div class="field">
-          <label>{field.label}</label>
+          <label>
+            <FieldLabel plan={plan} field={field} />
+          </label>
           <div class="field-list">
             {items.map((item, i) => (
               <div

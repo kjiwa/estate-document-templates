@@ -419,6 +419,10 @@ input[type="checkbox"] {
   color: var(--ink-muted);
 }
 
+.field-optional {
+  color: var(--ink-muted);
+}
+
 .field-list {
   display: flex;
   flex-direction: column;
