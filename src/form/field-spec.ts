@@ -20,7 +20,13 @@ export type FieldSpec =
       options: readonly Option[];
     }
   | { kind: "checkbox"; path: Path<Plan>; label: string }
-  | { kind: "list"; path: Path<Plan>; label: string; addLabel: string }
+  | {
+      kind: "list";
+      path: Path<Plan>;
+      label: string;
+      addLabel: string;
+      columns?: readonly { key: string; label: string }[];
+    }
   | { kind: "group"; label: string; fields: FieldSpec[] };
 
 export type GuidanceId = string;

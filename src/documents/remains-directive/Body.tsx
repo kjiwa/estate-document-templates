@@ -1,10 +1,14 @@
+import { Fragment } from "preact";
+
 import { Article } from "../shared/Article";
 import { Blank } from "../shared/Blank";
 import { Clause } from "../shared/Clause";
 import { SignatureBlock } from "../shared/SignatureBlock";
 import { Testimonium } from "../shared/Testimonium";
 import { Value } from "../shared/Value";
+import type { Path } from "../../model/paths";
 import { usePlan } from "../shared/PlanContext";
+import type { Plan } from "../../model/plan";
 import { DeclarantAcknowledgment } from "./DeclarantAcknowledgment";
 import { DeclarantAttestation } from "./DeclarantAttestation";
 
@@ -84,11 +88,11 @@ function Article1() {
   );
 }
 
-function Article2() {
+function EffectArticle({ number }: { number: number }) {
   return (
-    <Article number={2} title="Effect, Priority, and Revocation">
+    <Article number={number} title="Effect, Priority, and Revocation">
       <Clause
-        articleNum={2}
+        articleNum={number}
         clauses={[
           {
             title: "Priority of Designation",
@@ -119,11 +123,11 @@ function Article2() {
   );
 }
 
-function Article3() {
+function GoverningLawArticle({ number }: { number: number }) {
   return (
-    <Article number={3} title="Severability and Governing Law">
+    <Article number={number} title="Severability and Governing Law">
       <Clause
-        articleNum={3}
+        articleNum={number}
         clauses={[
           {
             title: "Severability",
@@ -150,18 +154,215 @@ function Article3() {
   );
 }
 
+type RemainsDirective = Plan["documents"]["remainsDirective"];
+type RemainsContact = RemainsDirective["arranger"];
+
+const CONTACT_FIELDS = ["name", "address", "telephone"] as const;
+
+function isContactSet(contact: RemainsContact): boolean {
+  return CONTACT_FIELDS.some((key) => contact[key].trim() !== "");
+}
+
+function ContactLine({
+  base,
+  contact,
+}: {
+  base: string;
+  contact: RemainsContact;
+}) {
+  const present = CONTACT_FIELDS.filter((key) => contact[key].trim() !== "");
+  const value = (key: (typeof CONTACT_FIELDS)[number]) => (
+    <Value path={`${base}.${key}` as Path<Plan>} />
+  );
+  const details = present.filter((key) => key !== "name");
+  const detailText = details.map((key, idx) => (
+    <Fragment key={key}>
+      {idx > 0 ? ", " : null}
+      {value(key)}
+    </Fragment>
+  ));
+  if (!present.includes("name")) return <>{detailText}</>;
+  return (
+    <>
+      {value("name")}
+      {details.length > 0 ? <> ({detailText})</> : null}
+    </>
+  );
+}
+
+function priorArrangementsClause(instructions: RemainsDirective) {
+  if (instructions.arrangementsMade === "no") {
+    return {
+      title: "Prior Arrangements",
+      body: <>I have not made funeral or disposition prearrangements.</>,
+    };
+  }
+  if (instructions.arrangementsMade === "yes") {
+    return {
+      title: "Prior Arrangements",
+      body: (
+        <>
+          I have made prearrangements with{" "}
+          <Value path="documents.remainsDirective.arrangementsWith" />. Under
+          RCW 68.50.160(2), these prearrangements are not subject to
+          cancellation or substantial revision by my survivors.
+        </>
+      ),
+    };
+  }
+  return null;
+}
+
+function methodClause(instructions: RemainsDirective) {
+  if (instructions.method === "burial") {
+    return {
+      title: "Method of Disposition",
+      body: (
+        <>Pursuant to RCW 68.50.160(1), I direct that my remains be buried.</>
+      ),
+    };
+  }
+  if (instructions.method === "cremation") {
+    return {
+      title: "Method of Disposition",
+      body: (
+        <>Pursuant to RCW 68.50.160(1), I direct that my remains be cremated.</>
+      ),
+    };
+  }
+  return null;
+}
+
+const CREMAINS_TEXT: Record<string, string> = {
+  columbarium: "placed in a columbarium at",
+  scattered: "scattered at",
+  interred: "interred at",
+  heldBy: "held by",
+};
+
+function cremainsClause(instructions: RemainsDirective) {
+  const disposition = instructions.cremainsDisposition;
+  if (
+    instructions.method !== "cremation" ||
+    !Object.hasOwn(CREMAINS_TEXT, disposition)
+  ) {
+    return null;
+  }
+  const text = CREMAINS_TEXT[disposition];
+  return {
+    title: "Cremated Remains",
+    body: (
+      <>
+        I direct that my cremated remains be {text}{" "}
+        <Value path="documents.remainsDirective.cremainsDetail" />.
+      </>
+    ),
+  };
+}
+
+function arrangerClause(instructions: RemainsDirective) {
+  if (!isContactSet(instructions.arranger)) return null;
+  return {
+    title: "Arrangements",
+    body: (
+      <>
+        I direct that arrangements for my funeral and disposition be made
+        through{" "}
+        <ContactLine
+          base="documents.remainsDirective.arranger"
+          contact={instructions.arranger}
+        />
+        .
+      </>
+    ),
+  };
+}
+
+function notifyClause(instructions: RemainsDirective) {
+  const rows = instructions.notify
+    .map((contact, index) => ({ contact, index }))
+    .filter(({ contact }) => isContactSet(contact));
+  if (rows.length === 0) return null;
+  return {
+    title: "Persons to Notify",
+    body: (
+      <>
+        Upon my death, I direct that the following persons be notified:{" "}
+        {rows.map(({ contact, index }, idx) => (
+          <Fragment key={index}>
+            {idx > 0 ? "; " : null}
+            <ContactLine
+              base={`documents.remainsDirective.notify.${index}`}
+              contact={contact}
+            />
+          </Fragment>
+        ))}
+        .
+      </>
+    ),
+  };
+}
+
+function optionalClauses(instructions: RemainsDirective) {
+  return [
+    priorArrangementsClause(instructions),
+    methodClause(instructions),
+    cremainsClause(instructions),
+    arrangerClause(instructions),
+    notifyClause(instructions),
+  ];
+}
+
+function InstructionsArticle({
+  number,
+  clauses,
+}: {
+  number: number;
+  clauses: ReturnType<typeof optionalClauses>;
+}) {
+  return (
+    <Article number={number} title="Funeral and Disposition Instructions">
+      <Clause
+        articleNum={number}
+        clauses={[
+          ...clauses,
+          {
+            title: "Direction",
+            body: (
+              <>
+                My agent, my family, and all other persons responsible for my
+                remains shall take all steps necessary to carry out these
+                instructions.
+              </>
+            ),
+          },
+        ]}
+      />
+    </Article>
+  );
+}
+
 // Ports the will's `Body` structure: preamble, articles, testimonium +
 // principal signature, witness attestation, notarial acknowledgment.
 export function Body() {
+  const plan = usePlan();
+  const clauses = optionalClauses(plan.documents.remainsDirective);
+  const withInstructions = clauses.some(Boolean);
   return (
     <>
       <TitleAndPreamble />
       {"\n"}
       <Article1 />
       {"\n"}
-      <Article2 />
+      {withInstructions ? (
+        <>
+          <InstructionsArticle number={2} clauses={clauses} />
+          {"\n"}
+        </>
+      ) : null}
+      <EffectArticle number={withInstructions ? 3 : 2} />
       {"\n"}
-      <Article3 />
+      <GoverningLawArticle number={withInstructions ? 4 : 3} />
       {"\n"}
       <Testimonium instrument={INSTRUMENT} />
       {"\n"}

@@ -216,4 +216,54 @@ describe("migrateProfile", () => {
     if (!result.success) return;
     expect(result.plan.documents.healthCareDirective.cpr).toBe("");
   });
+
+  const DEFAULT_REMAINS_DIRECTIVE = {
+    arrangementsMade: "",
+    arrangementsWith: "",
+    method: "",
+    cremainsDisposition: "",
+    cremainsDetail: "",
+    arranger: { name: "", address: "", telephone: "" },
+    notify: [],
+  };
+
+  it("defaults the remains directive namespace for a v2 payload", () => {
+    const result = migrateProfile("profile-1", {
+      label: "Profile 1",
+      testator: { name: "Jordan" },
+    });
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    expect(result.plan.documents.remainsDirective).toEqual(
+      DEFAULT_REMAINS_DIRECTIVE
+    );
+  });
+
+  it("imports a pre-existing v3 export with no remainsDirective key", () => {
+    const result = migrateProfile("profile-1", {
+      schemaVersion: CURRENT_SCHEMA_VERSION,
+      label: "Profile 1",
+      party: {
+        testator: { name: "Jordan", state: "Washington" },
+        spouse: {},
+        children: [],
+      },
+      fiduciaries: {
+        guardians: {},
+        conservators: {},
+        personalRepresentatives: {},
+        trustees: {},
+        remains: {},
+      },
+      execution: { executionDate: {}, notary: {} },
+      documents: {
+        will: { communityPropertyAgreement: {}, ultimateBeneficiary: {} },
+      },
+    });
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    expect(result.plan.documents.remainsDirective).toEqual(
+      DEFAULT_REMAINS_DIRECTIVE
+    );
+  });
 });

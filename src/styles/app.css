@@ -436,6 +436,16 @@ input[type="checkbox"] {
   min-width: 0;
 }
 
+.field-list-row-columns {
+  flex-wrap: wrap;
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--rule-hairline);
+}
+
+.field-list-row-columns input {
+  flex: 1 1 10rem;
+}
+
 .field-list > .btn {
   align-self: flex-start;
 }
