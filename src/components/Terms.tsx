@@ -69,7 +69,7 @@ const TERMS_BODY = [
   "Documents are drafted to the cited Washington statutes and are not reviewed by an attorney. Laws change, and this site may not reflect the current law. Bring each draft to a licensed Washington attorney before you sign it.",
   'You use the site at your own risk. It is provided "as is" without warranty of any kind. To the fullest extent permitted by law, the author is not liable for any loss arising from its use, and you agree to hold the author harmless from any claim arising from your use of the documents you create.',
   "These terms are governed by the laws of the State of Washington.",
-  "Your entries stay in this browser and nothing is sent to a server. See Privacy.",
+  "Your entries stay in this browser and nothing is sent to a server. The site sets no cookies and runs no analytics or third-party scripts.",
 ];
 
 const PRIVACY_BODY = [

@@ -273,7 +273,7 @@ test.describe("Terms", () => {
 
   test("an older accepted version asks again", async ({ page }) => {
     await page.addInitScript(() => {
-      window.localStorage.setItem("estate_templates_terms_v1", "2000-01-01");
+      window.localStorage.setItem("estate_templates_terms", "2000-01-01");
     });
     await page.goto("/");
     await expect(

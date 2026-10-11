@@ -2,7 +2,7 @@ import { signal } from "@preact/signals";
 
 import { readStorage, writeStorage } from "./storage";
 
-const STORAGE_KEY = "estate_templates_terms_v1";
+const STORAGE_KEY = "estate_templates_terms";
 
 // Bump when the terms change materially; the stored value must match to skip
 // the gate.

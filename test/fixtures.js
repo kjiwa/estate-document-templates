@@ -185,7 +185,7 @@ async function seedPlans(page) {
 // not about it start from the accepted state.
 async function acceptTerms(page) {
   await page.addInitScript(() => {
-    window.localStorage.setItem("estate_templates_terms_v1", "2026-10-11");
+    window.localStorage.setItem("estate_templates_terms", "2026-10-11");
   });
 }
 
