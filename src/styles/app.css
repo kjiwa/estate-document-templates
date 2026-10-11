@@ -69,6 +69,25 @@ a {
   border-bottom: 1px solid var(--rule-hairline);
 }
 
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--tap-target);
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
 .app-title {
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-semibold);

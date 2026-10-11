@@ -4,16 +4,22 @@ const path = require("path");
 const { test, expect } = require("@playwright/test");
 const { seedPlans, disableFilePickers } = require("./fixtures");
 
+async function openActiveDocument(page) {
+  const documents = page.locator(".plan-card-active .plan-documents");
+  await documents.locator("summary").click();
+  await documents.locator(".plan-overview-title").first().click();
+}
+
 test.describe("Plan management", () => {
   test.beforeEach(async ({ page }) => {
     await seedPlans(page);
-    await page.goto("/");
+    await page.goto("/#/document");
   });
 
   test("the Plans button opens the plans view with one card per plan", async ({
     page,
   }) => {
-    await page.getByRole("button", { name: "Plans" }).click();
+    await page.getByRole("link", { name: "Plans", exact: true }).click();
 
     await expect(page.locator(".plans-view")).toBeVisible();
     await expect(page.locator(".plan-card")).toHaveCount(2);
@@ -22,7 +28,7 @@ test.describe("Plan management", () => {
   test("+ New plan creates a plan, makes it active, and returns to the document view", async ({
     page,
   }) => {
-    await page.getByRole("button", { name: "Plans" }).click();
+    await page.getByRole("link", { name: "Plans", exact: true }).click();
     await page.getByRole("button", { name: "+ New plan" }).click();
 
     await expect(page.locator(".plans-view")).toBeHidden();
@@ -32,7 +38,7 @@ test.describe("Plan management", () => {
   test("Rename swaps the title for an input and commits on Enter", async ({
     page,
   }) => {
-    await page.getByRole("button", { name: "Plans" }).click();
+    await page.getByRole("link", { name: "Plans", exact: true }).click();
 
     const firstCard = page.locator(".plan-card").first();
     await firstCard.getByRole("button", { name: "Rename" }).click();
@@ -45,7 +51,7 @@ test.describe("Plan management", () => {
   });
 
   test("Duplicate adds a card and makes the copy active", async ({ page }) => {
-    await page.getByRole("button", { name: "Plans" }).click();
+    await page.getByRole("link", { name: "Plans", exact: true }).click();
     await page
       .locator(".plan-card")
       .first()
@@ -63,7 +69,7 @@ test.describe("Plan management", () => {
   test("Delete is disabled at one plan, and confirms in-card otherwise", async ({
     page,
   }) => {
-    await page.getByRole("button", { name: "Plans" }).click();
+    await page.getByRole("link", { name: "Plans", exact: true }).click();
 
     const cards = page.locator(".plan-card");
     await expect(cards).toHaveCount(2);
@@ -85,13 +91,13 @@ test.describe("Plan management", () => {
   test("switching the active plan changes the rendered document", async ({
     page,
   }) => {
-    await page.getByRole("button", { name: "Plans" }).click();
+    await page.getByRole("link", { name: "Plans", exact: true }).click();
 
     const secondCard = page.locator(".plan-card").nth(1);
     await secondCard
       .getByRole("button", { name: /Make active|Active/ })
       .click();
-    await page.getByRole("button", { name: "Document" }).click();
+    await openActiveDocument(page);
 
     await expect(
       page.locator('[data-path="party.testator.name"]').first()
@@ -101,7 +107,7 @@ test.describe("Plan management", () => {
   test("Create reciprocal spouse plan produces a correct reciprocal document", async ({
     page,
   }) => {
-    await page.getByRole("button", { name: "Plans" }).click();
+    await page.getByRole("link", { name: "Plans", exact: true }).click();
 
     await page
       .locator(".plan-card")
@@ -109,7 +115,7 @@ test.describe("Plan management", () => {
       .getByRole("button", { name: "Create reciprocal spouse plan" })
       .click();
 
-    await page.getByRole("button", { name: "Document" }).click();
+    await openActiveDocument(page);
 
     // PLAN_1's testator is Avery Q. Ramos, spouse is Morgan T. Ramos — the
     // reciprocal swaps identity, so the new document's testator is Morgan.
@@ -123,8 +129,8 @@ test.describe("Plan management", () => {
 
   test("the Data card downloads an attorney memo", async ({ page }) => {
     await disableFilePickers(page);
-    await page.goto("/");
-    await page.getByRole("button", { name: "Plans" }).click();
+    await page.reload();
+    await page.getByRole("link", { name: "Plans", exact: true }).click();
 
     const [download] = await Promise.all([
       page.waitForEvent("download"),
@@ -142,8 +148,8 @@ test.describe("Plan management", () => {
       if (msg.type() === "error") consoleErrors.push(msg.text());
     });
     await disableFilePickers(page);
-    await page.goto("/");
-    await page.getByRole("button", { name: "Plans" }).click();
+    await page.reload();
+    await page.getByRole("link", { name: "Plans", exact: true }).click();
 
     const [download] = await Promise.all([
       page.waitForEvent("download"),
@@ -164,8 +170,8 @@ test.describe("Plan management", () => {
     page,
   }) => {
     await disableFilePickers(page);
-    await page.goto("/");
-    await page.getByRole("button", { name: "Plans" }).click();
+    await page.reload();
+    await page.getByRole("link", { name: "Plans", exact: true }).click();
 
     const [download] = await Promise.all([
       page.waitForEvent("download"),
@@ -179,8 +185,8 @@ test.describe("Plan management", () => {
     page,
   }) => {
     await disableFilePickers(page);
-    await page.goto("/");
-    await page.getByRole("button", { name: "Plans" }).click();
+    await page.reload();
+    await page.getByRole("link", { name: "Plans", exact: true }).click();
 
     const firstCard = page.locator(".plan-card").first();
     await firstCard.getByRole("button", { name: "Rename" }).click();
@@ -214,8 +220,8 @@ test.describe("Plan management", () => {
     page,
   }) => {
     await disableFilePickers(page);
-    await page.goto("/");
-    await page.getByRole("button", { name: "Plans" }).click();
+    await page.reload();
+    await page.getByRole("link", { name: "Plans", exact: true }).click();
 
     const [fileChooser] = await Promise.all([
       page.waitForEvent("filechooser"),
@@ -228,7 +234,7 @@ test.describe("Plan management", () => {
       page.locator(".plan-card", { hasText: "Imported V3 Plan" })
     ).toBeVisible();
 
-    await page.getByRole("button", { name: "Document" }).click();
+    await openActiveDocument(page);
     await page
       .getByLabel("Active document")
       .selectOption("durable-power-of-attorney");
@@ -243,8 +249,8 @@ test.describe("Plan management", () => {
     page,
   }) => {
     await disableFilePickers(page);
-    await page.goto("/");
-    await page.getByRole("button", { name: "Plans" }).click();
+    await page.reload();
+    await page.getByRole("link", { name: "Plans", exact: true }).click();
 
     const [download] = await Promise.all([
       page.waitForEvent("download"),
@@ -297,7 +303,7 @@ test.describe("Plan management", () => {
     });
     await page.reload();
 
-    await page.getByRole("button", { name: "Plans" }).click();
+    await page.getByRole("link", { name: "Plans", exact: true }).click();
     const firstCard = page.locator(".plan-card").first();
     await expect(
       firstCard.getByRole("button", { name: "Create reciprocal spouse plan" })
@@ -307,7 +313,7 @@ test.describe("Plan management", () => {
   test("each card lists the five documents with a stage chip", async ({
     page,
   }) => {
-    await page.getByRole("button", { name: "Plans" }).click();
+    await page.getByRole("link", { name: "Plans", exact: true }).click();
 
     const rows = page
       .locator(".plan-card")
@@ -322,7 +328,7 @@ test.describe("Plan management", () => {
   test("every document list starts collapsed and the summary carries the advisory total", async ({
     page,
   }) => {
-    await page.getByRole("button", { name: "Plans" }).click();
+    await page.getByRole("link", { name: "Plans", exact: true }).click();
 
     const cards = page.locator(".plan-card");
     for (const index of [0, 1]) {
@@ -340,7 +346,7 @@ test.describe("Plan management", () => {
   test("optional-blank lines appear only once a document is out of in-progress", async ({
     page,
   }) => {
-    await page.getByRole("button", { name: "Plans" }).click();
+    await page.getByRole("link", { name: "Plans", exact: true }).click();
     await page
       .locator(".plan-card")
       .first()
@@ -358,7 +364,7 @@ test.describe("Plan management", () => {
   });
 
   test("the active plan's card is highlighted", async ({ page }) => {
-    await page.getByRole("button", { name: "Plans" }).click();
+    await page.getByRole("link", { name: "Plans", exact: true }).click();
 
     await expect(page.locator(".plan-card-active")).toHaveCount(1);
     await expect(page.locator(".plan-card").first()).toHaveClass(
@@ -381,7 +387,7 @@ test.describe("Plan management", () => {
   test("opening Plans focuses its heading and renames the skip link", async ({
     page,
   }) => {
-    await page.getByRole("button", { name: "Plans" }).click();
+    await page.getByRole("link", { name: "Plans", exact: true }).click();
 
     await expect(
       page.getByRole("heading", { level: 1, name: "Plans" })
@@ -392,7 +398,7 @@ test.describe("Plan management", () => {
   test("the stage chip is vertically centered on the document title", async ({
     page,
   }) => {
-    await page.getByRole("button", { name: "Plans" }).click();
+    await page.getByRole("link", { name: "Plans", exact: true }).click();
     await page
       .locator(".plan-card")
       .first()
@@ -407,7 +413,7 @@ test.describe("Plan management", () => {
   });
 
   test("a document row opens that document for that plan", async ({ page }) => {
-    await page.getByRole("button", { name: "Plans" }).click();
+    await page.getByRole("link", { name: "Plans", exact: true }).click();
 
     const card = page.locator(".plan-card").nth(1);
     await card.locator(".plan-documents > summary").click();
@@ -435,7 +441,7 @@ test.describe("Plan management", () => {
       window.localStorage.setItem(KEY, JSON.stringify(data));
     });
     await page.reload();
-    await page.getByRole("button", { name: "Plans" }).click();
+    await page.getByRole("link", { name: "Plans", exact: true }).click();
     await page
       .locator(".plan-card")
       .first()
@@ -463,7 +469,7 @@ test.describe("Plan management", () => {
       window.localStorage.setItem(KEY, JSON.stringify(data));
     });
     await page.reload();
-    await page.getByRole("button", { name: "Plans" }).click();
+    await page.getByRole("link", { name: "Plans", exact: true }).click();
     await page
       .locator(".plan-card")
       .first()

@@ -15,7 +15,7 @@ async function openSurfaceLocator(page) {
 test.describe("Contextual editing", () => {
   test.beforeEach(async ({ page }) => {
     await acceptTerms(page);
-    await page.goto("/");
+    await page.goto("/#/document");
   });
 
   test("clicking a [data-path] node opens the surface for that path and marks it active", async ({
@@ -60,7 +60,7 @@ test.describe("Contextual editing", () => {
 
   test("a rail item opens its section", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto("/");
+    await page.goto("/#/document");
 
     await page.locator(".rail-item", { hasText: "Family" }).click();
 
@@ -117,7 +117,7 @@ test.describe("Contextual editing", () => {
       "panel layout is desktop-only"
     );
     await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto("/");
+    await page.goto("/#/document");
 
     await page.locator('[data-path="party.testator.name"]').first().click();
 
@@ -164,7 +164,7 @@ test.describe("Contextual editing", () => {
       "window scroll is a desktop layout defect"
     );
     await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto("/");
+    await page.goto("/#/document");
 
     const node = page.locator('[data-path="party.testator.name"]').first();
     await node.click();
@@ -181,7 +181,7 @@ test.describe("Contextual editing", () => {
     page,
   }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto("/");
+    await page.goto("/#/document");
     await page
       .locator(".rail-item", { hasText: "Guardians and Conservators" })
       .click();
@@ -198,7 +198,7 @@ test.describe("Contextual editing", () => {
     // section there, then narrow to the mobile bottom sheet to check the
     // row layout the fix targets.
     await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto("/");
+    await page.goto("/#/document");
     await page.locator(".rail-item", { hasText: "Children" }).click();
     await page
       .locator(".context-panel")
@@ -229,7 +229,7 @@ test.describe("Contextual editing", () => {
       }
     });
 
-    await page.goto("/");
+    await page.goto("/#/document");
     await page.locator('[data-path="party.testator.name"]').first().click();
     await page.getByRole("button", { name: "Close" }).click();
 
@@ -239,7 +239,7 @@ test.describe("Contextual editing", () => {
 
   test("Escape closes the desktop context panel", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto("/");
+    await page.goto("/#/document");
     await page.locator('[data-path="party.testator.name"]').first().click();
     await expect(page.locator(".context-panel")).toBeVisible();
 
@@ -252,7 +252,7 @@ test.describe("Contextual editing", () => {
     page,
   }) => {
     await page.setViewportSize({ width: 393, height: 852 });
-    await page.goto("/");
+    await page.goto("/#/document");
     await page.locator('[data-path="party.testator.name"]').first().click();
 
     await expect(page.locator("#field-party-testator-name")).toBeFocused();

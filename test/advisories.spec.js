@@ -58,7 +58,7 @@ test.describe("Review advisories", () => {
       "rail is desktop-only"
     );
     await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto("/");
+    await page.goto("/#/document");
 
     const witnessesItem = page.locator(".rail-item", {
       hasText: "Witnesses",
@@ -82,7 +82,7 @@ test.describe("Review advisories", () => {
       "context panel is desktop-only"
     );
     await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto("/");
+    await page.goto("/#/document");
 
     const marker = page
       .locator('[data-path="executions.will.witnesses.0.name"]')
@@ -111,7 +111,7 @@ test.describe("Review advisories", () => {
       "rail is desktop-only"
     );
     await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto("/");
+    await page.goto("/#/document");
 
     await page
       .locator(".advisory", { hasText: "Interested witness" })
@@ -132,7 +132,7 @@ test.describe("Review advisories", () => {
       testInfo.project.name !== "mobile-chrome",
       "bottom sheet is mobile-only"
     );
-    await page.goto("/");
+    await page.goto("/#/document");
 
     const marker = page
       .locator('[data-path="executions.will.witnesses.0.name"]')

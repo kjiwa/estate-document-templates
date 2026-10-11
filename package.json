@@ -1,7 +1,7 @@
 {
   "name": "estate-document-templates",
   "version": "1.0.0",
-  "description": "Client-side drafting tool for Washington State estate planning documents.",
+  "description": "WA Estate Docs: client-side drafting tool for Washington estate planning documents.",
   "private": true,
   "engines": {
     "node": ">=22"

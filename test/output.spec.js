@@ -12,7 +12,7 @@ async function openChecklist(page) {
 test.describe("Pre-print checklist and output", () => {
   test.beforeEach(async ({ page }) => {
     await seedPlans(page);
-    await page.goto("/");
+    await page.goto("/#/document");
   });
 
   test("shows the document's stage and an advisory link that opens it", async ({
@@ -58,7 +58,7 @@ test.describe("Pre-print checklist and output", () => {
 
   test("Export standalone HTML fires a download", async ({ page }) => {
     await disableFilePickers(page);
-    await page.goto("/");
+    await page.reload();
     await openChecklist(page);
 
     const [download] = await Promise.all([
