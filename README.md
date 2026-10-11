@@ -1,6 +1,6 @@
 # Estate Document Templates
 
-A client-side web application ([live site](https://kjiwa.github.io/estate-document-templates/)) for generating, customizing, and printing legally structured estate planning documents compliant with Washington State law. Ships five document types today — a Last Will and Testament (RCW Title 11), a Disposition of Remains Directive (RCW 68.50.160), a Health Care Directive (RCW 70.122.030, the Natural Death Act), a General Power of Attorney (RCW 11.125), and a Durable Power of Attorney (RCW 11.125) — switchable from the header picker, drafted from one shared plan.
+A client-side web application ([live site](https://kjiwa.github.io/estate-document-templates/)) for generating, customizing, and printing legally structured estate planning documents drafted to the cited Washington statutes (not reviewed by an attorney). Ships five document types today — a Last Will and Testament (RCW Title 11), a Disposition of Remains Directive (RCW 68.50.160), a Health Care Directive (RCW 70.122.030, the Natural Death Act), a General Power of Attorney (RCW 11.125), and a Durable Power of Attorney (RCW 11.125) — switchable from the header picker, drafted from one shared plan.
 
 ## Features
 
@@ -184,7 +184,7 @@ npm test
 
 ### Checking citations
 
-RCW citations across `src/documents/**` are checked monthly by CI against `app.leg.wa.gov` and diffed against `legal/citations.json`. To run the same check by hand:
+RCW citations across `src/documents/**` and `src/export/**` are checked monthly by CI against `app.leg.wa.gov` and diffed against `legal/citations.json`. To run the same check by hand:
 
 ```sh
 npm run check:citations
@@ -198,13 +198,20 @@ save a backup file from the Plans view; clearing site data, using a private wind
 or switching browsers loses the draft. Signing details (city, date, witnesses, notary) are stored per document, so each document keeps its own record; the Execute view can copy them from another document in the same plan. Data is tied to the site address: a fork or
 a different URL starts empty.
 
-## Disclaimer
+## Terms and privacy
 
-This tool is a drafting aid, not legal advice, and using it does not create an
-attorney-client relationship. It generates documents under Washington State law
-only. Have a licensed attorney review any document before you sign it.
+This tool is a self-help drafting aid, not legal advice, and using it does not
+create an attorney-client relationship. It generates documents under Washington
+State law only. Documents are drafted to the cited statutes and are not reviewed
+by an attorney; bring each draft and its attorney memo to a licensed Washington
+attorney before you sign it.
 
-The site is provided "as is" without warranty of any kind, and to the fullest
-extent permitted by law the author is not liable for any loss from its use. The
-site asks you to acknowledge this on your first visit and keeps the
-acknowledgment in this browser; the footer reopens the notice.
+The site is provided "as is" without warranty of any kind. To the fullest extent
+permitted by law the author is not liable for any loss from its use, and you
+agree to hold the author harmless from claims arising from your use of the
+documents you create. Washington law governs. The site asks you to accept these
+terms on your first visit and again whenever they change materially; the footer
+reopens them.
+
+Privacy: entries stay in the browser's `localStorage`. The site sets no cookies
+and runs no analytics, advertising, or third-party scripts.

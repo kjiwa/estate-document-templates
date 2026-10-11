@@ -744,7 +744,7 @@ button {
 }
 
 /* ----------------------------------------------------------------------
-   Footer and disclaimer dialog
+   Footer and terms dialog
    ---------------------------------------------------------------------- */
 
 .storage-notice {
@@ -778,7 +778,7 @@ button {
   cursor: pointer;
 }
 
-.disclaimer-backdrop {
+.terms-backdrop {
   position: fixed;
   inset: 0;
   z-index: 200;
@@ -789,7 +789,7 @@ button {
   background: rgba(27, 25, 23, 0.6);
 }
 
-.disclaimer-dialog {
+.terms-dialog {
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -802,23 +802,23 @@ button {
   border-radius: var(--radius-lg);
 }
 
-.disclaimer-dialog h2 {
+.terms-dialog h2 {
   margin: 0 0 var(--space-3);
   font-size: var(--font-size-lg);
   color: var(--ink-strong);
 }
 
-.disclaimer-body {
+.terms-body {
   min-height: 0;
   overflow-y: auto;
   font-size: var(--font-size-sm);
 }
 
-.disclaimer-body p {
+.terms-body p {
   margin: 0 0 var(--space-3);
 }
 
-.disclaimer-actions {
+.terms-actions {
   display: flex;
   justify-content: flex-end;
   padding-top: var(--space-3);

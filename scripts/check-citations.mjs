@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Extracts RCW citations from src/documents (excluding tests and fixtures)
+// Extracts RCW citations from src/documents and src/export (excluding tests and fixtures)
 // and diffs each section's history note on app.leg.wa.gov against
 // legal/citations.json. Run monthly by .github/workflows/citation-check.yml.
 //
@@ -13,7 +13,7 @@ import path from "node:path";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 
-const SOURCE_GLOB = "src/documents/**/*.{ts,tsx}";
+const SOURCE_GLOB = "src/{documents,export}/**/*.{ts,tsx}";
 const EXCLUDED_SOURCE = /\.test\.|goldenFixtures/;
 const FETCH_TIMEOUT_MS = 30000;
 const CITATIONS_SNAPSHOT_PATH = path.join(ROOT, "legal/citations.json");
