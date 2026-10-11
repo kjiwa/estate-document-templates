@@ -1,6 +1,6 @@
 // @ts-check
 const { test, expect } = require("@playwright/test");
-const { acceptDisclaimer } = require("./fixtures");
+const { acceptTerms } = require("./fixtures");
 
 // Whichever surface (desktop context panel or mobile bottom sheet) the
 // running project renders — the two never render at once (app.css:102's
@@ -14,7 +14,7 @@ async function openSurfaceLocator(page) {
 
 test.describe("Contextual editing", () => {
   test.beforeEach(async ({ page }) => {
-    await acceptDisclaimer(page);
+    await acceptTerms(page);
     await page.goto("/");
   });
 

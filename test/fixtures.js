@@ -165,7 +165,7 @@ const FIXTURE_PLANS = {
 // while the absent-key case still re-seeds after localStorage.clear();
 // reload().
 async function seedPlans(page) {
-  await acceptDisclaimer(page);
+  await acceptTerms(page);
   await page.addInitScript((plans) => {
     const KEY = "estate_templates_state_v1";
     if (window.localStorage.getItem(KEY)) return;
@@ -183,9 +183,9 @@ async function seedPlans(page) {
 
 // The click-through disclaimer blocks the page until accepted; specs that are
 // not about it start from the accepted state.
-async function acceptDisclaimer(page) {
+async function acceptTerms(page) {
   await page.addInitScript(() => {
-    window.localStorage.setItem("estate_templates_disclaimer_v1", "accepted");
+    window.localStorage.setItem("estate_templates_terms_v1", "2026-10-11");
   });
 }
 
@@ -210,6 +210,6 @@ module.exports = {
   PLAN_2,
   FIXTURE_PLANS,
   seedPlans,
-  acceptDisclaimer,
+  acceptTerms,
   disableFilePickers,
 };

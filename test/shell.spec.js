@@ -1,10 +1,10 @@
 // @ts-check
 const { test, expect } = require("@playwright/test");
-const { acceptDisclaimer } = require("./fixtures");
+const { acceptTerms } = require("./fixtures");
 
 test.describe("Application Shell, Layout & Accessibility", () => {
   test.beforeEach(async ({ page }) => {
-    await acceptDisclaimer(page);
+    await acceptTerms(page);
   });
 
   test("renders page without console errors and contains accessible landmarks", async ({
@@ -223,13 +223,13 @@ test.describe("Application Shell, Layout & Accessibility", () => {
   });
 });
 
-test.describe("Disclaimer", () => {
+test.describe("Terms", () => {
   test("first visit blocks the app until accepted; Escape does nothing", async ({
     page,
   }) => {
     await page.goto("/");
     const dialog = page.getByRole("dialog", {
-      name: "Before you use this tool",
+      name: "Terms of use",
     });
     await expect(dialog).toBeVisible();
     await expect(dialog.getByRole("button", { name: "Close" })).toHaveCount(0);
@@ -250,28 +250,47 @@ test.describe("Disclaimer", () => {
     await expect(page.getByRole("dialog")).toHaveCount(0);
   });
 
-  test("footer reopens the disclaimer with Close and Escape", async ({
-    page,
-  }) => {
-    await acceptDisclaimer(page);
+  test("footer reopens the terms with Close and Escape", async ({ page }) => {
+    await acceptTerms(page);
     await page.goto("/");
     const footer = page.locator("footer.app-footer");
     await expect(footer).toContainText("Drafting aid, not legal advice");
 
-    await footer.getByRole("button", { name: "Disclaimer" }).click();
+    await footer.getByRole("button", { name: "Terms" }).click();
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
     await expect(page.locator(".app-header")).toHaveJSProperty("inert", true);
     await dialog.getByRole("button", { name: "Close" }).click();
     await expect(dialog).toHaveCount(0);
     await expect(page.locator(".app-header")).toHaveJSProperty("inert", false);
-    await expect(
-      footer.getByRole("button", { name: "Disclaimer" })
-    ).toBeFocused();
+    await expect(footer.getByRole("button", { name: "Terms" })).toBeFocused();
 
-    await footer.getByRole("button", { name: "Disclaimer" }).click();
+    await footer.getByRole("button", { name: "Terms" }).click();
     await expect(dialog.getByRole("button", { name: "Close" })).toBeFocused();
     await page.keyboard.press("Escape");
+    await expect(dialog).toHaveCount(0);
+  });
+
+  test("an older accepted version asks again", async ({ page }) => {
+    await page.addInitScript(() => {
+      window.localStorage.setItem("estate_templates_terms_v1", "2000-01-01");
+    });
+    await page.goto("/");
+    await expect(
+      page.getByRole("dialog", { name: "Terms of use" })
+    ).toBeVisible();
+  });
+
+  test("footer opens Privacy", async ({ page }) => {
+    await acceptTerms(page);
+    await page.goto("/");
+    await page
+      .locator("footer.app-footer")
+      .getByRole("button", { name: "Privacy" })
+      .click();
+    const dialog = page.getByRole("dialog", { name: "Privacy" });
+    await expect(dialog).toContainText("no analytics");
+    await dialog.getByRole("button", { name: "Close" }).click();
     await expect(dialog).toHaveCount(0);
   });
 
@@ -280,7 +299,7 @@ test.describe("Disclaimer", () => {
   }) => {
     await page.setViewportSize({ width: 393, height: 480 });
     await page.goto("/");
-    const box = await page.locator(".disclaimer-dialog").boundingBox();
+    const box = await page.locator(".terms-dialog").boundingBox();
     expect(box.x).toBeGreaterThanOrEqual(0);
     expect(box.x + box.width).toBeLessThanOrEqual(393);
     expect(box.y).toBeGreaterThanOrEqual(0);
@@ -293,7 +312,7 @@ test.describe("Disclaimer", () => {
   test("footer does not overlap the app body at desktop width", async ({
     page,
   }) => {
-    await acceptDisclaimer(page);
+    await acceptTerms(page);
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto("/");
     const body = await page.locator(".app-body").boundingBox();
@@ -304,7 +323,7 @@ test.describe("Disclaimer", () => {
   test("hash routing: reload stays on Plans and Back leaves execute", async ({
     page,
   }) => {
-    await acceptDisclaimer(page);
+    await acceptTerms(page);
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto("/#/plans");
     await expect(page.locator(".plans-view")).toBeVisible();

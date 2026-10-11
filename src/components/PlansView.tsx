@@ -398,8 +398,9 @@ export function PlansView() {
       </div>
       <p class="field-hint plan-overview-note">
         Ready to sign means everything except the signing-day details (date,
-        witnesses, notary) is filled. Have a Washington attorney review each
-        document, including optional sections left blank, before signing.
+        witnesses, notary) is filled. Drafts are not reviewed by an attorney.
+        Bring each draft and its attorney memo to a Washington attorney,
+        including optional sections left blank, before signing.
       </p>
       <DataCard />
     </main>
