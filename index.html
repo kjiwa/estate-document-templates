@@ -5,10 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex" />
     <meta
-      name="description"
-      content="Washington estate planning documents you draft, review, and print in your browser: will, remains directive, health care directive, and powers of attorney."
-    />
-    <meta
       name="theme-color"
       content="#f5f1ea"
       media="(prefers-color-scheme: light)"
@@ -22,12 +18,13 @@
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23141311'/%3E%3Cpath d='M9 6h10l5 5v15H9z' fill='%23f5f1ea'/%3E%3Cpath d='M12 16h8M12 20h8' stroke='%23141311' stroke-width='1.5'/%3E%3C/svg%3E"
     />
-    <!-- CSP script hash covers the inline theme script below; recompute it after any edit to that script. -->
+    <!-- CSP script hashes cover the two inline scripts below; recompute them after any edit to either. -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'sha256-O1oR5XGYe8E41IiybqyfCcrlXD5juDfXFKnT/uejUpQ='; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'none'; connect-src 'none'; form-action 'none'; img-src 'self' data:"
+      content="default-src 'self'; script-src 'self' 'sha256-O1oR5XGYe8E41IiybqyfCcrlXD5juDfXFKnT/uejUpQ=' 'sha256-jeKYY9MkugEgQU2TwVk9Q2L7LAg5b3fGF383p3Lw3Jo='; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'none'; connect-src 'none'; form-action 'none'; img-src 'self' data:"
     />
-    <title>WA Estate Docs: Washington estate planning documents</title>
+    <!--site-head-->
+    <link rel="stylesheet" href="/src/site/site.css" />
     <script>
       // Runs before first paint so the theme is correct with no flash.
       // Mirrors src/ui/theme.ts's persisted value and storage key.
@@ -45,9 +42,13 @@
         }
       })();
     </script>
+    <script>
+      // Hash routes belong to the app.
+      if (location.hash.indexOf("#/") === 0)
+        location.replace("app/" + location.hash);
+    </script>
   </head>
   <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <!--site-body-->
   </body>
 </html>

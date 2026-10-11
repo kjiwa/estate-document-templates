@@ -14,7 +14,7 @@ const DOCUMENT_IDS = [
 test.describe("Screen-to-Print Fidelity & PDF Generation", () => {
   test.beforeEach(async ({ page }) => {
     await seedPlans(page);
-    await page.goto("/#/document");
+    await page.goto("/app/#/document");
   });
 
   test("verifies @page rules and physical print geometry in stylesheet", async ({
@@ -223,7 +223,7 @@ test.describe("Screen-to-Print Fidelity & PDF Generation", () => {
 
     let singleTotal = 0;
     for (const id of DOCUMENT_IDS) {
-      await page.goto(`/#/document/${id}`);
+      await page.goto(`/app/#/document/${id}`);
       await expect(page.locator("#document-sheet")).toBeVisible();
       singleTotal += pageCount(
         await page.pdf({ format: "Letter", printBackground: true })

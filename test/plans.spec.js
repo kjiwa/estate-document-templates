@@ -13,7 +13,7 @@ async function openActiveDocument(page) {
 test.describe("Plan management", () => {
   test.beforeEach(async ({ page }) => {
     await seedPlans(page);
-    await page.goto("/#/document");
+    await page.goto("/app/#/document");
   });
 
   test("the Plans button opens the plans view with one card per plan", async ({

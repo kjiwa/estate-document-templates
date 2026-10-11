@@ -94,7 +94,8 @@ A springing, durable power of attorney: the powers begin on the principal's inca
 
 ```
 .
-├── index.html                          # Application entry point, loads /src/main.tsx
+├── index.html                          # Content-site template, filled per page by scripts/prerender.mjs
+├── app/index.html                      # Application entry point, loads /src/main.tsx
 ├── src/
 │   ├── main.tsx                        # Bootstraps the Preact app and store
 │   ├── App.tsx                         # Top-level view switch (document/plans/execute/print)
@@ -111,10 +112,12 @@ A springing, durable power of attorney: the powers begin on the principal's inca
 │   ├── fonts/                          # Bundled webfonts, each under its own src/fonts/LICENSE-* file
 │   ├── form/                           # FieldSpec union, <Field> renderer, field registry/traversal
 │   ├── model/                          # Plan schema (zod), paths, migrations, pronouns, dates
+│   ├── site/                           # Content pages (landing, documents, about, terms, privacy), prerendered at build
 │   ├── store/                          # Reactive plan store and persistence (localStorage)
 │   ├── styles/                         # Design tokens and app/document/print CSS
 │   └── ui/                             # Signals-derived UI state: editing, advisories, execute, files, theme
 ├── scripts/
+│   ├── prerender.mjs                   # Renders src/site pages, sitemap.xml, and robots.txt into dist after vite build
 │   └── check-citations.mjs             # Compares cited RCW history notes to the snapshot
 ├── legal/
 │   └── citations.json                  # Snapshot of statute history notes, checked by CI
@@ -146,8 +149,8 @@ No account beyond GitHub is required. Node >= 22 is required to build locally. T
 
 ### Local Development
 
-This is a Vite app; `index.html` loads `/src/main.tsx` as a module, which a plain
-static file server hands to the browser unprocessed. Use Vite's dev server instead:
+This is a Vite app; `app/index.html` loads `/src/main.tsx` as a module, which a plain
+static file server hands to the browser unprocessed. Use Vite's dev server instead (the app is at `/app/`; the content pages exist only after `npm run build`, viewable with `npm run preview`):
 
 ```sh
 npm install
