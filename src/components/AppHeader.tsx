@@ -8,7 +8,6 @@ import {
 } from "../store/index";
 import { closeEditor } from "../ui/editing";
 import { startExecuteFlow } from "../ui/execute";
-import { serializeRoute } from "../ui/route";
 import { view } from "../ui/view";
 import { PresentationToggle } from "./PresentationToggle";
 import { ThemeToggle } from "./ThemeToggle";
@@ -57,6 +56,11 @@ export function AppHeader() {
   const onPlansView = view.value === "plans";
   const onExecuteView = view.value === "execute" || view.value === "print";
 
+  function openPlans() {
+    closeEditor();
+    view.value = "plans";
+  }
+
   function openExecute() {
     closeEditor();
     startExecuteFlow();
@@ -69,8 +73,11 @@ export function AppHeader() {
         {onPlansView ? null : (
           <a
             class="back-link"
-            href={serializeRoute("plans", activeDocumentId.value)}
-            onClick={closeEditor}
+            href="#/plans"
+            onClick={(event) => {
+              event.preventDefault();
+              openPlans();
+            }}
           >
             <span aria-hidden="true">&lsaquo;</span>Plans
           </a>
