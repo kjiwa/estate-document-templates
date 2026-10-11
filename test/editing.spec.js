@@ -74,7 +74,7 @@ test.describe("Contextual editing", () => {
   }, testInfo) => {
     // The focus trap (and Escape-to-close) is `BottomSheet`'s alone — the
     // desktop `ContextPanel` is explicitly not modal (no `role="dialog"`,
-    // no trap), per the plan's mockup 01 reading.
+    // no trap).
     test.skip(
       testInfo.project.name !== "mobile-chrome",
       "focus trap is the mobile bottom sheet's alone"

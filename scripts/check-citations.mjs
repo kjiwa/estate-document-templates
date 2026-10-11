@@ -1,15 +1,10 @@
 #!/usr/bin/env node
-// Regexes every RCW citation out of src/documents/**/*.{ts,tsx} (the only
-// place citations live now that js/ is retired), fetches each section from
-// app.leg.wa.gov, and diffs its history note against the checked-in
-// legal/citations.json snapshot. Run monthly by
-// .github/workflows/citation-check.yml, or by hand via
-// `npm run check:citations`.
+// Extracts RCW citations from src/documents (excluding tests and fixtures)
+// and diffs each section's history note on app.leg.wa.gov against
+// legal/citations.json. Run monthly by .github/workflows/citation-check.yml.
 //
-// Deviation from the original plan: app.leg.wa.gov returns HTTP 200 for an
-// unknown citation, not 404 (verified this session) — a repealed or
-// renumbered section is detected by the page containing the literal text
-// "Citation not found" instead.
+// app.leg.wa.gov returns HTTP 200 for an unknown citation, so a missing
+// section is detected by the literal text "Citation not found".
 
 import { glob, readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
@@ -19,22 +14,18 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 
 const SOURCE_GLOB = "src/documents/**/*.{ts,tsx}";
+const EXCLUDED_SOURCE = /\.test\.|goldenFixtures/;
+const FETCH_TIMEOUT_MS = 30000;
 const CITATIONS_SNAPSHOT_PATH = path.join(ROOT, "legal/citations.json");
-// Two shapes appear in the documents: a pinpoint section cite ("RCW
-// 68.50.160", 3-segment title.chapter.section), and a whole-chapter cite
-// ("chapter 11.130 RCW", 2-segment title.chapter, number before "RCW").
-// app.leg.wa.gov's `?cite=` param accepts both, but a chapter page is a
-// table of contents with no per-citation `[...]` history note, so a
-// 2-segment cite here is always checked against a `null` snapshot entry
-// rather than a history string — the generic `result.history !==
-// snapshotHistory` comparison in `main` already handles that (both sides
-// are `null`), no special-casing needed.
+// Matches a section cite ("RCW 68.50.160") or a whole-chapter cite ("chapter
+// 11.130 RCW"). A chapter page has no history note, so its snapshot is `null`.
 const CITATION_PATTERN =
   /RCW\s+(\d+\.\d+(?:\.\d+)?)|chapter\s+(\d+\.\d+)\s+RCW/g;
 
 async function extractCitations() {
   const citations = new Set();
   for await (const relativePath of glob(SOURCE_GLOB, { cwd: ROOT })) {
+    if (EXCLUDED_SOURCE.test(relativePath)) continue;
     const text = await readFile(path.join(ROOT, relativePath), "utf8");
     for (const match of text.matchAll(CITATION_PATTERN)) {
       citations.add(match[1] ?? match[2]);
@@ -61,6 +52,7 @@ async function fetchCitation(cite) {
   const url = `https://app.leg.wa.gov/RCW/default.aspx?cite=${encodeURIComponent(cite)}`;
   const response = await fetch(url, {
     headers: { "User-Agent": "estate-document-templates-citation-check" },
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
   });
   if (!response.ok) {
     throw new Error(`${response.status} ${response.statusText}`);
@@ -93,13 +85,13 @@ async function main() {
     try {
       result = await fetchCitation(cite);
     } catch (err) {
-      failures.push(`RCW ${cite}: fetch failed — ${err.message}`);
+      failures.push(`RCW ${cite}: fetch failed - ${err.message}`);
       continue;
     }
 
     if (result.notFound) {
       failures.push(
-        `RCW ${cite}: citation not found at app.leg.wa.gov — likely repealed or renumbered.`
+        `RCW ${cite}: citation not found at app.leg.wa.gov - likely repealed or renumbered.`
       );
       continue;
     }
@@ -107,7 +99,7 @@ async function main() {
     const snapshotHistory = snapshot[cite];
     if (snapshotHistory === undefined) {
       failures.push(
-        `RCW ${cite}: cited in source but missing from legal/citations.json — add its history note to the snapshot.`
+        `RCW ${cite}: cited in source but missing from legal/citations.json - add its history note to the snapshot.`
       );
       continue;
     }

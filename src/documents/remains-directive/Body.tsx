@@ -12,12 +12,10 @@ import type { Plan } from "../../model/plan";
 import { DeclarantAcknowledgment } from "./DeclarantAcknowledgment";
 import { DeclarantAttestation } from "./DeclarantAttestation";
 
-// The Disposition of Remains Directive under RCW 68.50.160. Phase 5's proof
-// of the Phase 3 seam: every value below reads `party.testator`,
-// `fiduciaries.remains`, and its own execution record — fields the will already declares
-// — so this document adds zero schema. RCW text quoted in comments below
-// was fetched live from app.leg.wa.gov this session; see the child plan's
-// Progress section for the full text.
+// The Disposition of Remains Directive under RCW 68.50.160. Every value below
+// reads `party.testator`, `fiduciaries.remains`, and its own execution
+// record — fields the will already declares — so this document adds zero
+// schema.
 const INSTRUMENT = "Disposition of Remains Directive";
 const ROLE = "Declarant";
 

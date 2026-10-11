@@ -52,7 +52,7 @@ export function DocumentSurface({ document, plan }: DocumentSurfaceProps) {
   const advisoryMap = advisoriesByPath.value;
   const advisoriesFor = (path: string) => advisoryMap.get(path) ?? [];
 
-  // Scrolls the tapped clause above the sheet/panel, per the parent plan.
+  // Scrolls the tapped clause above the sheet/panel.
   useEffect(() => {
     if (!activePath) return;
     const node = sheetRef.current?.querySelector<HTMLElement>(
@@ -61,22 +61,22 @@ export function DocumentSurface({ document, plan }: DocumentSurfaceProps) {
     node?.scrollIntoView({ block: "center" });
   }, [activePath]);
 
-  function handleClick(event: MouseEvent) {
+  function openFromEvent(event: Event): boolean {
     const path = pathFromEvent(event);
-    if (!path) return;
+    if (!path) return false;
     const entry = resolveFieldPath(plan, document.sections, path);
-    if (!entry) return;
+    if (!entry) return false;
     openField(entry.field.path, triggerFromEvent(event));
+    return true;
+  }
+
+  function handleClick(event: MouseEvent) {
+    openFromEvent(event);
   }
 
   function handleKeyDown(event: KeyboardEvent) {
     if (event.key !== "Enter" && event.key !== " ") return;
-    const path = pathFromEvent(event);
-    if (!path) return;
-    const entry = resolveFieldPath(plan, document.sections, path);
-    if (!entry) return;
-    event.preventDefault();
-    openField(entry.field.path, triggerFromEvent(event));
+    if (openFromEvent(event)) event.preventDefault();
   }
 
   const sheetOpen = isNarrow.value && activePath !== null;

@@ -77,7 +77,7 @@ function collectRoleHolders(plan: Plan): RoleHolder[] {
     "alternate remains agent",
     "fiduciaries.remains.alternate"
   );
-  (plan.party.children || []).forEach((child, index) =>
+  plan.party.children.forEach((child, index) =>
     add(child, "child", `party.children.${index}` as Path<Plan>)
   );
 
@@ -89,8 +89,8 @@ function interestedWitnessAdvisories(
   holders: RoleHolder[]
 ): Advisory[] {
   const advisories: Advisory[] = [];
-  (plan.executions.will.witnesses || []).forEach((witness, index) => {
-    const normalized = normalizeName(witness?.name);
+  plan.executions.will.witnesses.forEach((witness, index) => {
+    const normalized = normalizeName(witness.name);
     if (!normalized) return;
 
     const roles = [
@@ -152,7 +152,7 @@ function trusteeBeneficiaryAdvisory(plan: Plan): Advisory | null {
     .filter(Boolean);
   const beneficiaryNames = [
     plan.documents.will.ultimateBeneficiary.name,
-    ...(plan.party.children || []),
+    ...plan.party.children,
   ]
     .map(normalizeName)
     .filter(Boolean);

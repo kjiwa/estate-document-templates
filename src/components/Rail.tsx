@@ -4,6 +4,7 @@ import { advisoriesBySection, showAdvisory } from "../ui/advisories";
 import {
   documentCompletion,
   documentReadiness,
+  isReady,
   sectionState,
   STAGE_LABELS,
   type SectionState,
@@ -34,7 +35,7 @@ export function Rail({ document, plan }: RailProps) {
 
   const rail = (
     <aside class="app-rail" aria-label="Document sections">
-      {stage !== "in-progress" ? (
+      {isReady(stage) ? (
         <div class="stage-chip ready">{STAGE_LABELS[stage]}</div>
       ) : null}
       <div class="rail-progress">

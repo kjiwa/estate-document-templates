@@ -1,9 +1,7 @@
 import type { ExecuteGroupDef } from "../../form/field-spec";
 
-// The Execute flow's groups for the directive, mirroring
-// `will/executeGroups.ts`'s pattern and over its own
-// `executions.remainsDirective.*` record. The Execute flow can copy the
-// record from a document signed at the same appointment.
+// The Execute flow's groups for the directive, over its own
+// `executions.remainsDirective.*` record.
 export const DIRECTIVE_EXECUTE_GROUPS: ExecuteGroupDef[] = [
   {
     title: "City and date of execution",

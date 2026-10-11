@@ -1,9 +1,7 @@
 // Builds the reciprocal spouse's plan from a married plan: identity swap
-// (testator <-> spouse) plus name substitution across the ten fiduciary
-// slots and the ultimate beneficiary. A flat sequence of named steps, not a
-// generic walker — the field set here is closed and enumerated in the
-// parent plan's reciprocal-transform table, not something a future field
-// addition should silently join by matching a shape.
+// (testator <-> spouse) plus name substitution across the fiduciary slots and
+// the ultimate beneficiary. A flat sequence of named steps, not a generic
+// walker, so a new field never joins the transform by matching a shape.
 import { normalizeName } from "./names";
 import type { Plan } from "./plan";
 

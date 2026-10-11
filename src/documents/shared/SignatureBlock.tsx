@@ -4,10 +4,8 @@ interface SignatureBlockProps {
   role: string;
 }
 
-// Reproduces `renderTestimoniumAndSignatures`'s second block — the
-// principal signer's signature. `role` is the noun the instrument uses for
-// its own signer ("Testator", "Declarant"); the will passes its value
-// explicitly so the goldens stay byte-identical.
+// The principal signer's signature. `role` is the noun the instrument uses
+// for its own signer ("Testator", "Declarant").
 export function SignatureBlock({ role }: SignatureBlockProps) {
   return (
     <div class="sig-block-principal">

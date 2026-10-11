@@ -1,22 +1,21 @@
 // `Section.guidance` keys the active document's `DocumentDefinition.guidance`
 // (per section, not per field) — content only, never rendered into the
 // document body or the standalone export.
-import { DOCUMENTS } from "../documents/registry";
-import { activeDocumentId } from "../store/index";
+import { activeDocument } from "../store/index";
 
 interface FieldGuidanceProps {
   guidanceId?: string | readonly string[];
 }
 
 export function FieldGuidance({ guidanceId }: FieldGuidanceProps) {
-  const document = DOCUMENTS.find((d) => d.id === activeDocumentId.value);
+  const doc = activeDocument.value;
   const ids = guidanceId
     ? Array.isArray(guidanceId)
       ? guidanceId
       : [guidanceId as string]
     : [];
   const entries = ids
-    .map((id) => document?.guidance[id])
+    .map((id) => doc?.guidance[id])
     .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
   if (entries.length === 0) return null;
 

@@ -11,7 +11,7 @@ import {
 import { view } from "../ui/view";
 
 // The progress bar, group heading/lead, the group's fields, Back/Continue, and the
-// "Also in this flow" checklist of all four groups.
+// "Also in this flow" checklist of all groups.
 export function ExecuteFlow() {
   const groups = executeGroups.value;
   const index = executeGroupIndex.value;

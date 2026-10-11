@@ -1,4 +1,4 @@
-// Matches `app.css:102`'s breakpoint, so the contextual panel (desktop) and
+// Matches the `app.css` mobile breakpoint, so the contextual panel (desktop) and
 // bottom sheet (mobile) never render at once.
 import { signal } from "@preact/signals";
 

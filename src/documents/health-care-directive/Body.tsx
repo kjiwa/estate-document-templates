@@ -9,11 +9,8 @@ import { ElectionTable } from "./ElectionTable";
 import { WitnessDeclaration } from "./WitnessDeclaration";
 
 // The Health Care Directive under the Natural Death Act, RCW 70.122.030.
-// Every value below reads `party.testator`, its own execution record, and the new
-// `documents.healthCareDirective` namespace — the first schema addition
-// since `documents.will`. RCW text quoted below was fetched live from
-// app.leg.wa.gov this session; see the child plan's Progress section for
-// the full text and its citation.
+// Every value below reads `party.testator`, its own execution record, and the
+// `documents.healthCareDirective` namespace.
 //
 // Unlike the will and the remains directive, this instrument has no
 // `Article`/`Clause` numbering: the source is one continuous declaration of

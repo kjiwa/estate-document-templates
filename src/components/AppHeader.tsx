@@ -12,10 +12,7 @@ import { view } from "../ui/view";
 import { PresentationToggle } from "./PresentationToggle";
 import { ThemeToggle } from "./ThemeToggle";
 
-// A single document reduces to today's fixed title — the picker only earns
-// its place once a second document exists.
 function DocumentPicker() {
-  if (DOCUMENTS.length < 2) return null;
   return (
     <select
       class="btn"

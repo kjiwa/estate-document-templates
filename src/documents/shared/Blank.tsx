@@ -2,30 +2,9 @@ import { useContext } from "preact/hooks";
 
 import { getPath, type Path } from "../../model/paths";
 import type { Plan } from "../../model/plan";
-import type { Advisory } from "../../model/advisory";
-import { showAdvisory } from "../../ui/advisories";
+import { editAffordance } from "./editAffordance";
 import { EditingContext, PlanContext } from "./PlanContext";
 import { Value } from "./Value";
-
-// Sits outside the `[data-path]` element so `DocumentSurface`'s
-// `closest("[data-path]")` click delegation does not also fire and open the
-// field editor underneath it.
-function AdvisoryMarker({ advisories }: { advisories: Advisory[] }) {
-  const advisory = advisories[0]!;
-  return (
-    <button
-      type="button"
-      class="advisory-inline"
-      aria-label={`${advisory.title}: ${advisory.message}`}
-      onClick={(event) => {
-        event.stopPropagation();
-        showAdvisory(advisory, event.currentTarget as HTMLElement);
-      }}
-    >
-      ⚠
-    </button>
-  );
-}
 
 interface BlankProps {
   path?: Path<Plan>;
@@ -47,20 +26,7 @@ export function Blank({ path, value, chars = 10 }: BlankProps) {
         : undefined;
 
   if (raw === null || raw === undefined || raw === "") {
-    const interactive =
-      editing.interactive && path !== undefined && editing.isEditable(path);
-    const activeClass =
-      interactive && editing.activePath === path ? " field-active" : "";
-    const editingProps = interactive
-      ? {
-          tabindex: 0,
-          role: "button" as const,
-          "aria-label": `Edit ${editing.labelFor(path as string)}`,
-        }
-      : {};
-    const pathAdvisories = interactive
-      ? editing.advisoriesFor(path as string)
-      : [];
+    const { activeClass, editingProps, marker } = editAffordance(editing, path);
     return (
       <>
         <span
@@ -69,9 +35,7 @@ export function Blank({ path, value, chars = 10 }: BlankProps) {
           style={{ width: `${chars}ch` }}
           {...editingProps}
         />
-        {pathAdvisories.length > 0 ? (
-          <AdvisoryMarker advisories={pathAdvisories} />
-        ) : null}
+        {marker}
       </>
     );
   }

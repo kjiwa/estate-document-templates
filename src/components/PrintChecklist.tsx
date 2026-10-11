@@ -1,38 +1,36 @@
 import { useState } from "preact/hooks";
 
-import { DOCUMENTS } from "../documents/registry";
 import { generateStandaloneHtml } from "../export/standaloneHtml";
 import {
   groupByTitle,
   overviewAdvisories,
   showAdvisory,
 } from "../ui/advisories";
-import { documentReadiness, STAGE_LABELS } from "../ui/completion";
+import { documentReadiness, isReady, STAGE_LABELS } from "../ui/completion";
 import { fileSlug, saveFile } from "../ui/files";
 import { printDocument } from "../ui/print";
-import { activeDocumentId, activePlan } from "../store/index";
+import { activeDocument, activePlan } from "../store/index";
 import { view } from "../ui/view";
 
 // Both checkboxes are a local acknowledgement, not persisted plan data, and
 // neither gates the buttons.
 export function PrintChecklist() {
   const plan = activePlan.value;
-  const document = DOCUMENTS.find((d) => d.id === activeDocumentId.value);
-  const stage =
-    plan && document ? documentReadiness(plan, document).stage : null;
+  const doc = activeDocument.value;
+  const stage = plan && doc ? documentReadiness(plan, doc).stage : null;
   const advisories =
-    plan && document ? groupByTitle(overviewAdvisories(plan, document)) : [];
+    plan && doc ? groupByTitle(overviewAdvisories(plan, doc)) : [];
   const [headersOff, setHeadersOff] = useState(true);
   const [letterPortrait, setLetterPortrait] = useState(true);
 
   function handleExport() {
-    if (!plan || !document) return;
+    if (!plan || !doc) return;
     const slug = fileSlug(plan.party.testator.name, "document");
-    const suggestedName = `${slug}-${document.id}.html`;
+    const suggestedName = `${slug}-${doc.id}.html`;
     void saveFile(
       suggestedName,
       "text/html",
-      generateStandaloneHtml(plan, document)
+      generateStandaloneHtml(plan, doc)
     );
   }
 
@@ -41,8 +39,8 @@ export function PrintChecklist() {
       <h1 style={{ fontSize: "var(--font-size-xl)" }}>Before you print</h1>
       {stage ? (
         <div class="card" style={{ marginBottom: "var(--space-4)" }}>
-          <strong>{document?.title}</strong>{" "}
-          <span class={`stage-chip ${stage !== "in-progress" ? "ready" : ""}`}>
+          <strong>{doc?.title}</strong>{" "}
+          <span class={`stage-chip ${isReady(stage) ? "ready" : ""}`}>
             {STAGE_LABELS[stage]}
           </span>
           {advisories.length > 0 ? (

@@ -62,10 +62,8 @@
 /* Paper fits-to-width at every viewport, not just below 900px: the sheet's
    own geometry never changes, but the layout box it occupies shrinks with
    the visual one, so centering the viewport around it is never a clip.
-   `--paper-scale` is measured by the inline script in the mockup shell
-   (build-mockups.mjs's paperFitScript); this default keeps the CSS correct
-   with that script absent, and leaves print — which uses no wrapper —
-   untouched. */
+   `--paper-scale` is set by `usePaperFit`; this default keeps the CSS
+   correct without it and leaves print, which uses no wrapper, untouched. */
 .paper-fit {
   --paper-scale: 1;
   width: calc(var(--sheet-width) * var(--paper-scale));
