@@ -34,8 +34,21 @@ async function loadSite() {
   }
 }
 
+const REDIRECT_SCRIPT =
+  /<script>(?:(?!<\/script>)[\s\S])*location\.replace[\s\S]*?<\/script>/;
+
+// The legacy-hash redirect resolves "app/" against the page URL, so it only
+// belongs on the root page.
 function fillTemplate(template, page) {
-  return template
+  const nested = page.root !== "./";
+  for (const marker of ["<!--site-head-->", "<!--site-body-->"]) {
+    if (!template.includes(marker)) throw new Error(`template lacks ${marker}`);
+  }
+  if (nested && !template.includes("./assets/")) {
+    throw new Error("template has no ./assets/ URLs to rewrite");
+  }
+  const scoped = nested ? template.replace(REDIRECT_SCRIPT, "") : template;
+  return scoped
     .replaceAll("./assets/", `${page.root}assets/`)
     .replace("<!--site-head-->", () => page.head)
     .replace("<!--site-body-->", () => page.body);
