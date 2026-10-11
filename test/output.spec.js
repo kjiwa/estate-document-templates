@@ -12,7 +12,7 @@ async function openChecklist(page) {
 test.describe("Pre-print checklist and output", () => {
   test.beforeEach(async ({ page }) => {
     await seedPlans(page);
-    await page.goto("/#/document");
+    await page.goto("/app/#/document");
   });
 
   test("shows the document's stage and an advisory link that opens it", async ({

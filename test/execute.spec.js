@@ -5,7 +5,7 @@ const { seedPlans } = require("./fixtures");
 test.describe("Execute flow (signing day)", () => {
   test.beforeEach(async ({ page }) => {
     await seedPlans(page);
-    await page.goto("/#/document");
+    await page.goto("/app/#/document");
   });
 
   test("the Execute button opens the flow at group 1 of 4", async ({

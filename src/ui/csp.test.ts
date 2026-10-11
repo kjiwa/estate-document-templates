@@ -3,7 +3,12 @@ import { readFileSync } from "node:fs";
 
 import { describe, expect, it } from "vitest";
 
-const html = readFileSync("index.html", "utf8");
+const PAGES = ["index.html", "app/index.html"];
+
+const pages = PAGES.map((path) => ({
+  path,
+  html: readFileSync(path, "utf8"),
+}));
 
 function inlineScriptBodies(source: string): string[] {
   return [
@@ -21,7 +26,7 @@ function scriptSrc(source: string): string {
   return directive ?? "";
 }
 
-describe("index.html CSP", () => {
+describe.each(pages)("$path CSP", ({ html }) => {
   it("allows every inline script by sha256 hash", () => {
     const bodies = inlineScriptBodies(html);
     expect(bodies.length).toBeGreaterThan(0);
@@ -30,5 +35,15 @@ describe("index.html CSP", () => {
       const hash = createHash("sha256").update(body).digest("base64");
       expect(allowed).toContain(`'sha256-${hash}'`);
     }
+  });
+});
+
+describe("page theme scripts", () => {
+  it("are byte-identical across pages", () => {
+    const [first, ...rest] = pages.map(
+      ({ html }) => inlineScriptBodies(html)[0]
+    );
+    expect(first).toBeTruthy();
+    for (const body of rest) expect(body).toBe(first);
   });
 });

@@ -82,7 +82,9 @@ export function AppHeader() {
             <span aria-hidden="true">&lsaquo;</span>Plans
           </a>
         )}
-        <strong class="app-title">WA Estate Docs</strong>
+        <a class="app-title" href="../">
+          WA Estate Docs
+        </a>
       </div>
       <div class="header-controls">
         {onPlansView ? null : (
