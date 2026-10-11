@@ -11,7 +11,7 @@ export function printDocLabel(
   plan: Plan,
   document: DocumentDefinition
 ): string {
-  const name = plan.party.testator.name || "";
+  const name = plan.party.testator.name;
   return `${document.title} — ${name}`;
 }
 

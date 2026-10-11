@@ -76,11 +76,9 @@ a {
   margin: 0;
 }
 
-/* Two control groups (presentation, theme) don't fit one row of the
-   Phase 2 header at narrow widths — Phase 2's mockups only ever exercised
-   the header with the presentation toggle alone. Wrapping onto a second
-   row keeps every control reachable instead of clipping past the
-   viewport edge. */
+/* Two control groups (presentation, theme) don't fit one header row at
+   narrow widths. Wrapping keeps every control reachable instead of
+   clipping past the viewport edge. */
 .header-controls {
   display: flex;
   align-items: center;
@@ -398,7 +396,8 @@ a {
   gap: var(--space-1);
 }
 
-.field label {
+.field label,
+.field .field-label {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   color: var(--ink-body);

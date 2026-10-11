@@ -1,22 +1,15 @@
 import { computed, effect, signal } from "@preact/signals";
 
-import { DOCUMENTS } from "../documents/registry";
+import { DOCUMENTS, type DocumentDefinition } from "../documents/registry";
+import type { Section } from "../form/field-spec";
 import { migrateProfile, CURRENT_SCHEMA_VERSION } from "../model/migrate";
 import type { Plan } from "../model/plan";
 import { setPath, type Path } from "../model/paths";
 import { reciprocalPlan } from "../model/reciprocal";
 import { readStorage, writeStorage } from "../ui/storage";
 
-// `documents/shared/{Blank,Value}.tsx` import `ui/advisories.ts`, which
-// already imported `DOCUMENTS` from `../documents/registry` before this
-// module did — so `registry.ts` -> a document `Body` -> `shared/Blank.tsx`
-// -> `ui/advisories.ts` -> `store/index.ts` -> `documents/registry.ts` is
-// circular. Reading `DOCUMENTS` inside a function body called after the
-// whole module graph has finished loading (every use below) is fine; this
-// module's own top-level code cannot, since `registry.ts` may still be
-// mid-evaluation further up the same import chain — so the initial
-// `activeDocumentId` value below is the literal id of what has always been
-// the first (and, until Phase 5, only) document, not `DOCUMENTS[0]`.
+// Import cycle with documents/registry: the initial id is the literal first
+// document, since `DOCUMENTS` may be unevaluated at module load.
 const STORAGE_KEY = "estate_templates_state_v1";
 const STORAGE_KEY_UNPARSED = `${STORAGE_KEY}__unparsed`;
 const SAVE_FAILED_NOTICE =
@@ -48,6 +41,14 @@ export const storageNotice = computed<string | null>(() => {
 
 export const activePlanId = signal<string>("profile-1");
 export const activeDocumentId = signal<string>("will");
+
+export const activeDocument = computed<DocumentDefinition | undefined>(() =>
+  DOCUMENTS.find((doc) => doc.id === activeDocumentId.value)
+);
+
+export const activeSections = computed<Section[]>(
+  () => activeDocument.value?.sections ?? []
+);
 
 export const activePlan = computed<Plan | undefined>(
   () => plans.value[activePlanId.value]
@@ -152,21 +153,11 @@ interface ParsedPersisted {
 }
 
 /**
- * Accepts the current persisted shape (`plans` / `activePlanId`, written by
- * `persist()`), the v2 localStorage shape (`profiles` / `activeProfileId`),
- * and the pre-rewrite `js/state.js` `exportStateAsJson()` shape — a bare
- * `{ [profileId]: Profile }` map with no envelope at all, per
- * `js/state.js:260` in the pre-Phase-3 history (`git show 71b715a:js/state.js`).
- * That was the only "Export JSON" format that ever shipped, so a real
- * previously-exported file is this shape, not the internal `profiles`
- * envelope — invariant 8 (an export written by the previous version still
- * imports) requires this branch, not just the internal shapes.
- *
- * Every branch below still runs each stored entry through `migrateProfile`,
- * which validates shape per-id — a non-profile bare object (or any other
- * malformed input) fails every id and falls through to the `null` return
- * two lines above the end of this function, so this fallback cannot turn
- * arbitrary JSON into a false positive.
+ * Accepts the current persisted shape (`plans` / `activePlanId`), the v2
+ * localStorage shape (`profiles` / `activeProfileId`), and a bare
+ * `{ [profileId]: Profile }` map with no envelope, which is the shape the
+ * earlier "Export JSON" wrote. Every entry runs through `migrateProfile`, so
+ * malformed input fails every id and returns `null`.
  */
 export function parsePersisted(raw: unknown): ParsedPersisted | null {
   if (!raw || typeof raw !== "object") return null;
@@ -192,7 +183,6 @@ export function parsePersisted(raw: unknown): ParsedPersisted | null {
     : obj.profiles && typeof obj.profiles === "object"
       ? (obj.profiles as Record<string, unknown>)
       : obj;
-  if (!rawProfiles) return null;
 
   const rawActiveId = obj.activePlanId ?? obj.activeProfileId;
 
@@ -216,11 +206,7 @@ export function parsePersisted(raw: unknown): ParsedPersisted | null {
   }
   if (Object.keys(migratedPlans).length === 0) return null;
 
-  // `activeDocumentId` was written by `persist()` since 4d but never read
-  // back here, so a chosen non-default document did not survive a reload —
-  // restored here the same defensive way as `activePlanId`: fall back to
-  // the first registered document when the stored id no longer resolves
-  // (an older export, or a fork with a different document set).
+  // Falls back to the first document when the stored id no longer resolves.
   const rawDocumentId = obj.activeDocumentId;
 
   return {
@@ -248,11 +234,13 @@ function backupUnparsed(raw: string): void {
   unreadable.value = true;
 }
 
-function applyParsed(parsed: ParsedPersisted): void {
+export function applyParsed(parsed: ParsedPersisted): void {
   plans.value = parsed.plans;
   activePlanId.value = parsed.activePlanId;
   activeDocumentId.value = parsed.activeDocumentId;
 }
+
+const loadAttempted = signal(false);
 
 export function loadFromStorage(): boolean {
   const raw = readStorage(STORAGE_KEY);
@@ -279,18 +267,21 @@ export function loadFromStorage(): boolean {
   }
 }
 
-function persist(): void {
+export function serializeState(space?: number): string {
   const data: PersistedState = {
     schemaVersion: CURRENT_SCHEMA_VERSION,
     activePlanId: activePlanId.value,
     activeDocumentId: activeDocumentId.value,
     plans: plans.value,
   };
-  saveFailed.value = !writeStorage(STORAGE_KEY, JSON.stringify(data));
+  return JSON.stringify(data, null, space);
+}
+
+function persist(): void {
+  saveFailed.value = !writeStorage(STORAGE_KEY, serializeState());
 }
 
 let persistTimer: ReturnType<typeof setTimeout> | undefined;
-const loadAttempted = signal(false);
 
 effect(() => {
   // Read every signal this effect depends on before scheduling, so preact

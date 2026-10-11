@@ -2,11 +2,11 @@ import { useRef, useState } from "preact/hooks";
 
 import { DOCUMENTS, type DocumentDefinition } from "../documents/registry";
 import { generateStandaloneBundle } from "../export/standaloneHtml";
-import { CURRENT_SCHEMA_VERSION } from "../model/migrate";
 import type { Plan } from "../model/plan";
 import {
-  activeDocumentId,
+  activeDocument,
   activePlan,
+  applyParsed,
   activePlanId,
   createPlan,
   createReciprocalPlan,
@@ -15,6 +15,7 @@ import {
   parsePersisted,
   plans,
   renamePlan,
+  serializeState,
   setActiveDocument,
   setActivePlan,
 } from "../store/index";
@@ -25,6 +26,7 @@ import {
 } from "../ui/advisories";
 import {
   documentReadiness,
+  isReady,
   STAGE_LABELS,
   type DocumentReadiness,
   type ReadinessStage,
@@ -42,7 +44,7 @@ function openDocument(plan: Plan, document: DocumentDefinition) {
 function detailLines(readiness: DocumentReadiness): string[] {
   const { stage, content, signing, remainingSigningGroups } = readiness;
   const lines: string[] = [];
-  if (stage === "in-progress") {
+  if (!isReady(stage)) {
     const answered = content.answered + signing.answered;
     lines.push(
       `${answered} / ${content.total + signing.total} required fields`
@@ -50,7 +52,7 @@ function detailLines(readiness: DocumentReadiness): string[] {
   } else if (stage === "ready-to-sign") {
     lines.push(`Signing day: ${remainingSigningGroups.join(", ")}`);
   }
-  if (stage !== "in-progress" && readiness.blankOptionalSections.length > 0) {
+  if (isReady(stage) && readiness.blankOptionalSections.length > 0) {
     const legends = readiness.blankOptionalSections.map((s) => s.legend);
     lines.push(`Left blank (optional): ${legends.join(", ")}`);
   }
@@ -65,7 +67,7 @@ interface DocumentRowProps {
 function DocumentRow({ plan, document }: DocumentRowProps) {
   const readiness = documentReadiness(plan, document);
   const advisories = overviewAdvisories(plan, document);
-  const ready = readiness.stage !== "in-progress";
+  const ready = isReady(readiness.stage);
   const chip =
     ready && advisories.length > 0
       ? `${STAGE_LABELS[readiness.stage]}, ${advisories.length} to review`
@@ -260,10 +262,6 @@ function formatLastSaved(date: Date | null): string {
   return `Last saved ${date.toLocaleTimeString()}`;
 }
 
-// Exports split by purpose from the pre-print checklist's Print/Export
-// pair: this card carries the attorney memo and the full-state JSON
-// backup/restore, since neither is part of getting the document onto
-// paper.
 interface PendingImport {
   fileName: string;
   parsed: NonNullable<ReturnType<typeof parsePersisted>>;
@@ -275,8 +273,7 @@ function DataCard() {
     null
   );
 
-  const activeDocument = DOCUMENTS.find((d) => d.id === activeDocumentId.value);
-  const memo = activeDocument?.memo;
+  const memo = activeDocument.value?.memo;
 
   function handleMemo() {
     const plan = activePlan.value;
@@ -289,17 +286,7 @@ function DataCard() {
   }
 
   function handleSave() {
-    const data = {
-      schemaVersion: CURRENT_SCHEMA_VERSION,
-      activePlanId: activePlanId.value,
-      activeDocumentId: activeDocumentId.value,
-      plans: plans.value,
-    };
-    void saveFile(
-      "estate-plans.json",
-      "application/json",
-      JSON.stringify(data, null, 2)
-    );
+    void saveFile("estate-plans.json", "application/json", serializeState(2));
   }
 
   async function handleOpen() {
@@ -325,9 +312,7 @@ function DataCard() {
   function confirmImport() {
     if (!pendingImport) return;
     const { parsed } = pendingImport;
-    plans.value = parsed.plans;
-    activePlanId.value = parsed.activePlanId;
-    activeDocumentId.value = parsed.activeDocumentId;
+    applyParsed(parsed);
     setPendingImport(null);
   }
 

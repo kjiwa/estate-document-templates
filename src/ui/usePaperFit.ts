@@ -1,10 +1,9 @@
 import type { RefObject } from "preact";
 import { useEffect } from "preact/hooks";
 
-// Measures the sheet's unscaled height and the viewport's available width, then sets
-// --paper-scale/--paper-height so document-paper.css's fit-to-width rule has
-// real numbers. The 0.4 floor is the same legibility judgment call made in
-// Phase 2 — verified by eye at 393px, not derived arithmetically.
+// Measures the sheet's unscaled height and the viewport's available width,
+// then sets --paper-scale/--paper-height for document-paper.css's fit-to-width
+// rule. The 0.4 floor is a legibility judgment.
 const SHEET_WIDTH_PX = 816; // 8.5in at 96dpi — var(--sheet-width)
 
 export function usePaperFit(

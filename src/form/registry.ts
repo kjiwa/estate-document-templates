@@ -1,8 +1,7 @@
-// One ordered traversal shared by Prev/Next, the panel, and the sheet:
-// every field in a document's sections, in `WILL_SECTIONS` declaration
-// order, groups flattened, hidden sections skipped.
+// One ordered traversal shared by Prev/Next, the panel, and the sheet: every
+// field in a document's sections in declaration order, groups flattened,
+// hidden sections skipped.
 import { flattenFields } from "../ui/completion";
-import type { Path } from "../model/paths";
 import type { Plan } from "../model/plan";
 import type { FieldSpec, Section } from "./field-spec";
 
@@ -61,15 +60,4 @@ export function resolveFieldPath(
     if (entry) return entry;
   }
   return undefined;
-}
-
-// The narrowing step between a DOM-sourced `data-path` string and
-// `setField(path: Path<Plan>, …)`; an unrecognised path opens nothing
-// rather than being cast.
-export function isKnownPath(
-  plan: Plan,
-  sections: Section[],
-  path: string
-): path is Path<Plan> {
-  return findFieldByPath(plan, sections, path) !== undefined;
 }

@@ -5,7 +5,6 @@
 // the id a click handler has in hand.
 import { computed, signal } from "@preact/signals";
 
-import { DOCUMENTS } from "../documents/registry";
 import type { Section } from "../form/field-spec";
 import {
   findFieldByPath,
@@ -16,14 +15,7 @@ import {
 } from "../form/registry";
 import type { Path } from "../model/paths";
 import type { Plan } from "../model/plan";
-import { activeDocumentId, activePlan } from "../store/index";
-
-const activeDocument = computed(() =>
-  DOCUMENTS.find((doc) => doc.id === activeDocumentId.value)
-);
-const sections = computed<Section[]>(
-  () => activeDocument.value?.sections ?? []
-);
+import { activePlan, activeSections } from "../store/index";
 
 export const activeFieldPath = signal<Path<Plan> | null>(null);
 export const activeSectionId = signal<string | null>(null);
@@ -32,7 +24,7 @@ let triggerEl: HTMLElement | null = null;
 
 export const entries = computed<FieldEntry[]>(() => {
   const plan = activePlan.value;
-  return plan ? orderedFields(plan, sections.value) : [];
+  return plan ? orderedFields(plan, activeSections.value) : [];
 });
 
 export const activeEntryIndex = computed<number>(() => {
@@ -43,7 +35,7 @@ export const activeEntryIndex = computed<number>(() => {
 
 export const activeSection = computed<Section | null>(() => {
   const id = activeSectionId.value;
-  return sections.value.find((section) => section.id === id) ?? null;
+  return activeSections.value.find((section) => section.id === id) ?? null;
 });
 
 export const activeSectionFieldList = computed<LeafFieldSpec[]>(() => {
@@ -58,7 +50,7 @@ export const canStepNext = computed<boolean>(
     activeEntryIndex.value < entries.value.length - 1
 );
 
-export function announce(message: string): void {
+function announce(message: string): void {
   if (typeof document === "undefined") return;
   const status = document.getElementById("a11y-status");
   if (status) status.textContent = message;
@@ -73,7 +65,7 @@ function announceEntry(entry: FieldEntry): void {
 export function openField(path: string, trigger?: HTMLElement | null): void {
   const plan = activePlan.value;
   if (!plan) return;
-  const entry = findFieldByPath(plan, sections.value, path);
+  const entry = findFieldByPath(plan, activeSections.value, path);
   if (!entry) return;
   activeFieldPath.value = entry.field.path;
   activeSectionId.value = entry.section.id;
@@ -85,7 +77,7 @@ export function openSection(
   sectionId: string,
   trigger?: HTMLElement | null
 ): void {
-  const section = sections.value.find((s) => s.id === sectionId);
+  const section = activeSections.value.find((s) => s.id === sectionId);
   if (!section) return;
   const first = sectionFields(section)[0];
   if (!first) {

@@ -15,13 +15,10 @@ function asObject(value: unknown): Unknown {
     : {};
 }
 
-// Maps a v2 (`js/config.js` BLANK_PROFILE-shaped) profile onto the v3 `Plan`
-// grouping. Every one of the 24 leaf fields gets its own line — no `{ ...v2
-// }` spread, which would carry a stray v2 key into v3 unchecked. A field
-// absent from `raw` maps to `undefined`, which zod then backfills from the
-// schema's `.default()` — the same deep-merge-over-defaults behavior
-// `js/state.js`'s `normalizeProfile()` provided, reproduced through zod
-// rather than reimplemented.
+// Maps a v2 profile onto the v3 `Plan` grouping. Each leaf is listed
+// explicitly, since a `{ ...v2 }` spread would carry stray v2 keys into v3
+// unchecked. An absent field maps to `undefined`, which zod backfills from
+// the schema default.
 function v2ToV3(v2: Unknown): Unknown {
   const testator = asObject(v2.testator);
   const spouse = asObject(v2.spouse);
@@ -140,9 +137,8 @@ function runMigrations(raw: Unknown, fromVersion: number): Unknown {
 
 // Migrates one stored/imported profile, keyed by `id`, from its
 // `schemaVersion` (absent means v2) to a validated current `Plan`. `id` is
-// preserved verbatim as `Plan.id` — it is not migrated, so an imported
-// profile keyed by an unrecognized (non-`profile-N`) id survives unchanged,
-// matching `js/state.js`'s "unrecognized ids are accepted" behavior.
+// preserved verbatim as `Plan.id`, so an imported profile keyed by a
+// non-`profile-N` id survives unchanged.
 export function migrateProfile(id: string, raw: unknown): MigrateResult {
   const obj = asObject(raw);
   const version = schemaVersionOf(obj);

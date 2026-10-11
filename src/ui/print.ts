@@ -1,7 +1,6 @@
 import { signal } from "@preact/signals";
 
-import { DOCUMENTS } from "../documents/registry";
-import { activeDocumentId, activePlan } from "../store/index";
+import { activeDocument, activePlan } from "../store/index";
 import { closeEditor } from "./editing";
 import {
   escapeCssString,
@@ -17,7 +16,7 @@ import { view } from "./view";
 // inline into.
 function setPrintLabels(): void {
   const plan = activePlan.value;
-  const doc = DOCUMENTS.find((d) => d.id === activeDocumentId.value);
+  const doc = activeDocument.value;
   const root = document.documentElement.style;
   if (!plan || !doc) {
     root.removeProperty("--print-doc-label");
@@ -37,10 +36,8 @@ function setPrintLabels(): void {
 // The checklist view replaces `app-body`, so `#document-sheet` is unmounted
 // while it's showing — printing from there would print an empty page.
 // Switches back to the document view first, then waits two animation
-// frames (one for Preact's render, one for the browser to paint it) before
-// calling `window.print()`. `installPrintPresentationSwitch` (already
-// wired at the app root) forces Paper for the duration of the print; this
-// function does not touch `presentation` itself.
+// frames (render, then paint) before calling `window.print()`.
+// `installPrintPresentationSwitch` forces Paper during the print.
 export function printDocument(): void {
   closeEditor();
   view.value = "document";

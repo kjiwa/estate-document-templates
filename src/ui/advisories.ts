@@ -3,26 +3,18 @@
 // `showAdvisory` stays callable with just the id a click handler has in hand.
 import { computed } from "@preact/signals";
 
-import { DOCUMENTS, type DocumentDefinition } from "../documents/registry";
+import type { DocumentDefinition } from "../documents/registry";
 import { resolveFieldPath } from "../form/registry";
 import type { Advisory } from "../model/advisory";
-import type { Section } from "../form/field-spec";
 import type { Plan } from "../model/plan";
 import { isFieldAnswered, isRequired } from "./completion";
-import { activeDocumentId, activePlan } from "../store/index";
+import { activeDocument, activePlan, activeSections } from "../store/index";
 import { openField } from "./editing";
 
-const activeDocument = computed(() =>
-  DOCUMENTS.find((doc) => doc.id === activeDocumentId.value)
-);
-const sections = computed<Section[]>(
-  () => activeDocument.value?.sections ?? []
-);
-
 export const advisories = computed<Advisory[]>(() => {
-  const document = activeDocument.value;
+  const doc = activeDocument.value;
   const plan = activePlan.value;
-  return document && plan ? document.review(plan) : [];
+  return doc && plan ? doc.review(plan) : [];
 });
 
 export const advisoriesByPath = computed<Map<string, Advisory[]>>(() => {
@@ -44,8 +36,8 @@ export const advisoriesBySection = computed<Map<string | null, Advisory[]>>(
     const plan = activePlan.value;
     for (const advisory of advisories.value) {
       const sectionId = plan
-        ? (resolveFieldPath(plan, sections.value, advisory.path)?.section.id ??
-          null)
+        ? (resolveFieldPath(plan, activeSections.value, advisory.path)?.section
+            .id ?? null)
         : null;
       const list = map.get(sectionId) ?? [];
       list.push(advisory);
@@ -110,7 +102,7 @@ export function showAdvisory(
 ): void {
   const plan = activePlan.value;
   if (!plan) return;
-  const entry = resolveFieldPath(plan, sections.value, advisory.path);
+  const entry = resolveFieldPath(plan, activeSections.value, advisory.path);
   if (!entry) return;
   openField(entry.field.path, trigger);
 }

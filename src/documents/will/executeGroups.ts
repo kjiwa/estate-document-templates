@@ -1,10 +1,7 @@
 import type { ExecuteGroupDef } from "../../form/field-spec";
 
-// The Execute flow's four groups (mockup 06: "signing day"), as field paths
-// resolved against `WILL_SECTIONS` through `resolveFieldPath` — labels and
-// hints come from the one registry rather than being retyped. Moved
-// verbatim from `src/ui/execute.ts`, unchanged, when a second document
-// needed its own group list.
+// The Execute flow's groups, as field paths resolved against `WILL_SECTIONS`
+// through `resolveFieldPath`.
 export const WILL_EXECUTE_GROUPS: ExecuteGroupDef[] = [
   {
     title: "City and date of execution",

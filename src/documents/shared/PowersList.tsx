@@ -1,4 +1,4 @@
-import type { ComponentChildren } from "preact";
+import { Fragment, type ComponentChildren } from "preact";
 
 export interface PowerItem {
   title: string;
@@ -19,15 +19,15 @@ export function PowersList({ articleNum, items }: PowersListProps) {
     <ol class="powers-list">
       {"\n"}
       {survivors.map((item, idx) => (
-        <>
-          <li key={idx}>
+        <Fragment key={idx}>
+          <li>
             <strong>
               {articleNum}.{idx + 1} {item.title}.
             </strong>{" "}
             {item.body}
           </li>
           {"\n"}
-        </>
+        </Fragment>
       ))}
     </ol>
   );

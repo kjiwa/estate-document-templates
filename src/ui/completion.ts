@@ -98,6 +98,10 @@ export function sectionState(plan: Plan, section: Section): SectionState {
 
 export type ReadinessStage = "in-progress" | "ready-to-sign" | "ready-to-print";
 
+export function isReady(stage: ReadinessStage): boolean {
+  return stage !== "in-progress";
+}
+
 export const STAGE_LABELS: Record<ReadinessStage, string> = {
   "in-progress": "In progress",
   "ready-to-sign": "Ready to sign",

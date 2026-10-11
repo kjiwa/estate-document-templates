@@ -1,4 +1,4 @@
-import type { ComponentChildren } from "preact";
+import { Fragment, type ComponentChildren } from "preact";
 
 export interface ClauseItem {
   title: string;
@@ -12,11 +12,8 @@ interface ClauseProps {
   clauses: ClauseEntry[];
 }
 
-// Reproduces `renderClauses`' contract exactly: falsy entries are filtered
-// before numbering, so optional clauses (the CPA acknowledgment, the
-// disclaimer trust branch) never leave a gap — survivors are numbered
-// `${articleNum}.${i + 1}` inside `<strong>`, each wrapped in
-// `<p class="clause">`.
+// Falsy entries are filtered before numbering, so optional clauses never
+// leave a gap; survivors are numbered `${articleNum}.${i + 1}`.
 export function Clause({ articleNum, clauses }: ClauseProps) {
   const survivors = clauses.filter((clause): clause is ClauseItem =>
     Boolean(clause)
@@ -24,15 +21,15 @@ export function Clause({ articleNum, clauses }: ClauseProps) {
   return (
     <>
       {survivors.map((clause, idx) => (
-        <>
-          <p class="clause" key={idx}>
+        <Fragment key={idx}>
+          <p class="clause">
             <strong>
               {articleNum}.{idx + 1} {clause.title}.
             </strong>{" "}
             {clause.body}
           </p>
           {"\n"}
-        </>
+        </Fragment>
       ))}
     </>
   );

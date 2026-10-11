@@ -259,10 +259,7 @@ describe("parsePersisted", () => {
   });
 
   it("reads the pre-rewrite exportStateAsJson shape: a bare id-to-profile map with no envelope", () => {
-    // js/state.js:260 (pre-Phase-3 history) wrote `JSON.stringify(state.profiles)`
-    // directly — no `profiles`/`activeProfileId` wrapper. This is the only
-    // "Export JSON" format that ever shipped, so invariant 8 (an export
-    // written by the previous version still imports) requires it here.
+    // The earlier export wrote the id-to-profile map with no envelope.
     const persisted = {
       "profile-1": { label: "Profile 1" },
       "profile-2": { label: "Profile 2" },

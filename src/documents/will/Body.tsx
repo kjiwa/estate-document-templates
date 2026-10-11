@@ -56,7 +56,7 @@ export function isSpouse(plan: Plan, name: string | undefined): boolean {
 
 function ChildrenSentence() {
   const plan = usePlan();
-  const children = (plan.party.children || []).filter(Boolean);
+  const children = plan.party.children.filter(Boolean);
   if (children.length === 0) {
     return <>I have no children as of the date of this Will.</>;
   }

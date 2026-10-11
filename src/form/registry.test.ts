@@ -5,7 +5,6 @@ import type { Plan } from "../model/plan";
 import type { Section } from "./field-spec";
 import {
   findFieldByPath,
-  isKnownPath,
   orderedFields,
   resolveFieldPath,
   sectionFields,
@@ -80,30 +79,30 @@ describe("orderedFields", () => {
   });
 });
 
-describe("findFieldByPath / isKnownPath", () => {
+describe("findFieldByPath", () => {
   it("finds a known path, including one nested in a group, and its section", () => {
     const plan = planWith();
     const entry = findFieldByPath(plan, SECTIONS, "party.testator.county");
     expect(entry?.section.id).toBe("a");
   });
 
-  it("returns undefined/false for a path from a hidden section", () => {
+  it("returns undefined for a path from a hidden section", () => {
     const plan = planWith();
     expect(
       findFieldByPath(plan, SECTIONS, "party.spouse.name")
     ).toBeUndefined();
-    expect(isKnownPath(plan, SECTIONS, "party.spouse.name")).toBe(false);
   });
 
-  it("returns undefined/false for a path not in the registry at all", () => {
+  it("returns undefined for a path not in the registry at all", () => {
     const plan = planWith();
     expect(findFieldByPath(plan, SECTIONS, "not.a.real.path")).toBeUndefined();
-    expect(isKnownPath(plan, SECTIONS, "not.a.real.path")).toBe(false);
   });
 
-  it("narrows a known path", () => {
+  it("finds a top-level path", () => {
     const plan = planWith();
-    expect(isKnownPath(plan, SECTIONS, "party.testator.name")).toBe(true);
+    expect(
+      findFieldByPath(plan, SECTIONS, "party.testator.name")
+    ).toBeDefined();
   });
 });
 

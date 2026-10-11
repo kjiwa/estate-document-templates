@@ -1,19 +1,17 @@
-import { useContext } from "preact/hooks";
-
 import { getPronouns } from "../../model/pronouns";
 import { Blank } from "./Blank";
 import { NotarySignature } from "./NotarySignature";
 import { NotaryVenue } from "./NotaryVenue";
-import { PlanContext, useExecutionPath } from "./PlanContext";
+import { usePlan, useExecutionPath } from "./PlanContext";
 import { Value } from "./Value";
 
 // The venue lines are the one site that uppercases before interpolating.
 export function NotaryCertificate() {
   const at = useExecutionPath();
-  const plan = useContext(PlanContext);
-  const testatorPronouns = getPronouns(plan?.party.testator.gender);
-  const state = plan?.party.testator.state ?? "";
-  const county = plan?.party.testator.county ?? "";
+  const plan = usePlan();
+  const testatorPronouns = getPronouns(plan.party.testator.gender);
+  const state = plan.party.testator.state;
+  const county = plan.party.testator.county;
 
   return (
     <div class="notary-block">

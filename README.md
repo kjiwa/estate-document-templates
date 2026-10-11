@@ -22,6 +22,7 @@ A client-side web application ([live site](https://kjiwa.github.io/estate-docume
   - **RCW 11.125.040, 11.125.090, 11.125.400 & 11.125.410**: Durable Power of Attorney — the durability statement, determination of incapacity, health care authority bounded by the guardian limits of RCW 11.130.335(3), and authority over minor children.
 - **Guidance Layer**: Every decision-bearing field carries a native `<details>` disclosure explaining what it does, the options, what's typical, and its impact — content only, never part of the printed document. A live Review panel raises advisories (e.g. an interested witness, a missing alternate fiduciary) computed by a pure per-document `analyze*()` function. An Attorney Memo export, available for every document type, lists every choice and advisory for counsel.
 - **Plan Switching & Pronoun Agreement**: Toggle between reciprocal spousal plans, with automatic updates to pronouns, fiduciary appointments, and beneficiary declarations.
+- **Execute Flow & Print Checklist**: A step-by-step signing-day view per document, and a pre-print checklist of what to review before printing.
 - **Variable Highlighting**: Toggle dynamic field indicators on screen to audit customizable terms without affecting printed output.
 - **Screen-to-Print Fidelity**: Print stylesheets configured for standard Letter portrait dimensions (`8.5in x 11in`), calibrated margins, `@page` margin-box page numbers and testator initials, widow/orphan controls, and unbreakable signature and notary blocks.
 - **State Persistence & Portability**:
@@ -93,34 +94,40 @@ A springing, durable power of attorney: the powers begin on the principal's inca
 
 ```
 .
-├── index.html               # Application entry point, loads /src/main.tsx
+├── index.html                          # Application entry point, loads /src/main.tsx
 ├── src/
-│   ├── main.tsx             # Bootstraps the Preact app and store
-│   ├── App.tsx              # Top-level view switch (document/plans/execute/print)
-│   ├── components/          # Header, rail, contextual panel/sheet, plan and execute views
+│   ├── main.tsx                        # Bootstraps the Preact app and store
+│   ├── App.tsx                         # Top-level view switch (document/plans/execute/print)
+│   ├── components/                     # Header, rail, contextual panel/sheet, plan and execute views
 │   ├── documents/
-│   │   ├── registry.ts      # DOCUMENTS: the document-type registry
-│   │   ├── shared/          # Plan context and clauses shared across document types
-│   │   ├── will/             # Washington Last Will & Testament: sections, body, guidance, review
-│   │   ├── remains-directive/ # Disposition of Remains Directive: sections, body, guidance, review
-│   │   ├── health-care-directive/ # Health Care Directive: sections, body, guidance, review
-│   │   ├── general-power-of-attorney/ # General Power of Attorney: sections, body, guidance, review
-│   │   └── durable-power-of-attorney/ # Durable Power of Attorney: sections, body, certification page, guidance, review
-│   ├── export/               # Attorney memo and standalone HTML generation
-│   ├── form/                 # FieldSpec union, <Field> renderer, field registry/traversal
-│   ├── model/                 # Plan schema (zod), paths, migrations, pronouns, dates
-│   ├── store/                # Reactive plan store and persistence (localStorage)
-│   ├── ui/                   # Signals-derived UI state: editing, advisories, execute, files, theme
-│   ├── fonts/                 # Bundled webfonts, each under its own src/fonts/LICENSE-* file
-│   └── styles/                # Design tokens and app/document/print CSS
+│   │   ├── registry.ts                 # DOCUMENTS: the document-type registry
+│   │   ├── shared/                     # Plan context and clauses shared across document types
+│   │   ├── will/                       # Last Will & Testament: sections, body, guidance, review
+│   │   ├── remains-directive/          # Disposition of Remains Directive: sections, body, guidance, review
+│   │   ├── health-care-directive/      # Health Care Directive: sections, body, guidance, review
+│   │   ├── general-power-of-attorney/  # General Power of Attorney: sections, body, guidance, review
+│   │   └── durable-power-of-attorney/  # Durable Power of Attorney: sections, body, certification page, guidance, review
+│   ├── export/                         # Attorney memo and standalone HTML generation
+│   ├── fonts/                          # Bundled webfonts, each under its own src/fonts/LICENSE-* file
+│   ├── form/                           # FieldSpec union, <Field> renderer, field registry/traversal
+│   ├── model/                          # Plan schema (zod), paths, migrations, pronouns, dates
+│   ├── store/                          # Reactive plan store and persistence (localStorage)
+│   ├── styles/                         # Design tokens and app/document/print CSS
+│   └── ui/                             # Signals-derived UI state: editing, advisories, execute, files, theme
+├── scripts/
+│   └── check-citations.mjs             # Compares cited RCW history notes to the snapshot
 ├── legal/
-│   └── citations.json      # Snapshot of statute history notes, checked by CI
-├── test/                    # Playwright end-to-end and fidelity test suites
+│   └── citations.json                  # Snapshot of statute history notes, checked by CI
+├── test/
+│   ├── golden/                         # Golden renders and attorney memos
+│   ├── data/                           # Import fixtures
+│   └── *.spec.js                       # Playwright end-to-end and fidelity suites
+├── .github/workflows/                  # CI and the monthly citation check
 ├── package.json
-└── playwright.config.js
+├── playwright.config.js
+├── vitest.config.ts
+└── vite.config.ts
 ```
-
-The Phase 2 design mockups were removed from the tree; they remain at the `design-phase-2` git tag.
 
 ## Getting Started
 
@@ -135,7 +142,7 @@ This is a client-side app with no backend. To run your own copy:
 3. Push to `main`. The included workflow builds the app and deploys it; the fork is
    served at `https://<your-username>.github.io/estate-document-templates/`.
 
-No account beyond GitHub is required.
+No account beyond GitHub is required. Node >= 22 is required to build locally. The live site is currently `noindex` until launch.
 
 ### Local Development
 

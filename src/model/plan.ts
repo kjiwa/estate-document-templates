@@ -107,11 +107,8 @@ const WillDocument = z.object({
 });
 
 // Election/select values are "" (unset) / "do" / "doNot", and for
-// `placeOfDeath` "" / "home" / "hospital". `.default({})` — not a per-leaf
-// v2 mapping in `migrate.ts` — is what lets both directions of invariant 8
-// hold: a v2 profile never had this key, and a v3 export written by a
-// version predating this namespace has no `healthCareDirective` key either;
-// both parse with every leaf defaulted.
+// `placeOfDeath` "" / "home" / "hospital". `.default({})` lets older v2
+// profiles and v3 exports that lack this key parse with every leaf defaulted.
 const HealthCareDirectiveDocument = z
   .object({
     placeOfDeath: z.string().default(""),

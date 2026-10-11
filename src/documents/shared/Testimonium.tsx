@@ -5,11 +5,8 @@ interface TestimoniumProps {
   instrument: string;
 }
 
-// Reproduces `renderTestimoniumAndSignatures`'s first block. Reads the
-// document's own execution record through `ExecutionContext`. The
-// instrument name is a prop so a second document's execution block reads
-// correctly; the will passes its value explicitly so the goldens stay
-// byte-identical.
+// Reads the document's own execution record through `ExecutionContext`. The
+// instrument name is a prop so each document's execution block reads correctly.
 export function Testimonium({ instrument }: TestimoniumProps) {
   const at = useExecutionPath();
   return (

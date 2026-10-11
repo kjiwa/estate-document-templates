@@ -6,10 +6,8 @@ const FOCUSABLE_SELECTOR =
 
 // Tab cycling within the container, Escape to close, initial focus on open.
 // The dependency array carries `open` and `activeKey` (the open field's
-// path), not just `containerRef` — a ref's identity never changes, so an
-// effect keyed only on it would never re-run when the sheet's field swaps
-// under the same DOM node. That is the exact failure mode `usePaperFit` had
-// in 4a (stale ref-only deps not re-running on subtree swap).
+// path), since a ref's identity never changes and would not re-run the
+// effect when the sheet's field swaps under the same DOM node.
 export function useFocusTrap(
   containerRef: RefObject<HTMLElement | null>,
   open: boolean,

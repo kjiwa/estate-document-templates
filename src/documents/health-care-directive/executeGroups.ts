@@ -2,7 +2,7 @@ import type { ExecuteGroupDef } from "../../form/field-spec";
 
 // The Execute flow's groups for the directive. No notary group — this
 // document uses the witness alternative RCW 70.122.030(1) offers, not
-// notarization (see the child plan's Decision 3).
+// notarization.
 export const HEALTH_CARE_EXECUTE_GROUPS: ExecuteGroupDef[] = [
   {
     title: "City and date of execution",

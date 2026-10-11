@@ -1,9 +1,7 @@
 // Dotted-string paths into a `Plan`, e.g. "party.testator.name" or
-// "execution.witnesses.0.name". Chosen over `as const` tuple paths after
-// measuring `tsc --extendedDiagnostics` against both — see the Phase 3 child
-// plan's "Step 0" section for the numbers. `getPath`/`setPath` are the only
-// runtime surface; everything else (`FieldSpec["path"]`, advisories) types
-// against `Path<Plan>`.
+// "execution.witnesses.0.name". Chosen over `as const` tuple paths for
+// type-check cost. `getPath`/`setPath` are the only runtime surface;
+// everything else types against `Path<Plan>`.
 
 type Primitive = string | number | boolean | undefined | null;
 

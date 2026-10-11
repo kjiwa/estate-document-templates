@@ -1,24 +1,19 @@
-// Signals-derived state behind the Execute flow (mockup 06: "signing day"),
-// mirroring `./advisories.ts`'s shape: resolves document/plan from the store
-// rather than taking them as parameters. Each document supplies its own
-// group defs (`DocumentDefinition.executeGroups`) as field paths resolved
-// through `resolveFieldPath`, so labels and hints come from the one
-// registry rather than being retyped.
+// Signals-derived state behind the Execute flow. Each document supplies its
+// own group defs (`DocumentDefinition.executeGroups`) as field paths resolved
+// through `resolveFieldPath`, so labels and hints come from the one registry.
 import { computed, effect, signal } from "@preact/signals";
 
 import { DOCUMENTS, type DocumentDefinition } from "../documents/registry";
-import type { Section } from "../form/field-spec";
 import { resolveFieldPath, type LeafFieldSpec } from "../form/registry";
 import type { Plan } from "../model/plan";
-import { activeDocumentId, activePlan, setField } from "../store/index";
+import {
+  activeDocument,
+  activeDocumentId,
+  activePlan,
+  activeSections,
+  setField,
+} from "../store/index";
 import { isFieldAnswered } from "./completion";
-
-const activeDocument = computed(() =>
-  DOCUMENTS.find((doc) => doc.id === activeDocumentId.value)
-);
-const sections = computed<Section[]>(
-  () => activeDocument.value?.sections ?? []
-);
 
 export interface ExecuteGroup {
   title: string;
@@ -34,7 +29,7 @@ export const executeGroups = computed<ExecuteGroup[]>(() => {
     title: def.title,
     lead: def.lead,
     fields: def.paths
-      .map((path) => resolveFieldPath(plan, sections.value, path)?.field)
+      .map((path) => resolveFieldPath(plan, activeSections.value, path)?.field)
       .filter((field): field is LeafFieldSpec => field !== undefined),
   }));
 });

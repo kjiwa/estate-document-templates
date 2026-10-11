@@ -12,10 +12,9 @@ import {
   printPageName,
 } from "../ui/printLabels";
 
-// `?inline` returns processed CSS as a string without injecting it — see
-// https://vite.dev/guide/features.html — replacing `js/export.js`'s runtime
-// `fetch("css/…")`. tokens.css carries no `url()`, so it is safe to inline
-// here; fonts.css (which does) is deliberately not included.
+// `?inline` returns processed CSS as a string without injecting it
+// (https://vite.dev/guide/features.html). tokens.css carries no `url()`, so
+// it is safe to inline; fonts.css (which does) is deliberately not included.
 import tokensCss from "../styles/tokens.css?inline";
 import documentContentCss from "../styles/document-content.css?inline";
 import documentPaperCss from "../styles/document-paper.css?inline";
@@ -102,7 +101,6 @@ export function generateStandaloneHtml(
   plan: Plan,
   document: DocumentDefinition
 ): string {
-  // Escaped, unlike `js/export.js`'s unescaped `<title>` interpolation.
   const title = `${document.title} - ${escapeHtml(plan.party.testator.name || "Document")}`;
   return assemblePage(
     title,

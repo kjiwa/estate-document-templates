@@ -10,10 +10,9 @@ import { PlansView } from "./components/PlansView";
 import { PrintAll } from "./components/PrintAll";
 import { PrintChecklist } from "./components/PrintChecklist";
 import { Rail } from "./components/Rail";
-import { DOCUMENTS } from "./documents/registry";
 import { PlanContext } from "./documents/shared/PlanContext";
 import {
-  activeDocumentId,
+  activeDocument,
   activePlan,
   plans,
   storageNotice,
@@ -61,7 +60,7 @@ function StorageNotice() {
 }
 
 export function App() {
-  const document = DOCUMENTS.find((d) => d.id === activeDocumentId.value);
+  const doc = activeDocument.value;
   const plan = activePlan.value;
   const editorOpen = activeFieldPath.value !== null;
   const showPanel = editorOpen && !isNarrow.value;
@@ -85,7 +84,7 @@ export function App() {
         <PrintAll plan={printAllPlan} />
       ) : showPlans ? (
         <PlansView />
-      ) : document && plan ? (
+      ) : doc && plan ? (
         // `Field` (used by `ContextPanel`/`BottomSheet`, siblings of
         // `DocumentSurface`, and by `ExecuteFlow`) reads the plan via
         // `usePlan()`, so the provider has to sit above all of them, not
@@ -98,8 +97,8 @@ export function App() {
           ) : (
             <>
               <div class={`app-body${showPanel ? " with-panel" : ""}`}>
-                <Rail document={document} plan={plan} />
-                <DocumentSurface document={document} plan={plan} />
+                <Rail document={doc} plan={plan} />
+                <DocumentSurface document={doc} plan={plan} />
                 {showPanel ? <ContextPanel /> : null}
               </div>
               {showSheet ? <BottomSheet /> : null}

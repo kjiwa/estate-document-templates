@@ -1,4 +1,4 @@
-// Renders each Phase 1 golden case with `preact-render-to-string`, parses
+// Renders each golden case with `preact-render-to-string`, parses
 // both the render and the committed `test/golden/<slug>.html` with
 // linkedom, and compares whitespace-collapsed `textContent` plus the
 // flattened [tag, className, text] sequence — never the raw HTML, since
