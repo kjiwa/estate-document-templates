@@ -16,7 +16,7 @@ test.describe("Application Shell, Layout & Accessibility", () => {
     });
 
     await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto("/");
+    await page.goto("/#/document");
 
     expect(consoleErrors).toEqual([]);
 
@@ -40,7 +40,7 @@ test.describe("Application Shell, Layout & Accessibility", () => {
   test("skip link becomes visible and accessible on focus", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/#/document");
 
     const skipLink = page.locator("a.skip-link");
     await skipLink.focus();
@@ -54,7 +54,7 @@ test.describe("Application Shell, Layout & Accessibility", () => {
   });
 
   test("theme toggle sets data-theme and aria-pressed", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/#/document");
 
     const darkButton = page.locator(
       '[aria-label="Theme"] button:has-text("Dark")'
@@ -74,7 +74,7 @@ test.describe("Application Shell, Layout & Accessibility", () => {
 
   test("system theme follows the emulated color scheme", async ({ page }) => {
     await page.emulateMedia({ colorScheme: "dark" });
-    await page.goto("/");
+    await page.goto("/#/document");
     await page
       .locator('[aria-label="Theme"] button:has-text("System")')
       .click();
@@ -91,7 +91,7 @@ test.describe("Application Shell, Layout & Accessibility", () => {
   test("presentation toggle swaps the document sheet and aria-pressed", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/#/document");
 
     const readingButton = page.locator(
       '[aria-label="Presentation"] button:has-text("Reading")'
@@ -114,7 +114,7 @@ test.describe("Application Shell, Layout & Accessibility", () => {
   test("document structure contains 10 articles and execution/attestation blocks", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/#/document");
 
     const articleHeaders = page.locator(".article-header");
     await expect(articleHeaders).toHaveCount(10);
@@ -129,7 +129,7 @@ test.describe("Application Shell, Layout & Accessibility", () => {
     page,
   }) => {
     await page.setViewportSize({ width: 393, height: 852 });
-    await page.goto("/");
+    await page.goto("/#/document");
 
     const summary = page.locator(".rail-details > summary");
     await expect(summary).toHaveText(
@@ -142,7 +142,7 @@ test.describe("Application Shell, Layout & Accessibility", () => {
   });
 
   test("first run has one plan labelled My plan", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/#/document");
 
     await expect(page.getByLabel("Active plan").locator("option")).toHaveText([
       "My plan",
@@ -153,7 +153,7 @@ test.describe("Application Shell, Layout & Accessibility", () => {
     page,
   }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto("/");
+    await page.goto("/#/document");
 
     const railScrollable = await page.locator(".app-rail").evaluate((el) => {
       const style = window.getComputedStyle(el);
@@ -171,7 +171,7 @@ test.describe("Application Shell, Layout & Accessibility", () => {
   });
 
   test("CSS design tokens resolve properly", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/#/document");
 
     const tokens = await page.evaluate(() => {
       const root = document.documentElement;
@@ -194,7 +194,7 @@ test.describe("Application Shell, Layout & Accessibility", () => {
     page,
   }) => {
     await page.setViewportSize({ width: 393, height: 852 });
-    await page.goto("/");
+    await page.goto("/#/document");
 
     await page
       .locator('[aria-label="Presentation"] button:has-text("Reading")')
@@ -210,7 +210,7 @@ test.describe("Application Shell, Layout & Accessibility", () => {
     page,
   }) => {
     await page.setViewportSize({ width: 393, height: 852 });
-    await page.goto("/");
+    await page.goto("/#/document");
 
     await page
       .locator('[aria-label="Presentation"] button:has-text("Paper")')
@@ -227,7 +227,7 @@ test.describe("Terms", () => {
   test("first visit blocks the app until accepted; Escape does nothing", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/#/document");
     const dialog = page.getByRole("dialog", {
       name: "Terms of use",
     });
@@ -244,7 +244,7 @@ test.describe("Terms", () => {
   });
 
   test("acceptance persists across reload", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/#/document");
     await page.getByRole("button", { name: "I understand and accept" }).click();
     await page.reload();
     await expect(page.getByRole("dialog")).toHaveCount(0);
@@ -252,7 +252,7 @@ test.describe("Terms", () => {
 
   test("footer reopens the terms with Close and Escape", async ({ page }) => {
     await acceptTerms(page);
-    await page.goto("/");
+    await page.goto("/#/document");
     const footer = page.locator("footer.app-footer");
     await expect(footer).toContainText("Drafting aid, not legal advice");
 
@@ -275,7 +275,7 @@ test.describe("Terms", () => {
     await page.addInitScript(() => {
       window.localStorage.setItem("estate_templates_terms", "2000-01-01");
     });
-    await page.goto("/");
+    await page.goto("/#/document");
     await expect(
       page.getByRole("dialog", { name: "Terms of use" })
     ).toBeVisible();
@@ -283,7 +283,7 @@ test.describe("Terms", () => {
 
   test("footer opens Privacy", async ({ page }) => {
     await acceptTerms(page);
-    await page.goto("/");
+    await page.goto("/#/document");
     await page
       .locator("footer.app-footer")
       .getByRole("button", { name: "Privacy" })
@@ -298,7 +298,7 @@ test.describe("Terms", () => {
     page,
   }) => {
     await page.setViewportSize({ width: 393, height: 480 });
-    await page.goto("/");
+    await page.goto("/#/document");
     const box = await page.locator(".terms-dialog").boundingBox();
     expect(box.x).toBeGreaterThanOrEqual(0);
     expect(box.x + box.width).toBeLessThanOrEqual(393);
@@ -314,7 +314,7 @@ test.describe("Terms", () => {
   }) => {
     await acceptTerms(page);
     await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto("/");
+    await page.goto("/#/document");
     const body = await page.locator(".app-body").boundingBox();
     const footer = await page.locator(".app-footer").boundingBox();
     expect(footer.y).toBeGreaterThanOrEqual(body.y + body.height - 1);
@@ -337,6 +337,32 @@ test.describe("Terms", () => {
     await expect(page).toHaveURL(/#\/execute\/will$/);
     await page.goBack();
     await expect(page.locator(".execute-flow")).toBeHidden();
+    await expect(page.locator("#document-sheet")).toBeVisible();
+  });
+
+  test("a bare visit opens Plans with only brand and theme controls", async ({
+    page,
+  }) => {
+    await acceptTerms(page);
+    await page.goto("/");
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Plans" })
+    ).toBeVisible();
+    await expect(page.locator(".app-title")).toHaveText("WA Estate Docs");
+    await expect(page.locator(".back-link")).toBeHidden();
+    await expect(page.getByLabel("Active plan")).toBeHidden();
+    await expect(page.getByLabel("Active document")).toBeHidden();
+  });
+
+  test("the back link returns to Plans and Back returns to the document", async ({
+    page,
+  }) => {
+    await acceptTerms(page);
+    await page.goto("/#/document/will");
+    await page.getByRole("link", { name: "Plans", exact: true }).click();
+    await expect(page.locator(".plans-view")).toBeVisible();
+    await expect(page).toHaveURL(/#\/plans\/will$/);
+    await page.goBack();
     await expect(page.locator("#document-sheet")).toBeVisible();
   });
 });

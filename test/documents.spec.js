@@ -92,7 +92,7 @@ test.describe("Every document", () => {
         if (msg.type() === "error") consoleErrors.push(msg.text());
       });
       await seedPlans(page);
-      await page.goto("/");
+      await page.goto("/#/document");
       await page.getByLabel("Active document").selectOption(id);
       await expect(page).toHaveURL(new RegExp(`#/document/${id}$`));
       await expect(page.locator("#document-sheet")).toBeVisible();

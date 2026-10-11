@@ -14,7 +14,7 @@ const DOCUMENT_IDS = [
 test.describe("Screen-to-Print Fidelity & PDF Generation", () => {
   test.beforeEach(async ({ page }) => {
     await seedPlans(page);
-    await page.goto("/");
+    await page.goto("/#/document");
   });
 
   test("verifies @page rules and physical print geometry in stylesheet", async ({
@@ -233,7 +233,7 @@ test.describe("Screen-to-Print Fidelity & PDF Generation", () => {
     await page.evaluate(() => {
       window.print = () => {};
     });
-    await page.getByRole("button", { name: "Plans" }).click();
+    await page.getByRole("link", { name: "Plans", exact: true }).click();
     await page
       .locator(".plan-card")
       .first()
@@ -260,7 +260,7 @@ test.describe("Screen-to-Print Fidelity & PDF Generation", () => {
     await page.evaluate(() => {
       window.print = () => {};
     });
-    await page.getByRole("button", { name: "Plans" }).click();
+    await page.getByRole("link", { name: "Plans", exact: true }).click();
     await page
       .locator(".plan-card")
       .first()

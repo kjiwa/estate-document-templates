@@ -56,9 +56,9 @@ export function AppHeader() {
   const onPlansView = view.value === "plans";
   const onExecuteView = view.value === "execute" || view.value === "print";
 
-  function toggleView() {
+  function openPlans() {
     closeEditor();
-    view.value = onPlansView ? "document" : "plans";
+    view.value = "plans";
   }
 
   function openExecute() {
@@ -70,28 +70,36 @@ export function AppHeader() {
   return (
     <header class="app-header">
       <div class="header-brand">
-        <strong class="app-title">Estate Document Templates</strong>
+        {onPlansView ? null : (
+          <a
+            class="back-link"
+            href="#/plans"
+            onClick={(event) => {
+              event.preventDefault();
+              openPlans();
+            }}
+          >
+            <span aria-hidden="true">&lsaquo;</span>Plans
+          </a>
+        )}
+        <strong class="app-title">WA Estate Docs</strong>
       </div>
       <div class="header-controls">
-        <PlanPicker />
-        <DocumentPicker />
-        <button
-          type="button"
-          class="btn"
-          aria-pressed={onExecuteView}
-          onClick={openExecute}
-        >
-          Execute
-        </button>
-        <button
-          type="button"
-          class="btn"
-          aria-pressed={onPlansView}
-          onClick={toggleView}
-        >
-          {onPlansView ? "Document" : "Plans"}
-        </button>
-        <PresentationToggle />
+        {onPlansView ? null : (
+          <>
+            <PlanPicker />
+            <DocumentPicker />
+            <button
+              type="button"
+              class="btn"
+              aria-pressed={onExecuteView}
+              onClick={openExecute}
+            >
+              Execute
+            </button>
+            <PresentationToggle />
+          </>
+        )}
         <ThemeToggle />
       </div>
     </header>
