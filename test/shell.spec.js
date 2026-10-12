@@ -27,7 +27,7 @@ test.describe("Application Shell, Layout & Accessibility", () => {
     const header = page.locator("header");
     await expect(header).toBeVisible();
 
-    const nav = page.getByRole("navigation", { name: "Legal" });
+    const nav = page.getByRole("navigation", { name: "Footer" });
     await expect(nav).toBeAttached();
 
     const main = page.locator("main#main-content");

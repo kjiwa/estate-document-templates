@@ -17,7 +17,7 @@ export function Footer({
       <span class="footer-disclaimer">
         Drafting aid, not legal advice. Provided as is.
       </span>
-      <nav class="footer-links" aria-label="Legal">
+      <nav class="footer-links" aria-label="Footer">
         {terms}
         {privacy}
         <a href={REPOSITORY_URL}>Source on GitHub</a>
