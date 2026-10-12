@@ -99,7 +99,7 @@ A springing, durable power of attorney: the powers begin on the principal's inca
 ├── src/
 │   ├── main.tsx                        # Bootstraps the Preact app and store
 │   ├── App.tsx                         # Top-level view switch (document/plans/execute/print)
-│   ├── components/                     # Header, rail, contextual panel/sheet, plan and signing-day views
+│   ├── components/                     # Header, rail, contextual panel/sheet, footer, plan and signing-day views
 │   ├── documents/
 │   │   ├── registry.ts                 # DOCUMENTS: the document-type registry
 │   │   ├── shared/                     # Plan context and clauses shared across document types
@@ -112,7 +112,7 @@ A springing, durable power of attorney: the powers begin on the principal's inca
 │   ├── fonts/                          # Bundled webfonts, each under its own src/fonts/LICENSE-* file
 │   ├── form/                           # FieldSpec union, <Field> renderer, field registry/traversal
 │   ├── model/                          # Plan schema (zod), paths, migrations, pronouns, dates
-│   ├── site/                           # Content pages (landing, documents, about, terms, privacy), prerendered at build
+│   ├── site/                           # Content pages (landing, documents, about, terms, privacy), prerendered at build; theme.ts wires the footer theme select
 │   ├── store/                          # Reactive plan store and persistence (localStorage)
 │   ├── styles/                         # Design tokens and app/document/print CSS
 │   └── ui/                             # Signals-derived UI state: editing, advisories, signing day, files, theme

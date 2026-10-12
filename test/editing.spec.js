@@ -158,22 +158,30 @@ test.describe("Contextual editing", () => {
     ).toHaveText("2026");
   });
 
-  test("desktop: Next never scrolls the window", async ({ page }, testInfo) => {
+  test("desktop: Next keeps the active field below the sticky header", async ({
+    page,
+  }, testInfo) => {
     test.skip(
       testInfo.project.name !== "desktop-chrome",
-      "window scroll is a desktop layout defect"
+      "sticky header is a desktop layout"
     );
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto("/app/#/document");
 
-    const node = page.locator('[data-path="party.testator.name"]').first();
-    await node.click();
+    await page.locator('[data-path="party.testator.name"]').first().click();
 
-    const scrollYBefore = await page.evaluate(() => window.scrollY);
     for (let i = 0; i < 3; i++) {
       await page.getByRole("button", { name: "Next →" }).click();
-      const scrollYAfter = await page.evaluate(() => window.scrollY);
-      expect(scrollYAfter).toBe(scrollYBefore);
+      const active = page.locator(".doc-surface .field-active");
+      if ((await active.count()) === 0) continue;
+      await expect(active.first()).toBeInViewport();
+      const [fieldTop, headerBottom] = await Promise.all([
+        active.first().evaluate((el) => el.getBoundingClientRect().top),
+        page
+          .locator(".app-header")
+          .evaluate((el) => el.getBoundingClientRect().bottom),
+      ]);
+      expect(fieldTop).toBeGreaterThanOrEqual(headerBottom);
     }
   });
 

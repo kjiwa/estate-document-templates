@@ -4,6 +4,7 @@ import { DOCUMENTS, type DocumentDefinition } from "../documents/registry";
 import { generateStandaloneBundle } from "../export/standaloneHtml";
 import type { Plan } from "../model/plan";
 import {
+  activePlanId,
   applyParsed,
   createPlan,
   createReciprocalPlan,
@@ -328,11 +329,14 @@ function PlanCard({ plan, canDelete }: PlanCardProps) {
           </div>
         </div>
       </div>
-      <ul class="plan-overview">
-        {DOCUMENTS.map((document) => (
-          <DocumentRow plan={plan} document={document} key={document.id} />
-        ))}
-      </ul>
+      <details class="plan-documents" open={plan.id === activePlanId.value}>
+        <summary>Documents</summary>
+        <ul class="plan-overview">
+          {DOCUMENTS.map((document) => (
+            <DocumentRow plan={plan} document={document} key={document.id} />
+          ))}
+        </ul>
+      </details>
     </div>
   );
 }

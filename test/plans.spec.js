@@ -4,7 +4,15 @@ const path = require("path");
 const { test, expect } = require("@playwright/test");
 const { seedPlans, disableFilePickers } = require("./fixtures");
 
+async function openDocuments(card) {
+  const details = card.locator(".plan-documents");
+  if (!(await details.evaluate((el) => el.open))) {
+    await details.locator("summary").click();
+  }
+}
+
 async function openFirstDocument(card) {
+  await openDocuments(card);
   await card.locator(".plan-doc").first().click();
 }
 
@@ -340,6 +348,24 @@ test.describe("Plan management", () => {
     );
   });
 
+  test("only the active plan's document list starts open, and it toggles", async ({
+    page,
+  }) => {
+    await page.getByRole("link", { name: "Plans", exact: true }).click();
+
+    const lists = page.locator(".plan-documents");
+    await expect(lists.first()).toHaveJSProperty("open", true);
+    await expect(lists.nth(1)).toHaveJSProperty("open", false);
+    await expect(lists.nth(1).locator(".plan-doc").first()).toBeHidden();
+
+    await lists.nth(1).locator("summary").click();
+    await expect(lists.nth(1)).toHaveJSProperty("open", true);
+    await expect(lists.nth(1).locator(".plan-doc").first()).toBeVisible();
+
+    await lists.first().locator("summary").click();
+    await expect(lists.first()).toHaveJSProperty("open", false);
+  });
+
   test("each card carries a stage summary line", async ({ page }) => {
     await page.getByRole("link", { name: "Plans", exact: true }).click();
 
@@ -415,6 +441,7 @@ test.describe("Plan management", () => {
     await page.getByRole("link", { name: "Plans", exact: true }).click();
 
     const card = page.locator(".plan-card").nth(1);
+    await openDocuments(card);
     await card.getByRole("button", { name: "Health Care Directive" }).click();
 
     await expect(page.locator(".plans-view")).toBeHidden();
