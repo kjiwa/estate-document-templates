@@ -429,10 +429,81 @@ describe("migrateProfile", () => {
     expect(second.success && second.plan).toEqual(first.plan);
   });
 
+  function v4Plan(): Record<string, unknown> {
+    const blank = {
+      city: "",
+      executionDate: {},
+      witnesses: [],
+      notary: {},
+    };
+    return {
+      schemaVersion: 4,
+      label: "Profile 1",
+      party: {
+        testator: { name: "Jordan", state: "Washington" },
+        spouse: {},
+        children: [],
+      },
+      fiduciaries: {
+        guardians: {},
+        conservators: {},
+        personalRepresentatives: {},
+        trustees: {},
+        remains: {},
+      },
+      executions: {
+        will: { ...blank, city: "Tacoma" },
+        remainsDirective: blank,
+        healthCareDirective: blank,
+        durablePowerOfAttorney: blank,
+        generalPowerOfAttorney: blank,
+      },
+      documents: {
+        will: { communityPropertyAgreement: {}, ultimateBeneficiary: {} },
+      },
+    };
+  }
+
+  it("imports a v4 export with basis will and a blank trust", () => {
+    const result = migrateProfile("profile-1", v4Plan());
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    expect(result.plan.basis).toBe("will");
+    expect(result.plan.executions.will.city).toBe("Tacoma");
+    expect(result.plan.executions.revocableTrust.city).toBe("");
+    expect(result.plan.documents.revocableTrust).toEqual({
+      kind: "single",
+      trustName: "",
+      successorTrustees: { primary: "", alternate: "" },
+      finalTaker: { relationship: "", name: "", gender: "" },
+      scheduleA: [],
+    });
+  });
+
+  it("round-trips a v5 plan with trust content", () => {
+    const first = migrateProfile("profile-1", v4Plan());
+    if (!first.success) throw new Error(first.error);
+    first.plan.basis = "trust";
+    first.plan.documents.revocableTrust.kind = "joint";
+    first.plan.documents.revocableTrust.scheduleA = ["Checking account"];
+    const second = migrateProfile("profile-1", {
+      ...(JSON.parse(JSON.stringify(first.plan)) as Plan),
+      schemaVersion: 5,
+    });
+    expect(second.success && second.plan).toEqual(first.plan);
+  });
+
+  it("rejects a v6 payload", () => {
+    expect(
+      migrateProfile("profile-1", { ...v4Plan(), schemaVersion: 6 }).success
+    ).toBe(false);
+  });
+
   it("has a step and a fixture for every version before the current one", async () => {
     const fixtures: Record<number, Record<string, unknown>> = {
       2: { label: "Profile 1" },
       3: { ...(await readV3Plan()), schemaVersion: 3 },
+      4: v4Plan(),
     };
     for (let version = 2; version < CURRENT_SCHEMA_VERSION; version++) {
       expect(MIGRATIONS[version - 2], `step from v${version}`).toBeDefined();

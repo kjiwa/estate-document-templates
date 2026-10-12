@@ -20,6 +20,12 @@ import { HEALTH_CARE_EXECUTE_GROUPS } from "./health-care-directive/executeGroup
 import { HEALTH_CARE_GUIDANCE } from "./health-care-directive/guidance";
 import { analyzeHealthCareDirective } from "./health-care-directive/review";
 import { HEALTH_CARE_SECTIONS } from "./health-care-directive/sections";
+import { Body as RevocableTrustBody } from "./revocable-trust/Body";
+import { REVOCABLE_TRUST_EXECUTE_GROUPS } from "./revocable-trust/executeGroups";
+import { REVOCABLE_TRUST_GUIDANCE } from "./revocable-trust/guidance";
+import { REVOCABLE_TRUST_FUNDING_CHECKLIST } from "./revocable-trust/memo";
+import { analyzeRevocableTrust } from "./revocable-trust/review";
+import { REVOCABLE_TRUST_SECTIONS } from "./revocable-trust/sections";
 import { Body as RemainsDirectiveBody } from "./remains-directive/Body";
 import { DIRECTIVE_EXECUTE_GROUPS } from "./remains-directive/executeGroups";
 import { DIRECTIVE_GUIDANCE } from "./remains-directive/guidance";
@@ -49,9 +55,13 @@ export interface DocumentDefinition {
 }
 
 function withMemo(
-  definition: Omit<DocumentDefinition, "memo">
+  definition: Omit<DocumentDefinition, "memo">,
+  appendix: string[] = []
 ): DocumentDefinition {
-  return { ...definition, memo: (plan) => documentMemo(definition, plan) };
+  return {
+    ...definition,
+    memo: (plan) => [documentMemo(definition, plan), ...appendix].join("\n"),
+  };
 }
 
 export const DOCUMENTS: DocumentDefinition[] = [
@@ -111,4 +121,18 @@ export const DOCUMENTS: DocumentDefinition[] = [
     Body: DurablePowerOfAttorneyBody,
     review: analyzeDurablePowerOfAttorney,
   }),
+  withMemo(
+    {
+      id: "revocable-trust",
+      title: "Revocable Living Trust",
+      roleNoun: "Trustor",
+      executionKey: "revocableTrust",
+      sections: REVOCABLE_TRUST_SECTIONS,
+      guidance: REVOCABLE_TRUST_GUIDANCE,
+      executeGroups: REVOCABLE_TRUST_EXECUTE_GROUPS,
+      Body: RevocableTrustBody,
+      review: analyzeRevocableTrust,
+    },
+    REVOCABLE_TRUST_FUNDING_CHECKLIST
+  ),
 ];

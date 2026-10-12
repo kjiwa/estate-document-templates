@@ -5,7 +5,7 @@
 // trustee, ultimate contingent beneficiary) so a future "one person holds
 // four roles" advisory test still has something to assert on.
 //
-// Written in the v4 persisted shape (`plans` / `activePlanId`) that
+// Written in the v5 persisted shape (`plans` / `activePlanId`) that
 // `persist()` writes and `parsePersisted()` reads — see src/store/index.ts.
 const EXECUTION = {
   city: "Tacoma",
@@ -35,12 +35,14 @@ function executionsFromRecord(record) {
     healthCareDirective: BLANK_EXECUTION,
     durablePowerOfAttorney: BLANK_EXECUTION,
     generalPowerOfAttorney: BLANK_EXECUTION,
+    revocableTrust: BLANK_EXECUTION,
   };
 }
 
 const PLAN_1 = {
   id: "profile-1",
   label: "Avery Q. Ramos",
+  basis: "will",
   party: {
     testator: {
       name: "Avery Q. Ramos",
@@ -93,12 +95,20 @@ const PLAN_1 = {
       },
       survivorshipDays: 60,
     },
+    revocableTrust: {
+      kind: "single",
+      trustName: "",
+      successorTrustees: { primary: "", alternate: "" },
+      finalTaker: { relationship: "", name: "", gender: "" },
+      scheduleA: [],
+    },
   },
 };
 
 const PLAN_2 = {
   id: "profile-2",
   label: "Morgan T. Ramos",
+  basis: "will",
   party: {
     testator: {
       name: "Morgan T. Ramos",
@@ -151,6 +161,13 @@ const PLAN_2 = {
       },
       survivorshipDays: 60,
     },
+    revocableTrust: {
+      kind: "single",
+      trustName: "",
+      successorTrustees: { primary: "", alternate: "" },
+      finalTaker: { relationship: "", name: "", gender: "" },
+      scheduleA: [],
+    },
   },
 };
 
@@ -172,7 +189,7 @@ async function seedPlans(page) {
     window.localStorage.setItem(
       KEY,
       JSON.stringify({
-        schemaVersion: 4,
+        schemaVersion: 5,
         activePlanId: "profile-1",
         activeDocumentId: "will",
         plans,

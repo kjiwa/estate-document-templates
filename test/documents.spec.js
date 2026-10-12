@@ -8,6 +8,7 @@ const DOCUMENT_IDS = [
   "health-care-directive",
   "general-power-of-attorney",
   "durable-power-of-attorney",
+  "revocable-trust",
 ];
 
 // One edit per input kind the open section offers. Text covers both the

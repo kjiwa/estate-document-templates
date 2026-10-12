@@ -1,6 +1,6 @@
 import { Plan } from "./plan";
 
-export const CURRENT_SCHEMA_VERSION = 4;
+export const CURRENT_SCHEMA_VERSION = 5;
 
 const V2 = 2;
 
@@ -121,8 +121,33 @@ function v3ToV4(raw: Unknown): Unknown {
   return { ...rest, executions };
 }
 
+function emptyExecution(): Unknown {
+  return {
+    city: "",
+    executionDate: { day: "", month: "", year: "" },
+    witnesses: [
+      { name: "", address: "", cityStateZip: "" },
+      { name: "", address: "", cityStateZip: "" },
+    ],
+    notary: { name: "", commissionExpires: "" },
+  };
+}
+
+// v5 adds the plan basis and the trust's own execution record.
+function v4ToV5(raw: Unknown): Unknown {
+  const executions = {
+    ...asObject(raw.executions),
+    revocableTrust: emptyExecution(),
+  };
+  return { ...raw, basis: "will", executions };
+}
+
 // Ordered; the step at index `n` migrates version `V2 + n` to `V2 + n + 1`.
-export const MIGRATIONS: ((raw: Unknown) => Unknown)[] = [v2ToV3, v3ToV4];
+export const MIGRATIONS: ((raw: Unknown) => Unknown)[] = [
+  v2ToV3,
+  v3ToV4,
+  v4ToV5,
+];
 
 function schemaVersionOf(obj: Unknown): number {
   return typeof obj.schemaVersion === "number" ? obj.schemaVersion : V2;

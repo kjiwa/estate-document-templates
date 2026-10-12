@@ -9,6 +9,7 @@ const DOCUMENT_IDS = [
   "health-care-directive",
   "general-power-of-attorney",
   "durable-power-of-attorney",
+  "revocable-trust",
 ];
 
 test.describe("Screen-to-Print Fidelity & PDF Generation", () => {

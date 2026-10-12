@@ -23,6 +23,7 @@ const DOCUMENT_TITLES = [
   "Health Care Directive",
   "General Power of Attorney",
   "Durable Power of Attorney",
+  "Revocable Living Trust",
 ];
 
 async function chooseMenuItem(card, name) {
@@ -186,7 +187,9 @@ test.describe("Plan management", () => {
 
     expect(download.suggestedFilename()).toMatch(/-all-documents\.html$/);
     const html = fs.readFileSync(await download.path(), "utf8");
-    expect(html.match(/<article\b[^>]*\bpaged-sheet\b/g)).toHaveLength(5);
+    expect(html.match(/<article\b[^>]*\bpaged-sheet\b/g)).toHaveLength(
+      DOCUMENT_TITLES.length
+    );
     expect(consoleErrors).toEqual([]);
   });
 
@@ -333,16 +336,14 @@ test.describe("Plan management", () => {
     ).toBeHidden();
   });
 
-  test("each card lists the five documents with a stage chip", async ({
-    page,
-  }) => {
+  test("each card lists every document with a stage chip", async ({ page }) => {
     await page.getByRole("link", { name: "Plans", exact: true }).click();
 
     const rows = page
       .locator(".plan-card")
       .first()
       .locator(".plan-overview-row");
-    await expect(rows).toHaveCount(5);
+    await expect(rows).toHaveCount(DOCUMENT_TITLES.length);
     await expect(rows.first().locator(".stage-chip")).toHaveText(
       /In progress|Ready to sign|Ready to print/
     );

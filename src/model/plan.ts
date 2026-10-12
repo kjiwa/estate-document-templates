@@ -86,6 +86,7 @@ const Executions = z.object({
   healthCareDirective: Execution,
   durablePowerOfAttorney: Execution,
   generalPowerOfAttorney: Execution,
+  revocableTrust: Execution,
 });
 
 const CommunityPropertyAgreement = z.object({
@@ -162,16 +163,39 @@ const DurablePowerOfAttorneyDocument = z
   })
   .default({ minorChildren: false, lastGoodbyes: false });
 
+// Literal default for the same reason as `HealthCareDirectiveDocument`.
+const RevocableTrustDocument = z
+  .object({
+    kind: z.enum(["single", "joint"]).catch("single"),
+    trustName: z.string().default(""),
+    successorTrustees: RoleHolders.default({ primary: "", alternate: "" }),
+    finalTaker: UltimateBeneficiary.default({
+      relationship: "",
+      name: "",
+      gender: "",
+    }),
+    scheduleA: z.array(z.string()).default([]),
+  })
+  .default({
+    kind: "single",
+    trustName: "",
+    successorTrustees: { primary: "", alternate: "" },
+    finalTaker: { relationship: "", name: "", gender: "" },
+    scheduleA: [],
+  });
+
 const Documents = z.object({
   will: WillDocument,
   healthCareDirective: HealthCareDirectiveDocument,
   remainsDirective: RemainsDirectiveDocument,
   durablePowerOfAttorney: DurablePowerOfAttorneyDocument,
+  revocableTrust: RevocableTrustDocument,
 });
 
 export const Plan = z.object({
   id: z.string(),
   label: z.string(),
+  basis: z.enum(["will", "trust"]).catch("will"),
   party: Party,
   fiduciaries: Fiduciaries,
   executions: Executions,
