@@ -1,7 +1,6 @@
 import type { ComponentChildren } from "preact";
 
-export const REPOSITORY_URL =
-  "https://github.com/kjiwa/estate-document-templates";
+import { REPOSITORY_URL } from "../repository";
 
 export function Layout({
   root,

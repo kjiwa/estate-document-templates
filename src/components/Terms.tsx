@@ -10,7 +10,7 @@ import {
 } from "../ui/terms";
 import type { TermsDialog } from "../ui/terms";
 import { PRIVACY_BODY, TERMS_BODY } from "../ui/termsCopy";
-import { REPOSITORY_URL } from "../site/Layout";
+import { REPOSITORY_URL } from "../repository";
 import { ThemeToggle } from "./ThemeToggle";
 
 function FooterLink({ dialog, label }: { dialog: TermsDialog; label: string }) {
