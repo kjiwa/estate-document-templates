@@ -1,6 +1,6 @@
 # WA Estate Docs
 
-WA Estate Docs is a client-side web application ([live site](https://waestatedocs.com/)) for generating, customizing, and printing legally structured estate planning documents drafted to the cited Washington statutes (not reviewed by an attorney). Ships these document types today — a Last Will and Testament (RCW Title 11), a Disposition of Remains Directive (RCW 68.50.160), a Health Care Directive (RCW 70.122.030, the Natural Death Act), a General Power of Attorney (RCW 11.125), and a Durable Power of Attorney (RCW 11.125) — switchable from the header picker, drafted from one shared plan.
+WA Estate Docs is a client-side web application ([live site](https://waestatedocs.com/)) for generating, customizing, and printing legally structured estate planning documents drafted to the cited Washington statutes (not reviewed by an attorney). Ships these document types today — a Last Will and Testament (RCW Title 11), a Disposition of Remains Directive (RCW 68.50.160), a Health Care Directive (RCW 70.122.030, the Natural Death Act), a General Power of Attorney (RCW 11.125), a Durable Power of Attorney (RCW 11.125), and a Revocable Living Trust (chapter 11.103 RCW) — switchable from the header picker, drafted from one shared plan.
 
 ## Features
 
@@ -20,6 +20,7 @@ WA Estate Docs is a client-side web application ([live site](https://waestatedoc
   - **RCW 70.122.020 & RCW 70.122.030**: Health Care Directive under the Natural Death Act — terminal/permanent unconscious condition elections and two-witness execution.
   - **RCW 11.125.050 & RCW 11.125.100**: General Power of Attorney — execution by notarial acknowledgment, and the statutory termination provisions, recited verbatim for a non-durable power of attorney.
   - **RCW 11.125.040, 11.125.090, 11.125.400 & 11.125.410**: Durable Power of Attorney — the durability statement, determination of incapacity, health care authority bounded by the guardian limits of RCW 11.130.335(3), and authority over minor children.
+  - **RCW 11.103.020, 11.103.030 & 11.103.040**: Revocable Living Trust — capacity, revocability and the joint-trust rules for spouses, and the trustee's duties during the trustors' lives; creation under RCW 11.98.011 and trustee powers under RCW 11.98.070.
 - **Guidance Layer**: Every decision-bearing field carries a native `<details>` disclosure explaining what it does, the options, what's typical, and its impact — content only, never part of the printed document. A live Review panel raises advisories (e.g. an interested witness, a missing alternate fiduciary) computed by a pure per-document `analyze*()` function. An Attorney Memo export, available for every document type, lists every choice and advisory for counsel.
 - **Plan Switching & Pronoun Agreement**: Toggle between reciprocal spousal plans, with automatic updates to pronouns, fiduciary appointments, and beneficiary declarations.
 - **Signing Day & Print Checklist**: A step-by-step signing-day view per document, and a pre-print checklist of what to review before printing.
@@ -90,6 +91,15 @@ A springing, durable power of attorney: the powers begin on the principal's inca
 4. **Testimonium & Acknowledgment**: Execution statement, principal signature block, and the notarial acknowledgment RCW 11.125.050 provides for.
 5. **Certification page**: A separate page, completed by the agent or physicians at the time of incapacity, not at signing.
 
+### Revocable Living Trust
+
+A single or joint revocable trust. The trustors serve as the first trustees, and the document names successor trustees. It uses the shared Article/Clause numbering.
+
+1. **Declaration, Revocation and Amendment**: Creation, name, trust property, revocability and the joint-trust rules (RCW 11.103.030), and the trustors' rights during life (RCW 11.103.040).
+2. **Incapacity and Successor Trustees**: A written physician-certification test and the named successor and alternate trustees.
+3. **Disposition After Death**: To a surviving spouse where the trust is single and the trustor is married, then to descendants by representation with an age-25 holdback, then to a final taker; spendthrift protection and trustee powers.
+4. **Schedule A, Signatures & Acknowledgment**: The listed trust property, signatures as trustor and trustee, and a notarial acknowledgment for each trustor. No witnesses are provided for.
+
 ## Project Structure
 
 ```
@@ -107,7 +117,8 @@ A springing, durable power of attorney: the powers begin on the principal's inca
 │   │   ├── remains-directive/          # Disposition of Remains Directive: sections, body, guidance, review
 │   │   ├── health-care-directive/      # Health Care Directive: sections, body, guidance, review
 │   │   ├── general-power-of-attorney/  # General Power of Attorney: sections, body, guidance, review
-│   │   └── durable-power-of-attorney/  # Durable Power of Attorney: sections, body, certification page, guidance, review
+│   │   ├── durable-power-of-attorney/  # Durable Power of Attorney: sections, body, certification page, guidance, review
+│   │   └── revocable-trust/            # Revocable Living Trust: sections, body, guidance, review, funding checklist
 │   ├── export/                         # Attorney memo and standalone HTML generation
 │   ├── fonts/                          # Bundled webfonts, each under its own src/fonts/LICENSE-* file
 │   ├── form/                           # FieldSpec union, <Field> renderer, field registry/traversal

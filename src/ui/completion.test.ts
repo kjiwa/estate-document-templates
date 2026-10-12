@@ -89,6 +89,7 @@ describe("completion matches the rendered fill-ins", () => {
     "health-care-directive": 0,
     "general-power-of-attorney": 0,
     "durable-power-of-attorney": 0,
+    "revocable-trust": 2,
   };
 
   for (const doc of DOCUMENTS) {

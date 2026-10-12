@@ -11,17 +11,21 @@ import { Value } from "./Value";
 export function NotarialAcknowledgment({
   preamble,
   signerRow = false,
+  signer = "testator",
   juratOpener,
   children,
 }: {
   preamble: string;
   signerRow?: boolean;
+  signer?: "testator" | "spouse";
   juratOpener: string;
   children: (pronouns: Pronouns) => ComponentChildren;
 }) {
   const at = useExecutionPath();
   const plan = useContext(PlanContext);
-  const pronouns = getPronouns(plan?.party.testator.gender);
+  const person = plan?.party[signer];
+  const namePath = `party.${signer}.name` as const;
+  const pronouns = getPronouns(person?.gender);
   const state = plan?.party.testator.state ?? "";
   const county = plan?.party.testator.county ?? "";
 
@@ -37,8 +41,8 @@ export function NotarialAcknowledgment({
       />
       <p class="notary-body">
         I certify that I know or have satisfactory evidence that{" "}
-        <Blank path="party.testator.name" chars={16} /> is the person who
-        appeared before me, and said person acknowledged that{" "}
+        <Blank path={namePath} chars={16} /> is the person who appeared before
+        me, and said person acknowledged that{" "}
         <Value value={pronouns.subjective} /> {children(pronouns)}
       </p>
       {signerRow && (

@@ -134,9 +134,9 @@ describe("execution record identity", () => {
       },
     });
     const records = Object.values(plan.executions);
-    expect(records).toHaveLength(5);
-    expect(new Set(records).size).toBe(5);
-    expect(new Set(records.map((r) => r.witnesses)).size).toBe(5);
-    expect(new Set(records.map((r) => r.notary)).size).toBe(5);
+    expect(records).toHaveLength(6);
+    expect(new Set(records).size).toBe(6);
+    expect(new Set(records.map((r) => r.witnesses)).size).toBe(6);
+    expect(new Set(records.map((r) => r.notary)).size).toBe(6);
   });
 });

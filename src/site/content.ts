@@ -103,4 +103,30 @@ export const CONTENT: Record<string, DocumentContent> = {
       "RCW 11.130.335",
     ],
   },
+  "revocable-trust": {
+    description:
+      "Draft a Washington revocable living trust, single or joint, with successor trustees, a schedule of trust property, and a notarial acknowledgment.",
+    summary:
+      "A revocable living trust holds property for the trustors during life and passes it at death without naming a personal representative. The draft covers the declaration and name, revocation and amendment, the trustors' rights during life, incapacity, successor trustees, disposition after death to a surviving spouse, then to descendants by representation with a holdback until age 25, then to a final taker, spendthrift protection, trustee powers, and a schedule of trust property. A joint trust is created by spouses together.",
+    audience:
+      "Washington residents, single or married, who want to name who manages their property if they cannot and who receives it afterward.",
+    signing: [
+      "The trustor signs the trust as trustor and as trustee. In a joint trust, both spouses sign.",
+      "A notary completes a notarial acknowledgment for each trustor. This document provides for no witnesses.",
+    ],
+    after: [
+      "A trust holds only property that has been transferred to the trustee, so accounts and real property still have to be retitled.",
+      "The Attorney Memo export lists every choice and advisory for counsel to review, with a funding checklist.",
+    ],
+    citations: [
+      "RCW 11.103.020",
+      "RCW 11.103.030",
+      "RCW 11.103.040",
+      "RCW 11.98.011",
+      "RCW 11.98.070",
+      "RCW 11.02.005",
+      "RCW 6.32.250",
+      "RCW 26.16.030",
+    ],
+  },
 };
