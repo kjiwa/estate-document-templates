@@ -230,6 +230,9 @@ test.describe("Terms", () => {
       .getByRole("button", { name: "I understand and accept" })
       .click();
     await expect(dialog).toHaveCount(0);
+    await expect
+      .poll(() => page.evaluate(() => document.activeElement.tagName))
+      .not.toBe("BODY");
   });
 
   test("acceptance persists across reload", async ({ page }) => {

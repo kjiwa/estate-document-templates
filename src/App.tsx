@@ -18,6 +18,7 @@ import {
   storageNotice,
 } from "./store/index";
 import { activeFieldPath } from "./ui/editing";
+import { focusMainHeading } from "./ui/focus";
 import { printAllPlanId } from "./ui/print";
 import { view } from "./ui/view";
 import { isNarrow } from "./ui/viewport";
@@ -34,9 +35,7 @@ function useFocusHeadingOnViewChange(current: typeof view.value): void {
   useEffect(() => {
     if (previous.current === current) return;
     previous.current = current;
-    const heading = document.querySelector<HTMLElement>("#main-content h1");
-    heading?.setAttribute("tabindex", "-1");
-    heading?.focus();
+    focusMainHeading();
   }, [current]);
 }
 

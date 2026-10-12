@@ -11,6 +11,7 @@ import {
 import type { TermsDialog } from "../ui/terms";
 import { PRIVACY_BODY, TERMS_BODY } from "../ui/termsCopy";
 import { REPOSITORY_URL } from "../repository";
+import { focusMainHeading } from "../ui/focus";
 import { ThemeToggle } from "./ThemeToggle";
 
 function FooterLink({ dialog, label }: { dialog: TermsDialog; label: string }) {
@@ -42,6 +43,15 @@ export function AppFooter() {
   );
 }
 
+// On first visit the opener is the body, which cannot hold focus.
+function restoreFocus(opener: HTMLElement | null): void {
+  if (opener?.isConnected && opener !== document.body) {
+    opener.focus();
+    return;
+  }
+  focusMainHeading();
+}
+
 // Declared as an effect so the opener is captured before `showModal()` moves
 // focus; the dialog is removed from the DOM on close, so focus is restored here.
 function useModalDialog(
@@ -52,7 +62,7 @@ function useModalDialog(
     if (!open) return;
     const opener = document.activeElement as HTMLElement | null;
     dialogRef.current?.showModal();
-    return () => opener?.focus();
+    return () => restoreFocus(opener);
   }, [open, dialogRef]);
 }
 
