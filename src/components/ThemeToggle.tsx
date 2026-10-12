@@ -8,17 +8,21 @@ const OPTIONS: { value: Theme; label: string }[] = [
 
 export function ThemeToggle() {
   return (
-    <div class="segmented" role="group" aria-label="Theme">
-      {OPTIONS.map((option) => (
-        <button
-          key={option.value}
-          type="button"
-          aria-pressed={option.value === theme.value}
-          onClick={() => setTheme(option.value)}
-        >
-          {option.label}
-        </button>
-      ))}
-    </div>
+    <label class="footer-theme">
+      Theme
+      <select
+        class="btn"
+        value={theme.value}
+        onChange={(event) =>
+          setTheme((event.target as HTMLSelectElement).value as Theme)
+        }
+      >
+        {OPTIONS.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </label>
   );
 }

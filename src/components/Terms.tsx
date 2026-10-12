@@ -10,7 +10,9 @@ import {
 } from "../ui/terms";
 import type { TermsDialog } from "../ui/terms";
 import { PRIVACY_BODY, TERMS_BODY } from "../ui/termsCopy";
+import { REPOSITORY_URL } from "../site/Layout";
 import { useFocusTrap } from "../ui/useFocusTrap";
+import { ThemeToggle } from "./ThemeToggle";
 
 const IGNORE_ESCAPE = () => {};
 
@@ -37,6 +39,8 @@ export function AppFooter() {
       <span>Drafting aid, not legal advice. Provided as is.</span>
       <FooterLink dialog="terms" label="Terms" />
       <FooterLink dialog="privacy" label="Privacy" />
+      <a href={REPOSITORY_URL}>Source on GitHub</a>
+      <ThemeToggle />
     </footer>
   );
 }

@@ -8,7 +8,6 @@ import { closeEditor } from "../ui/editing";
 import { startExecuteFlow } from "../ui/execute";
 import { view } from "../ui/view";
 import { PresentationToggle } from "./PresentationToggle";
-import { ThemeToggle } from "./ThemeToggle";
 
 function DocumentPicker() {
   return (
@@ -90,15 +89,9 @@ export function AppHeader() {
             >
               Signing day
             </button>
-            <ThemeToggle />
           </div>
         </>
       )}
-      {onPlansView ? (
-        <div class="header-controls">
-          <ThemeToggle />
-        </div>
-      ) : null}
     </header>
   );
 }

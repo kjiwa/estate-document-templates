@@ -53,31 +53,22 @@ test.describe("Application Shell, Layout & Accessibility", () => {
     expect(boundingBox.y).toBeGreaterThanOrEqual(0);
   });
 
-  test("theme toggle sets data-theme and aria-pressed", async ({ page }) => {
+  test("theme select sets data-theme", async ({ page }) => {
     await page.goto("/app/#/document");
 
-    const darkButton = page.locator(
-      '[aria-label="Theme"] button:has-text("Dark")'
-    );
-    await darkButton.click();
+    const select = page.getByLabel("Theme");
+    await select.selectOption("dark");
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-    await expect(darkButton).toHaveAttribute("aria-pressed", "true");
 
-    const lightButton = page.locator(
-      '[aria-label="Theme"] button:has-text("Light")'
-    );
-    await lightButton.click();
+    await select.selectOption("light");
     await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
-    await expect(lightButton).toHaveAttribute("aria-pressed", "true");
-    await expect(darkButton).toHaveAttribute("aria-pressed", "false");
+    await expect(select).toHaveValue("light");
   });
 
   test("system theme follows the emulated color scheme", async ({ page }) => {
     await page.emulateMedia({ colorScheme: "dark" });
     await page.goto("/app/#/document");
-    await page
-      .locator('[aria-label="Theme"] button:has-text("System")')
-      .click();
+    await page.getByLabel("Theme").selectOption("system");
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
     await expect(page.locator("body")).toHaveCSS(
       "background-color",
@@ -253,6 +244,10 @@ test.describe("Terms", () => {
     await page.goto("/app/#/document");
     const footer = page.locator("footer.app-footer");
     await expect(footer).toContainText("Drafting aid, not legal advice");
+    await expect(
+      footer.getByRole("link", { name: "Source on GitHub" })
+    ).toHaveAttribute("href", /github\.com\/kjiwa\/estate-document-templates$/);
+    await expect(footer.getByLabel("Theme")).toBeVisible();
 
     await footer.getByRole("button", { name: "Terms" }).click();
     const dialog = page.getByRole("dialog");
@@ -338,9 +333,7 @@ test.describe("Terms", () => {
     await expect(page.locator("#document-sheet")).toBeVisible();
   });
 
-  test("a bare visit opens Plans with only brand and theme controls", async ({
-    page,
-  }) => {
+  test("a bare visit opens Plans with only the brand", async ({ page }) => {
     await acceptTerms(page);
     await page.goto("/app/");
     await expect(
