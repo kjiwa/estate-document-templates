@@ -10,9 +10,8 @@ import {
 } from "../ui/terms";
 import type { TermsDialog } from "../ui/terms";
 import { PRIVACY_BODY, TERMS_BODY } from "../ui/termsCopy";
-import { REPOSITORY_URL } from "../repository";
 import { focusMainHeading } from "../ui/focus";
-import { ThemeToggle } from "./ThemeToggle";
+import { Footer } from "./Footer";
 
 function FooterLink({ dialog, label }: { dialog: TermsDialog; label: string }) {
   return (
@@ -33,13 +32,10 @@ function FooterLink({ dialog, label }: { dialog: TermsDialog; label: string }) {
 
 export function AppFooter() {
   return (
-    <footer class="app-footer">
-      <span>Drafting aid, not legal advice. Provided as is.</span>
-      <FooterLink dialog="terms" label="Terms" />
-      <FooterLink dialog="privacy" label="Privacy" />
-      <a href={REPOSITORY_URL}>Source on GitHub</a>
-      <ThemeToggle />
-    </footer>
+    <Footer
+      terms={<FooterLink dialog="terms" label="Terms" />}
+      privacy={<FooterLink dialog="privacy" label="Privacy" />}
+    />
   );
 }
 

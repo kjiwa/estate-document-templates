@@ -106,4 +106,20 @@ test.describe("Content site", () => {
     await page.goto("/#/document/will");
     await expect(page).toHaveURL(/\/app\/#\/document\/will$/);
   });
+
+  test("theme select on a site page persists into the app", async ({
+    page,
+  }) => {
+    await acceptTerms(page);
+    await page.goto("/about/");
+    const select = page.locator("footer").getByLabel("Theme");
+    await expect(select).toBeVisible();
+    await select.selectOption("dark");
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    await page.goto("/app/");
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+    await expect(page.locator("footer").getByLabel("Theme")).toHaveValue(
+      "dark"
+    );
+  });
 });

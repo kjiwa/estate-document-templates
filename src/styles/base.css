@@ -117,3 +117,62 @@ button {
   background: var(--accent);
   color: var(--accent-on);
 }
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-4);
+  background: var(--surface-1);
+  border-top: 1px solid var(--rule-hairline);
+  color: var(--ink-muted);
+  font-size: var(--font-size-sm);
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--space-4);
+  order: -1;
+}
+
+.footer-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target);
+}
+
+.footer-theme {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.footer-theme[hidden] {
+  display: none;
+}
+
+@media (min-width: 40rem) {
+  .footer {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+  }
+
+  .footer-links {
+    order: 0;
+  }
+
+  .footer-theme {
+    justify-self: end;
+  }
+}
+
+@media (pointer: fine) {
+  .footer-links a,
+  .footer-links .link-button {
+    min-height: 24px;
+  }
+}

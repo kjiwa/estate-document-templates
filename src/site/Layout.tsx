@@ -1,6 +1,6 @@
 import type { ComponentChildren } from "preact";
 
-import { REPOSITORY_URL } from "../repository";
+import { Footer } from "../components/Footer";
 
 export function Layout({
   root,
@@ -24,12 +24,11 @@ export function Layout({
         </a>
       </header>
       <main class="site-main">{children}</main>
-      <footer class="site-footer">
-        <span>Drafting aid, not legal advice. Provided as is.</span>
-        <a href={`${root}terms/`}>Terms</a>
-        <a href={`${root}privacy/`}>Privacy</a>
-        <a href={REPOSITORY_URL}>Source on GitHub</a>
-      </footer>
+      <Footer
+        terms={<a href={`${root}terms/`}>Terms</a>}
+        privacy={<a href={`${root}privacy/`}>Privacy</a>}
+        themeHidden
+      />
     </>
   );
 }

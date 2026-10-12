@@ -27,7 +27,7 @@ test.describe("Application Shell, Layout & Accessibility", () => {
     const header = page.locator("header");
     await expect(header).toBeVisible();
 
-    const nav = page.locator("nav");
+    const nav = page.getByRole("navigation", { name: "Legal" });
     await expect(nav).toBeAttached();
 
     const main = page.locator("main#main-content");
@@ -245,7 +245,7 @@ test.describe("Terms", () => {
   test("footer reopens the terms with Close and Escape", async ({ page }) => {
     await acceptTerms(page);
     await page.goto("/app/#/document");
-    const footer = page.locator("footer.app-footer");
+    const footer = page.locator("footer.footer");
     await expect(footer).toContainText("Drafting aid, not legal advice");
     await expect(
       footer.getByRole("link", { name: "Source on GitHub" })
@@ -283,7 +283,7 @@ test.describe("Terms", () => {
     await acceptTerms(page);
     await page.goto("/app/#/document");
     await page
-      .locator("footer.app-footer")
+      .locator("footer.footer")
       .getByRole("button", { name: "Privacy" })
       .click();
     const dialog = page.getByRole("dialog", { name: "Privacy" });
@@ -314,7 +314,7 @@ test.describe("Terms", () => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto("/app/#/document");
     const body = await page.locator(".app-body").boundingBox();
-    const footer = await page.locator(".app-footer").boundingBox();
+    const footer = await page.locator(".footer").boundingBox();
     expect(footer.y).toBeGreaterThanOrEqual(body.y + body.height - 1);
     expect(footer.y + footer.height).toBeLessThanOrEqual(900);
   });

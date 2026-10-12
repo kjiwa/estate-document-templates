@@ -6,9 +6,9 @@ const OPTIONS: { value: Theme; label: string }[] = [
   { value: "dark", label: "Dark" },
 ];
 
-export function ThemeToggle() {
+export function ThemeToggle({ hidden = false }: { hidden?: boolean }) {
   return (
-    <label class="footer-theme">
+    <label class="footer-theme" hidden={hidden}>
       Theme
       <select
         class="btn"
