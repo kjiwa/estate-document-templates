@@ -90,7 +90,7 @@ function DocumentsIndex({ root }: BodyProps) {
     <>
       <h1>Documents</h1>
       <p>
-        Five document types, drafted from one shared plan to the cited
+        Each document type is drafted from one shared plan to the cited
         Washington statutes. None has been reviewed by an attorney.
       </p>
       <ul class="site-cards">
@@ -215,8 +215,9 @@ export const SITE_PAGES: SitePage[] = [
   {
     path: "documents/",
     title: "Documents",
-    description:
-      "The five Washington document types in WA Estate Docs: will, remains directive, health care directive, general power of attorney, and durable power of attorney.",
+    description: `The Washington document types in WA Estate Docs: ${DOCUMENTS.map(
+      (doc) => doc.title
+    ).join(", ")}.`,
     breadcrumbs: [HOME, DOCUMENTS_CRUMB],
     Body: DocumentsIndex,
   },

@@ -6,7 +6,6 @@ const { seedPlans, disableFilePickers } = require("./fixtures");
 
 async function openActiveDocument(page) {
   const documents = page.locator(".plan-card-active .plan-documents");
-  await documents.locator("summary").click();
   await documents.locator(".plan-overview-title").first().click();
 }
 
@@ -325,7 +324,7 @@ test.describe("Plan management", () => {
     );
   });
 
-  test("every document list starts collapsed and the summary carries the advisory total", async ({
+  test("every document list starts open and the summary carries the advisory total", async ({
     page,
   }) => {
     await page.getByRole("link", { name: "Plans", exact: true }).click();
@@ -333,25 +332,20 @@ test.describe("Plan management", () => {
     const cards = page.locator(".plan-card");
     for (const index of [0, 1]) {
       const documents = cards.nth(index).locator(".plan-documents");
-      await expect(documents).toHaveJSProperty("open", false);
+      await expect(documents).toHaveJSProperty("open", true);
       await expect(documents.locator("summary")).toHaveText(
         /^Documents: [^;]+(; \d+ to review)?$/
       );
     }
     const first = cards.first().locator(".plan-documents");
     await first.locator("summary").click();
-    await expect(first).toHaveJSProperty("open", true);
+    await expect(first).toHaveJSProperty("open", false);
   });
 
   test("optional-blank lines appear only once a document is out of in-progress", async ({
     page,
   }) => {
     await page.getByRole("link", { name: "Plans", exact: true }).click();
-    await page
-      .locator(".plan-card")
-      .first()
-      .locator(".plan-documents > summary")
-      .click();
 
     const inProgress = page
       .locator(".plan-card")
@@ -399,11 +393,6 @@ test.describe("Plan management", () => {
     page,
   }) => {
     await page.getByRole("link", { name: "Plans", exact: true }).click();
-    await page
-      .locator(".plan-card")
-      .first()
-      .locator(".plan-documents > summary")
-      .click();
 
     const head = page.locator(".plan-overview-head").first();
     const title = await head.locator(".plan-overview-title").boundingBox();
@@ -416,7 +405,6 @@ test.describe("Plan management", () => {
     await page.getByRole("link", { name: "Plans", exact: true }).click();
 
     const card = page.locator(".plan-card").nth(1);
-    await card.locator(".plan-documents > summary").click();
     await card.getByRole("button", { name: "Health Care Directive" }).click();
 
     await expect(page.locator(".plans-view")).toBeHidden();
@@ -442,11 +430,6 @@ test.describe("Plan management", () => {
     });
     await page.reload();
     await page.getByRole("link", { name: "Plans", exact: true }).click();
-    await page
-      .locator(".plan-card")
-      .first()
-      .locator(".plan-documents > summary")
-      .click();
 
     const willRow = page
       .locator(".plan-card")
@@ -470,11 +453,6 @@ test.describe("Plan management", () => {
     });
     await page.reload();
     await page.getByRole("link", { name: "Plans", exact: true }).click();
-    await page
-      .locator(".plan-card")
-      .first()
-      .locator(".plan-documents > summary")
-      .click();
 
     await page
       .locator(".plan-card")
