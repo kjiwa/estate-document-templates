@@ -19,10 +19,10 @@ export function Layout({
         <nav class="site-nav" aria-label="Site">
           <a href={`${root}documents/`}>Documents</a>
           <a href={`${root}about/`}>About</a>
-          <a class="btn btn-primary" href={`${root}app/`}>
-            Open the app
-          </a>
         </nav>
+        <a class="btn btn-primary site-cta" href={`${root}app/`}>
+          Open the app
+        </a>
       </header>
       <main class="site-main">{children}</main>
       <footer class="site-footer">
