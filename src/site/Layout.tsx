@@ -24,11 +24,7 @@ export function Layout({
         </a>
       </header>
       <main class="site-main">{children}</main>
-      <Footer
-        terms={<a href={`${root}terms/`}>Terms</a>}
-        privacy={<a href={`${root}privacy/`}>Privacy</a>}
-        themeHidden
-      />
+      <Footer root={root} themeHidden />
     </>
   );
 }
