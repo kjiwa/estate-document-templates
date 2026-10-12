@@ -124,7 +124,7 @@ test.describe("Application Shell, Layout & Accessibility", () => {
 
     const summary = page.locator(".rail-details > summary");
     await expect(summary).toHaveText(
-      /^\d+ \/ \d+ required fields, (In progress|Ready to sign|Ready to print)$/
+      /^Sections, \d+ of \d+ required fields, (In progress|Ready to sign|Ready to print)$/
     );
     await expect(page.locator(".app-rail")).toBeHidden();
 

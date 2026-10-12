@@ -48,4 +48,18 @@
     padding: var(--space-6) var(--space-4);
     font-size: var(--font-size-base);
   }
+
+  .doc-surface:has(> .reading-sheet) {
+    padding-inline: 0;
+  }
+
+  .reading-sheet .doc-preamble,
+  .reading-sheet .clause,
+  .reading-sheet .powers-list > li,
+  .reading-sheet .testimonium,
+  .reading-sheet .witness-declaration,
+  .reading-sheet .notary-jurat,
+  .reading-sheet .notary-body {
+    text-align: start;
+  }
 }

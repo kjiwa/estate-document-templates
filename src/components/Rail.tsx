@@ -101,7 +101,7 @@ export function Rail({ document, plan }: RailProps) {
   return (
     <details class="rail-details">
       <summary>
-        {answered} / {total} required fields, {STAGE_LABELS[stage]}
+        Sections, {answered} of {total} required fields, {STAGE_LABELS[stage]}
       </summary>
       {rail}
     </details>

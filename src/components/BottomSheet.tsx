@@ -49,9 +49,8 @@ export function BottomSheet() {
       aria-label="Edit field"
       ref={sheetRef}
     >
-      <div class="sheet-grabber" />
       <div class="sheet-heading">
-        <h2>{entry.field.label}</h2>
+        <h2>{activeSection.value?.legend}</h2>
         <button
           type="button"
           class="btn"
