@@ -73,7 +73,7 @@ export function App() {
   useFocusHeadingOnViewChange(view.value);
 
   return (
-    <div class="app-shell">
+    <div>
       <a href="#main-content" class="skip-link">
         {SKIP_LABELS[view.value]}
       </a>
