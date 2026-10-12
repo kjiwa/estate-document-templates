@@ -22,7 +22,7 @@ WA Estate Docs is a client-side web application ([live site](https://waestatedoc
   - **RCW 11.125.040, 11.125.090, 11.125.400 & 11.125.410**: Durable Power of Attorney — the durability statement, determination of incapacity, health care authority bounded by the guardian limits of RCW 11.130.335(3), and authority over minor children.
 - **Guidance Layer**: Every decision-bearing field carries a native `<details>` disclosure explaining what it does, the options, what's typical, and its impact — content only, never part of the printed document. A live Review panel raises advisories (e.g. an interested witness, a missing alternate fiduciary) computed by a pure per-document `analyze*()` function. An Attorney Memo export, available for every document type, lists every choice and advisory for counsel.
 - **Plan Switching & Pronoun Agreement**: Toggle between reciprocal spousal plans, with automatic updates to pronouns, fiduciary appointments, and beneficiary declarations.
-- **Execute Flow & Print Checklist**: A step-by-step signing-day view per document, and a pre-print checklist of what to review before printing.
+- **Signing Day & Print Checklist**: A step-by-step signing-day view per document, and a pre-print checklist of what to review before printing.
 - **Variable Highlighting**: Toggle dynamic field indicators on screen to audit customizable terms without affecting printed output.
 - **Screen-to-Print Fidelity**: Print stylesheets configured for standard Letter portrait dimensions (`8.5in x 11in`), calibrated margins, `@page` margin-box page numbers and testator initials, widow/orphan controls, and unbreakable signature and notary blocks.
 - **State Persistence & Portability**:
@@ -99,7 +99,7 @@ A springing, durable power of attorney: the powers begin on the principal's inca
 ├── src/
 │   ├── main.tsx                        # Bootstraps the Preact app and store
 │   ├── App.tsx                         # Top-level view switch (document/plans/execute/print)
-│   ├── components/                     # Header, rail, contextual panel/sheet, plan and execute views
+│   ├── components/                     # Header, rail, contextual panel/sheet, plan and signing-day views
 │   ├── documents/
 │   │   ├── registry.ts                 # DOCUMENTS: the document-type registry
 │   │   ├── shared/                     # Plan context and clauses shared across document types
@@ -115,7 +115,7 @@ A springing, durable power of attorney: the powers begin on the principal's inca
 │   ├── site/                           # Content pages (landing, documents, about, terms, privacy), prerendered at build
 │   ├── store/                          # Reactive plan store and persistence (localStorage)
 │   ├── styles/                         # Design tokens and app/document/print CSS
-│   └── ui/                             # Signals-derived UI state: editing, advisories, execute, files, theme
+│   └── ui/                             # Signals-derived UI state: editing, advisories, signing day, files, theme
 ├── scripts/
 │   ├── prerender.mjs                   # Renders src/site pages, sitemap.xml, and robots.txt into dist after vite build
 │   └── check-citations.mjs             # Compares cited RCW history notes to the snapshot
@@ -198,7 +198,7 @@ npm run check:citations
 Every draft lives in the browser's `localStorage`, on the machine that typed it.
 Nothing is uploaded and there is no server. **Export JSON is the only backup** —
 save a backup file from the Plans view; clearing site data, using a private window,
-or switching browsers loses the draft. Signing details (city, date, witnesses, notary) are stored per document, so each document keeps its own record; the Execute view can copy them from another document in the same plan. Data is tied to the site address: a fork or
+or switching browsers loses the draft. Signing details (city, date, witnesses, notary) are stored per document, so each document keeps its own record; the Signing day view can copy them from another document in the same plan. Data is tied to the site address: a fork or
 a different URL starts empty, and drafts saved at the earlier kjiwa.github.io address stay there.
 
 ## Terms and privacy
