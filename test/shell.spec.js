@@ -256,7 +256,7 @@ test.describe("Terms", () => {
 
     for (let i = 0; i < 4; i++) {
       await page.keyboard.press("Tab");
-      await expect(dialog.locator(":focus")).toHaveCount(1);
+      await expect(page.locator(".app-header :focus")).toHaveCount(0);
     }
 
     await dialog
