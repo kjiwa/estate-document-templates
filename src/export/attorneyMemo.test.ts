@@ -71,3 +71,25 @@ describe("documentMemo", () => {
     }
   });
 });
+
+describe("generateAttorneyMemo with a pour-over basis", () => {
+  const plan = (basis: "will" | "trust") => {
+    const migrated = migrateProfile("profile-1", { label: "Profile 1" });
+    if (!migrated.success) throw new Error(migrated.error);
+    return { ...migrated.plan, basis };
+  };
+
+  it("adds the basis and signing-order lines and drops the unused gifts", () => {
+    const memo = generateAttorneyMemo(plan("trust"));
+    expect(memo).toContain("Estate passes under: pour-over to revocable trust");
+    expect(memo).toContain("RCW 11.12.250");
+    expect(memo).not.toContain("Spousal gift structure");
+    expect(memo).not.toContain("Ultimate contingent beneficiary");
+  });
+
+  it("leaves the will memo without a basis line", () => {
+    const memo = generateAttorneyMemo(plan("will"));
+    expect(memo).not.toContain("Estate passes under");
+    expect(memo).toContain("Spousal gift structure");
+  });
+});

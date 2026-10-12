@@ -15,6 +15,7 @@ function planWith(
   const plan = result.plan;
   return {
     ...plan,
+    basis: "trust",
     documents: {
       ...plan.documents,
       revocableTrust: { ...plan.documents.revocableTrust, ...overrides },
@@ -100,5 +101,21 @@ describe("analyzeRevocableTrust", () => {
         resolveFieldPath(plan, REVOCABLE_TRUST_SECTIONS, advisory.path)
       ).toBeDefined();
     }
+  });
+
+  it("flags a drafted trust the Will does not pour over to", () => {
+    const named = planWith({ trustName: "Ramos Trust" });
+    expect(analyzeRevocableTrust(named).map((a) => a.id)).not.toContain(
+      "rt-will-does-not-pour-over"
+    );
+    expect(
+      analyzeRevocableTrust({ ...named, basis: "will" }).map((a) => a.id)
+    ).toContain("rt-will-does-not-pour-over");
+  });
+
+  it("stays quiet about the Will when the trust is blank", () => {
+    expect(
+      analyzeRevocableTrust({ ...planWith(), basis: "will" }).map((a) => a.id)
+    ).not.toContain("rt-will-does-not-pour-over");
   });
 });

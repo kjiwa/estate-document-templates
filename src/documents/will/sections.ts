@@ -122,15 +122,15 @@ export const WILL_SECTIONS: Section[] = [
     id: "property",
     legend: "Disposition of Property (Article 3)",
     article: "3",
-    guidance: ["spousalGift", "communityPropertyAgreement"],
+    guidance: ["basis", "communityPropertyAgreement"],
     fields: [
       {
         kind: "select",
-        path: "documents.will.spousalGift",
-        label: "Spousal Gift Structure",
+        path: "basis",
+        label: "Estate Passes Under",
         options: [
-          { value: "outright", label: "Outright" },
-          { value: "disclaimerTrust", label: "Disclaimer Trust" },
+          { value: "will", label: "Will" },
+          { value: "trust", label: "Pour-over to revocable trust" },
         ],
       },
       {
@@ -148,10 +148,29 @@ export const WILL_SECTIONS: Section[] = [
     ],
   },
   {
+    id: "spousal-gift",
+    legend: "Spousal Gift (Article 3)",
+    article: "3",
+    guidance: "spousalGift",
+    hidden: (plan) => plan.basis === "trust",
+    fields: [
+      {
+        kind: "select",
+        path: "documents.will.spousalGift",
+        label: "Spousal Gift Structure",
+        options: [
+          { value: "outright", label: "Outright" },
+          { value: "disclaimerTrust", label: "Disclaimer Trust" },
+        ],
+      },
+    ],
+  },
+  {
     id: "ultimate-beneficiary",
     legend: "Ultimate Contingent Beneficiary (Article 3.6)",
     article: "3.6",
     guidance: "ultimateBeneficiary",
+    hidden: (plan) => plan.basis === "trust",
     fields: [
       {
         kind: "text",

@@ -84,7 +84,7 @@ describe("completion matches the rendered fill-ins", () => {
   }
 
   const BLANK_ANSWERED: Record<string, number> = {
-    will: 3,
+    will: 4,
     "remains-directive": 0,
     "health-care-directive": 0,
     "general-power-of-attorney": 0,

@@ -6,7 +6,7 @@ WA Estate Docs is a client-side web application ([live site](https://waestatedoc
 
 - **Live Reactive Drafting**: Real-time two-way synchronization between sidebar input controls and the paged document preview.
 - **Washington Statutory Alignment**: Pre-configured legal provisions conforming to:
-  - **RCW 11.12**: Execution, revocation, and separate lists for tangible personal property.
+  - **RCW 11.12**: Execution, revocation, pour-over gifts to a trust (RCW 11.12.250), and separate lists for tangible personal property.
   - **RCW 11.130**: Guardian of the person and conservator of the estate as independent nominations.
   - **RCW 68.50.160**: Disposition of remains.
   - **RCW 26.16.030 & 26.16.120**: Community property characterization and Community Property Agreement acknowledgment.
@@ -40,7 +40,7 @@ WA Estate Docs is a client-side web application ([live site](https://waestatedoc
 1. **Title & Preamble**: Testator identification, domicile declaration, and revocation of prior wills.
 2. **Article 1: Family, Guardians, and Conservators**: Spouse and children identification; guardian of the person and conservator of the estate nominated independently (RCW 11.130.010).
 3. **Article 2: Disposition of Remains**: Agent and alternate for control of remains (RCW 68.50.160).
-4. **Article 3: Disposition of Property**: Community property characterization, optional CPA acknowledgment, spousal gift (outright or disclaimer trust), incorporation of separate lists (RCW 11.12.260), residuary disposition by representation, and the ultimate contingent beneficiary.
+4. **Article 3: Disposition of Property**: Community property characterization, optional CPA acknowledgment, spousal gift (outright or disclaimer trust), incorporation of separate lists (RCW 11.12.260), residuary disposition by representation, and the ultimate contingent beneficiary; or, with the pour-over option, a gift of the residue to a revocable living trust (RCW 11.12.250) with a failure-of-gift clause.
 5. **Article 4: Trust Beneficiaries and Distributions**: Health, education, support, and maintenance (HEMS) standard for beneficiaries under age 25, and small trust termination.
 6. **Article 5: Spendthrift Provision**: Creditor protection under RCW 6.32.250, limited to trust interests.
 7. **Article 6: Powers and Duties of Trustee**: Statutory powers under chapter 11.98 RCW, investment flexibility, and non-pro-rata in-kind distributions.

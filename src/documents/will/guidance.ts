@@ -72,6 +72,20 @@ export const GUIDANCE: Record<string, GuidanceEntry> = {
       "A named agent in a witnessed Will ranks above the surviving spouse in Washington's statutory priority order, so this section lets you override the default even for your own spouse if you have reason to.",
     statutes: ["RCW 68.50.160"],
   },
+  basis: {
+    title: "Estate Passes Under",
+    whatItDoes:
+      "Chooses whether this Will distributes your estate itself, or leaves it to the trustee of a revocable living trust you have created.",
+    options: [
+      "Will — Article 3 gives your estate to your spouse or descendants as written here.",
+      "Pour-over to revocable trust — Article 3 gives your estate to the trustee of the trust named on the Revocable Living Trust document, to be administered under that trust's terms.",
+    ],
+    typical:
+      "Pour-over is used alongside a trust, as a backstop for property not transferred into the trust during life.",
+    impact:
+      "The trust instrument must be signed before or at the same time as this Will. The Will identifies the trust by name; the spousal gift and ultimate beneficiary choices no longer apply. If the trust is revoked before your death, the gift fails and Article 3 sends the estate to the Trustee named in this Will.",
+    statutes: ["RCW 11.12.250"],
+  },
   spousalGift: {
     title: "Spousal Gift Structure",
     whatItDoes:
