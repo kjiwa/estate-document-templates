@@ -1,31 +1,6 @@
 @import "../styles/fonts.css";
 @import "../styles/tokens.css";
-
-* {
-  box-sizing: border-box;
-}
-
-html {
-  color-scheme: light dark;
-}
-
-body {
-  margin: 0;
-  background: var(--surface-0);
-  color: var(--ink-body);
-  font-family: var(--font-sans);
-  font-size: var(--font-size-base);
-  line-height: var(--line-height-normal);
-}
-
-a {
-  color: var(--accent);
-}
-
-:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
-}
+@import "../styles/base.css";
 
 .site-header,
 .site-footer {
@@ -119,29 +94,4 @@ h2 {
 .site-meta {
   color: var(--ink-muted);
   font-size: var(--font-size-sm);
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: var(--tap-target);
-  padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--rule-strong);
-  background: var(--surface-2);
-  color: var(--ink-strong);
-  font-weight: var(--font-weight-medium);
-  text-decoration: none;
-}
-
-.btn-primary {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--accent-on);
-}
-
-.btn-primary:hover {
-  background: var(--accent-hover);
-  border-color: var(--accent-hover);
 }

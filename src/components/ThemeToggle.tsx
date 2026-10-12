@@ -8,7 +8,7 @@ const OPTIONS: { value: Theme; label: string }[] = [
 
 export function ThemeToggle() {
   return (
-    <div class="theme-toggle" role="group" aria-label="Theme">
+    <div class="segmented" role="group" aria-label="Theme">
       {OPTIONS.map((option) => (
         <button
           key={option.value}
