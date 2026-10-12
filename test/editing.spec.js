@@ -276,6 +276,7 @@ test.describe("Contextual editing", () => {
     await page.goto("/app/#/document");
     await page.locator('[data-path="party.testator.name"]').first().click();
     await expect(page.locator(".context-panel")).toBeVisible();
+    await expect(page.locator(".context-panel :focus")).toHaveCount(1);
 
     await page.keyboard.press("Escape");
 
