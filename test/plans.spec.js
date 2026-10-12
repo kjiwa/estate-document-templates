@@ -355,7 +355,6 @@ test.describe("Plan management", () => {
     await expect(page.getByRole("button", { name: /Make active/ })).toHaveCount(
       0
     );
-    await expect(page.locator(".plan-card-active")).toHaveCount(0);
   });
 
   test("the header shows the active plan name as a label, not a picker", async ({

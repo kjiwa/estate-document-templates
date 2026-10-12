@@ -18,6 +18,8 @@ test.describe("Execute flow (signing day)", () => {
       "Group 1 of 4 — City and date of execution"
     );
     await expect(page.locator(".execute-flow h1")).toBeFocused();
+    const bar = await page.locator(".execute-flow .progress-bar").boundingBox();
+    expect(bar?.height).toBeGreaterThan(0);
     await expect(page.locator("a.skip-link")).toHaveText(
       "Skip to signing steps"
     );

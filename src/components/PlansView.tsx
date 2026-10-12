@@ -247,7 +247,16 @@ function PlanCard({ plan, canDelete }: PlanCardProps) {
           >
             More
           </button>
-          <div id={menuId} class="plan-menu" popover="auto">
+          <div
+            id={menuId}
+            class="plan-menu"
+            popover="auto"
+            onToggle={(event) => {
+              if (event.newState === "closed") {
+                setConfirmingDelete(false);
+              }
+            }}
+          >
             <button
               type="button"
               class="btn btn-quiet"
@@ -300,7 +309,6 @@ function PlanCard({ plan, canDelete }: PlanCardProps) {
                   ? `Confirm delete ${plan.label}`
                   : `Delete ${plan.label}`
               }
-              onBlur={() => setConfirmingDelete(false)}
               onClick={() => {
                 if (confirmingDelete) {
                   deletePlan(plan.id);
