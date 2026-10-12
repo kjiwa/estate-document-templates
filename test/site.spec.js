@@ -98,7 +98,7 @@ test.describe("Content site", () => {
     await page.getByRole("link", { name: "Start this document" }).click();
     await expect(page).toHaveURL(/\/app\/#\/document\/will$/);
     await expect(page.locator("main")).toBeVisible();
-    await expect(page.locator(".app-title")).toBeVisible();
+    await expect(page.locator(".back-link")).toBeVisible();
   });
 
   test("legacy root hash links land in the app", async ({ page }) => {

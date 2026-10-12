@@ -53,7 +53,7 @@ test.describe("Screen-to-Print Fidelity & PDF Generation", () => {
 
     await expect(page.locator(".app-header")).toBeHidden();
     await expect(page.locator(".app-rail")).toBeHidden();
-    await expect(page.locator(".presentation-toggle")).toBeHidden();
+    await expect(page.locator(".segmented")).toBeHidden();
     await expect(page.locator(".skip-link")).toBeHidden();
 
     const sheet = page.locator("#document-sheet");

@@ -1,16 +1,13 @@
 import { DOCUMENTS } from "../documents/registry";
 import {
   activeDocumentId,
-  activePlanId,
-  plans,
+  activePlan,
   setActiveDocument,
-  setActivePlan,
 } from "../store/index";
 import { closeEditor } from "../ui/editing";
 import { startExecuteFlow } from "../ui/execute";
 import { view } from "../ui/view";
 import { PresentationToggle } from "./PresentationToggle";
-import { ThemeToggle } from "./ThemeToggle";
 
 function DocumentPicker() {
   return (
@@ -32,23 +29,11 @@ function DocumentPicker() {
   );
 }
 
-function PlanPicker() {
+function BackArrow() {
   return (
-    <select
-      class="btn"
-      aria-label="Active plan"
-      value={activePlanId.value}
-      onChange={(event) => {
-        closeEditor();
-        setActivePlan((event.target as HTMLSelectElement).value);
-      }}
-    >
-      {Object.values(plans.value).map((plan) => (
-        <option value={plan.id} key={plan.id}>
-          {plan.label}
-        </option>
-      ))}
-    </select>
+    <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path d="M10 3 5 8l5 5" />
+    </svg>
   );
 }
 
@@ -69,41 +54,44 @@ export function AppHeader() {
 
   return (
     <header class="app-header">
-      <div class="header-brand">
-        {onPlansView ? null : (
+      <div class="header-lead">
+        {onPlansView ? (
+          <a class="app-title" href="../">
+            WA Estate Docs
+          </a>
+        ) : (
           <a
-            class="back-link"
+            class="btn back-link"
             href="#/plans"
             onClick={(event) => {
               event.preventDefault();
               openPlans();
             }}
           >
-            <span aria-hidden="true">&lsaquo;</span>Plans
+            <BackArrow />
+            Plans
           </a>
         )}
-        <a class="app-title" href="../">
-          WA Estate Docs
-        </a>
       </div>
-      <div class="header-controls">
-        {onPlansView ? null : (
-          <>
-            <PlanPicker />
-            <DocumentPicker />
+      {onPlansView ? null : (
+        <>
+          <span class="plan-name" title={activePlan.value?.label}>
+            {activePlan.value?.label}
+          </span>
+          <DocumentPicker />
+          <div class="header-controls">
+            <PresentationToggle />
             <button
               type="button"
               class="btn"
-              aria-pressed={onExecuteView}
+              aria-current={onExecuteView ? "page" : undefined}
               onClick={openExecute}
             >
-              Execute
+              Signing day
             </button>
-            <PresentationToggle />
-          </>
-        )}
-        <ThemeToggle />
-      </div>
+          </div>
+        </>
+      )}
     </header>
   );
 }

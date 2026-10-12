@@ -53,31 +53,22 @@ test.describe("Application Shell, Layout & Accessibility", () => {
     expect(boundingBox.y).toBeGreaterThanOrEqual(0);
   });
 
-  test("theme toggle sets data-theme and aria-pressed", async ({ page }) => {
+  test("theme select sets data-theme", async ({ page }) => {
     await page.goto("/app/#/document");
 
-    const darkButton = page.locator(
-      '[aria-label="Theme"] button:has-text("Dark")'
-    );
-    await darkButton.click();
+    const select = page.getByLabel("Theme");
+    await select.selectOption("dark");
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-    await expect(darkButton).toHaveAttribute("aria-pressed", "true");
 
-    const lightButton = page.locator(
-      '[aria-label="Theme"] button:has-text("Light")'
-    );
-    await lightButton.click();
+    await select.selectOption("light");
     await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
-    await expect(lightButton).toHaveAttribute("aria-pressed", "true");
-    await expect(darkButton).toHaveAttribute("aria-pressed", "false");
+    await expect(select).toHaveValue("light");
   });
 
   test("system theme follows the emulated color scheme", async ({ page }) => {
     await page.emulateMedia({ colorScheme: "dark" });
     await page.goto("/app/#/document");
-    await page
-      .locator('[aria-label="Theme"] button:has-text("System")')
-      .click();
+    await page.getByLabel("Theme").selectOption("system");
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
     await expect(page.locator("body")).toHaveCSS(
       "background-color",
@@ -133,7 +124,7 @@ test.describe("Application Shell, Layout & Accessibility", () => {
 
     const summary = page.locator(".rail-details > summary");
     await expect(summary).toHaveText(
-      /^\d+ \/ \d+ required fields, (In progress|Ready to sign|Ready to print)$/
+      /^Sections, \d+ of \d+ required fields, (In progress|Ready to sign|Ready to print)$/
     );
     await expect(page.locator(".app-rail")).toBeHidden();
 
@@ -144,9 +135,7 @@ test.describe("Application Shell, Layout & Accessibility", () => {
   test("first run has one plan labelled My plan", async ({ page }) => {
     await page.goto("/app/#/document");
 
-    await expect(page.getByLabel("Active plan").locator("option")).toHaveText([
-      "My plan",
-    ]);
+    await expect(page.locator(".plan-name")).toHaveText("My plan");
   });
 
   test("rail and document surface scroll independently at 1280px", async ({
@@ -241,6 +230,9 @@ test.describe("Terms", () => {
       .getByRole("button", { name: "I understand and accept" })
       .click();
     await expect(dialog).toHaveCount(0);
+    await expect
+      .poll(() => page.evaluate(() => document.activeElement.tagName))
+      .not.toBe("BODY");
   });
 
   test("acceptance persists across reload", async ({ page }) => {
@@ -255,14 +247,20 @@ test.describe("Terms", () => {
     await page.goto("/app/#/document");
     const footer = page.locator("footer.app-footer");
     await expect(footer).toContainText("Drafting aid, not legal advice");
+    await expect(
+      footer.getByRole("link", { name: "Source on GitHub" })
+    ).toHaveAttribute("href", /github\.com\/kjiwa\/estate-document-templates$/);
+    await expect(footer.getByLabel("Theme")).toBeVisible();
 
     await footer.getByRole("button", { name: "Terms" }).click();
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
-    await expect(page.locator(".app-header")).toHaveJSProperty("inert", true);
+    for (let i = 0; i < 4; i++) {
+      await page.keyboard.press("Tab");
+      await expect(page.locator(".app-header :focus")).toHaveCount(0);
+    }
     await dialog.getByRole("button", { name: "Close" }).click();
     await expect(dialog).toHaveCount(0);
-    await expect(page.locator(".app-header")).toHaveJSProperty("inert", false);
     await expect(footer.getByRole("button", { name: "Terms" })).toBeFocused();
 
     await footer.getByRole("button", { name: "Terms" }).click();
@@ -332,7 +330,7 @@ test.describe("Terms", () => {
 
     await page.goto("/app/#/document/will");
     await expect(page.locator("#document-sheet")).toBeVisible();
-    await page.getByRole("button", { name: "Execute" }).click();
+    await page.getByRole("button", { name: "Signing day" }).click();
     await expect(page.locator(".execute-flow")).toBeVisible();
     await expect(page).toHaveURL(/#\/execute\/will$/);
     await page.goBack();
@@ -340,9 +338,7 @@ test.describe("Terms", () => {
     await expect(page.locator("#document-sheet")).toBeVisible();
   });
 
-  test("a bare visit opens Plans with only brand and theme controls", async ({
-    page,
-  }) => {
+  test("a bare visit opens Plans with only the brand", async ({ page }) => {
     await acceptTerms(page);
     await page.goto("/app/");
     await expect(

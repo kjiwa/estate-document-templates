@@ -46,8 +46,8 @@ export function ExecuteFlow() {
         class="rail-progress"
         style={{ borderBottom: "none", marginBottom: "var(--space-6)" }}
       >
-        <div class="rail-progress-bar">
-          <div class="rail-progress-fill" style={{ width: `${percent}%` }} />
+        <div class="progress-bar">
+          <div class="progress-fill" style={{ width: `${percent}%` }} />
         </div>
         <span class="rail-progress-label">
           Group {index + 1} of {total} — {group.title}

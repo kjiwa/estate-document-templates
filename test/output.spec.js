@@ -3,7 +3,7 @@ const { test, expect } = require("@playwright/test");
 const { seedPlans, disableFilePickers } = require("./fixtures");
 
 async function openChecklist(page) {
-  await page.getByRole("button", { name: "Execute" }).click();
+  await page.getByRole("button", { name: "Signing day" }).click();
   for (let i = 0; i < 4; i++) {
     await page.getByRole("button", { name: "Continue →" }).click();
   }

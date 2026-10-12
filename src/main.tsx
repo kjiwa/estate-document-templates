@@ -2,6 +2,7 @@ import { render } from "preact";
 
 import "./styles/fonts.css";
 import "./styles/tokens.css";
+import "./styles/base.css";
 import "./styles/app.css";
 import "./styles/document-content.css";
 import "./styles/document-paper.css";

@@ -39,8 +39,8 @@ export function Rail({ document, plan }: RailProps) {
         <div class="stage-chip ready">{STAGE_LABELS[stage]}</div>
       ) : null}
       <div class="rail-progress">
-        <div class="rail-progress-bar">
-          <div class="rail-progress-fill" style={{ width: `${percent}%` }} />
+        <div class="progress-bar">
+          <div class="progress-fill" style={{ width: `${percent}%` }} />
         </div>
         <span class="rail-progress-label">
           {answered} / {total} required fields
@@ -76,19 +76,14 @@ export function Rail({ document, plan }: RailProps) {
         </ul>
       </nav>
       {allAdvisories.length > 0 ? (
-        <div class="field-guidance" style={{ marginTop: "var(--space-4)" }}>
+        <div class="field-guidance rail-advisories">
           <strong>Advisories ({allAdvisories.length})</strong>
           {allAdvisories.map((advisory) => (
-            <div
-              class="advisory"
-              style={{ marginTop: "var(--space-2)" }}
-              key={advisory.id}
-            >
+            <div class="advisory" key={advisory.id}>
               {advisory.title}
               <button
                 type="button"
                 class="advisory-inline"
-                style={{ marginLeft: "auto" }}
                 onClick={(event) =>
                   showAdvisory(advisory, event.currentTarget as HTMLElement)
                 }
@@ -106,7 +101,7 @@ export function Rail({ document, plan }: RailProps) {
   return (
     <details class="rail-details">
       <summary>
-        {answered} / {total} required fields, {STAGE_LABELS[stage]}
+        Sections, {answered} of {total} required fields, {STAGE_LABELS[stage]}
       </summary>
       {rail}
     </details>

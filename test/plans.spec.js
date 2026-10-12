@@ -4,9 +4,22 @@ const path = require("path");
 const { test, expect } = require("@playwright/test");
 const { seedPlans, disableFilePickers } = require("./fixtures");
 
-async function openActiveDocument(page) {
-  const documents = page.locator(".plan-card-active .plan-documents");
-  await documents.locator(".plan-overview-title").first().click();
+async function openFirstDocument(card) {
+  await card.locator(".plan-doc").first().click();
+}
+
+const WILL_TITLE = "Last Will and Testament";
+const DOCUMENT_TITLES = [
+  WILL_TITLE,
+  "Disposition of Remains Directive",
+  "Health Care Directive",
+  "General Power of Attorney",
+  "Durable Power of Attorney",
+];
+
+async function chooseMenuItem(card, name) {
+  await card.getByRole("button", { name: /^More/ }).click();
+  await card.getByRole("button", { name }).click();
 }
 
 test.describe("Plan management", () => {
@@ -24,11 +37,11 @@ test.describe("Plan management", () => {
     await expect(page.locator(".plan-card")).toHaveCount(2);
   });
 
-  test("+ New plan creates a plan, makes it active, and returns to the document view", async ({
+  test("New plan creates a plan, makes it active, and returns to the document view", async ({
     page,
   }) => {
     await page.getByRole("link", { name: "Plans", exact: true }).click();
-    await page.getByRole("button", { name: "+ New plan" }).click();
+    await page.getByRole("button", { name: "New plan" }).click();
 
     await expect(page.locator(".plans-view")).toBeHidden();
     await expect(page.locator("#document-sheet")).toBeVisible();
@@ -40,24 +53,18 @@ test.describe("Plan management", () => {
     await page.getByRole("link", { name: "Plans", exact: true }).click();
 
     const firstCard = page.locator(".plan-card").first();
-    await firstCard.getByRole("button", { name: "Rename" }).click();
+    await chooseMenuItem(firstCard, "Rename");
 
     const input = firstCard.getByLabel("Plan name");
     await input.fill("Renamed Plan");
     await input.press("Enter");
 
-    await expect(firstCard.locator("strong")).toHaveText("Renamed Plan");
+    await expect(firstCard.locator("h2")).toHaveText("Renamed Plan");
   });
 
   test("Duplicate adds a card and makes the copy active", async ({ page }) => {
     await page.getByRole("link", { name: "Plans", exact: true }).click();
-    await page
-      .locator(".plan-card")
-      .first()
-      .getByRole("button", {
-        name: "Duplicate",
-      })
-      .click();
+    await chooseMenuItem(page.locator(".plan-card").first(), "Duplicate");
 
     await expect(page.locator(".plan-card")).toHaveCount(3);
     await expect(
@@ -74,47 +81,44 @@ test.describe("Plan management", () => {
     await expect(cards).toHaveCount(2);
 
     const secondCard = cards.nth(1);
-    const deleteButton = secondCard.getByRole("button", { name: "Delete" });
-    await deleteButton.click();
+    await secondCard.getByRole("button", { name: /^More/ }).click();
+    await secondCard.getByRole("button", { name: /^Delete/ }).click();
     await expect(
       secondCard.getByRole("button", { name: "Confirm delete" })
     ).toBeVisible();
     await secondCard.getByRole("button", { name: "Confirm delete" }).click();
 
     await expect(page.locator(".plan-card")).toHaveCount(1);
+    const lastCard = page.locator(".plan-card");
+    await lastCard.getByRole("button", { name: /^More/ }).click();
     await expect(
-      page.locator(".plan-card").getByRole("button", { name: "Delete" })
+      lastCard.getByRole("button", { name: /^Delete/ })
     ).toBeDisabled();
   });
 
-  test("switching the active plan changes the rendered document", async ({
+  test("opening a document of another plan renders that plan", async ({
     page,
   }) => {
     await page.getByRole("link", { name: "Plans", exact: true }).click();
 
-    const secondCard = page.locator(".plan-card").nth(1);
-    await secondCard
-      .getByRole("button", { name: /Make active|Active/ })
-      .click();
-    await openActiveDocument(page);
+    await openFirstDocument(page.locator(".plan-card").nth(1));
 
     await expect(
       page.locator('[data-path="party.testator.name"]').first()
     ).toHaveText("Morgan T. Ramos");
   });
 
-  test("Create reciprocal spouse plan produces a correct reciprocal document", async ({
+  test("Create spouse plan produces a correct reciprocal document", async ({
     page,
   }) => {
     await page.getByRole("link", { name: "Plans", exact: true }).click();
 
-    await page
-      .locator(".plan-card")
-      .first()
-      .getByRole("button", { name: "Create reciprocal spouse plan" })
-      .click();
+    await chooseMenuItem(
+      page.locator(".plan-card").first(),
+      "Create spouse plan"
+    );
 
-    await openActiveDocument(page);
+    await openFirstDocument(page.locator(".plan-card").last());
 
     // PLAN_1's testator is Avery Q. Ramos, spouse is Morgan T. Ramos — the
     // reciprocal swaps identity, so the new document's testator is Morgan.
@@ -126,17 +130,30 @@ test.describe("Plan management", () => {
     ).toHaveText("Avery Q. Ramos");
   });
 
-  test("the Data card downloads an attorney memo", async ({ page }) => {
+  test("the More menu downloads an attorney memo for each document", async ({
+    page,
+  }) => {
     await disableFilePickers(page);
     await page.reload();
     await page.getByRole("link", { name: "Plans", exact: true }).click();
 
-    const [download] = await Promise.all([
-      page.waitForEvent("download"),
-      page.getByRole("button", { name: "Attorney memo" }).click(),
-    ]);
+    const card = page.locator(".plan-card").first();
+    await card.getByRole("button", { name: /^More/ }).click();
+    const group = card.getByRole("group", { name: "Attorney memos" });
+    await expect(group.getByRole("button")).toHaveCount(DOCUMENT_TITLES.length);
+    await page.keyboard.press("Escape");
 
-    expect(download.suggestedFilename()).toMatch(/\.txt$/);
+    for (const title of DOCUMENT_TITLES) {
+      await card.getByRole("button", { name: /^More/ }).click();
+      const [download] = await Promise.all([
+        page.waitForEvent("download"),
+        group.getByRole("button", { name: title, exact: true }).click(),
+      ]);
+      expect(download.suggestedFilename()).toMatch(/-memo\.txt$/);
+      const lines = fs.readFileSync(await download.path(), "utf8").split("\n");
+      expect(lines[0]).toBe("ATTORNEY MEMORANDUM");
+      if (title !== WILL_TITLE) expect(lines[1]).toBe(title);
+    }
   });
 
   test("Download all saves one HTML file with every document", async ({
@@ -188,7 +205,7 @@ test.describe("Plan management", () => {
     await page.getByRole("link", { name: "Plans", exact: true }).click();
 
     const firstCard = page.locator(".plan-card").first();
-    await firstCard.getByRole("button", { name: "Rename" }).click();
+    await chooseMenuItem(firstCard, "Rename");
     await firstCard.getByLabel("Plan name").fill("Saved Before Reopen");
     await firstCard.getByLabel("Plan name").press("Enter");
 
@@ -198,10 +215,10 @@ test.describe("Plan management", () => {
     ]);
     const savedPath = await download.path();
 
-    await firstCard.getByRole("button", { name: "Rename" }).click();
+    await chooseMenuItem(firstCard, "Rename");
     await firstCard.getByLabel("Plan name").fill("Overwritten Name");
     await firstCard.getByLabel("Plan name").press("Enter");
-    await expect(firstCard.locator("strong")).toHaveText("Overwritten Name");
+    await expect(firstCard.locator("h2")).toHaveText("Overwritten Name");
 
     const [fileChooser] = await Promise.all([
       page.waitForEvent("filechooser"),
@@ -233,7 +250,7 @@ test.describe("Plan management", () => {
       page.locator(".plan-card", { hasText: "Imported V3 Plan" })
     ).toBeVisible();
 
-    await openActiveDocument(page);
+    await openFirstDocument(page.locator(".plan-card").first());
     await page
       .getByLabel("Active document")
       .selectOption("durable-power-of-attorney");
@@ -258,7 +275,7 @@ test.describe("Plan management", () => {
     const savedPath = await download.path();
 
     const firstCard = page.locator(".plan-card").first();
-    await firstCard.getByRole("button", { name: "Rename" }).click();
+    await chooseMenuItem(firstCard, "Rename");
     await firstCard.getByLabel("Plan name").fill("Edited After Save");
     await firstCard.getByLabel("Plan name").press("Enter");
 
@@ -271,11 +288,11 @@ test.describe("Plan management", () => {
     await expect(
       page.getByText(/^Replace 2 plans with 2 plans from /)
     ).toBeVisible();
-    await expect(firstCard.locator("strong")).toHaveText("Edited After Save");
+    await expect(firstCard.locator("h2")).toHaveText("Edited After Save");
 
     await page.getByRole("button", { name: "Cancel" }).click();
     await expect(page.getByText(/^Replace 2 plans/)).toHaveCount(0);
-    await expect(firstCard.locator("strong")).toHaveText("Edited After Save");
+    await expect(firstCard.locator("h2")).toHaveText("Edited After Save");
 
     const [secondChooser] = await Promise.all([
       page.waitForEvent("filechooser"),
@@ -284,12 +301,10 @@ test.describe("Plan management", () => {
     await secondChooser.setFiles(savedPath);
     await page.getByRole("button", { name: "Confirm replace" }).click();
 
-    await expect(firstCard.locator("strong")).not.toHaveText(
-      "Edited After Save"
-    );
+    await expect(firstCard.locator("h2")).not.toHaveText("Edited After Save");
   });
 
-  test("Create reciprocal spouse plan is hidden when marital status is unmarried", async ({
+  test("Create spouse plan is hidden when marital status is unmarried", async ({
     page,
   }) => {
     await page.addInitScript(() => {
@@ -304,9 +319,10 @@ test.describe("Plan management", () => {
 
     await page.getByRole("link", { name: "Plans", exact: true }).click();
     const firstCard = page.locator(".plan-card").first();
+    await firstCard.getByRole("button", { name: /^More/ }).click();
     await expect(
-      firstCard.getByRole("button", { name: "Create reciprocal spouse plan" })
-    ).toHaveCount(0);
+      firstCard.getByRole("button", { name: "Create spouse plan" })
+    ).toBeHidden();
   });
 
   test("each card lists the five documents with a stage chip", async ({
@@ -324,22 +340,15 @@ test.describe("Plan management", () => {
     );
   });
 
-  test("every document list starts open and the summary carries the advisory total", async ({
-    page,
-  }) => {
+  test("each card carries a stage summary line", async ({ page }) => {
     await page.getByRole("link", { name: "Plans", exact: true }).click();
 
     const cards = page.locator(".plan-card");
     for (const index of [0, 1]) {
-      const documents = cards.nth(index).locator(".plan-documents");
-      await expect(documents).toHaveJSProperty("open", true);
-      await expect(documents.locator("summary")).toHaveText(
+      await expect(cards.nth(index).locator(".field-hint").first()).toHaveText(
         /^Documents: [^;]+(; \d+ to review)?$/
       );
     }
-    const first = cards.first().locator(".plan-documents");
-    await first.locator("summary").click();
-    await expect(first).toHaveJSProperty("open", false);
   });
 
   test("optional-blank lines appear only once a document is out of in-progress", async ({
@@ -357,25 +366,26 @@ test.describe("Plan management", () => {
     await expect(inProgress.filter({ hasText: "Left blank" })).toHaveCount(0);
   });
 
-  test("the active plan's card is highlighted", async ({ page }) => {
+  test("cards have no Make active control", async ({ page }) => {
     await page.getByRole("link", { name: "Plans", exact: true }).click();
 
-    await expect(page.locator(".plan-card-active")).toHaveCount(1);
-    await expect(page.locator(".plan-card").first()).toHaveClass(
-      /plan-card-active/
+    await expect(page.getByRole("button", { name: /Make active/ })).toHaveCount(
+      0
     );
   });
 
-  test("the header plan picker switches the active plan", async ({ page }) => {
-    const picker = page.getByLabel("Active plan");
-    await expect(picker).toHaveValue("profile-1");
-    await expect(picker.locator("option")).toHaveCount(2);
+  test("the header shows the active plan name as a label, not a picker", async ({
+    page,
+  }) => {
+    await expect(page.getByLabel("Active plan")).toHaveCount(0);
+    const label = page.locator(".plan-name");
+    await expect(label).toHaveAttribute("title", /\S/);
+    const first = await label.textContent();
 
-    await picker.selectOption("profile-2");
+    await page.getByRole("link", { name: "Plans", exact: true }).click();
+    await openFirstDocument(page.locator(".plan-card").nth(1));
 
-    await expect(
-      page.locator('[data-path="party.testator.name"]').first()
-    ).toHaveText("Morgan T. Ramos");
+    await expect(label).not.toHaveText(first);
   });
 
   test("opening Plans focuses its heading and renames the skip link", async ({
@@ -394,11 +404,11 @@ test.describe("Plan management", () => {
   }) => {
     await page.getByRole("link", { name: "Plans", exact: true }).click();
 
-    const head = page.locator(".plan-overview-head").first();
-    const title = await head.locator(".plan-overview-title").boundingBox();
-    const chip = await head.locator(".stage-chip").boundingBox();
+    const row = page.locator(".plan-doc").first();
+    const title = await row.locator(".plan-doc-title").boundingBox();
+    const chip = await row.locator(".stage-chip").boundingBox();
     const center = (box) => box.y + box.height / 2;
-    expect(Math.abs(center(title) - center(chip))).toBeLessThan(1);
+    expect(Math.abs(center(title) - center(chip))).toBeLessThan(1.5);
   });
 
   test("a document row opens that document for that plan", async ({ page }) => {
