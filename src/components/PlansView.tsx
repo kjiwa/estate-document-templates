@@ -241,7 +241,7 @@ function PlanCard({ plan, canDelete }: PlanCardProps) {
           {confirmingDelete ? "Confirm delete" : "Delete"}
         </button>
       </div>
-      <details class="plan-documents">
+      <details class="plan-documents" open>
         <summary>{stageSummary(plan)}</summary>
         <ul class="plan-overview">
           {DOCUMENTS.map((document) => (

@@ -1,6 +1,6 @@
 # WA Estate Docs
 
-WA Estate Docs is a client-side web application ([live site](https://waestatedocs.com/)) for generating, customizing, and printing legally structured estate planning documents drafted to the cited Washington statutes (not reviewed by an attorney). Ships five document types today — a Last Will and Testament (RCW Title 11), a Disposition of Remains Directive (RCW 68.50.160), a Health Care Directive (RCW 70.122.030, the Natural Death Act), a General Power of Attorney (RCW 11.125), and a Durable Power of Attorney (RCW 11.125) — switchable from the header picker, drafted from one shared plan.
+WA Estate Docs is a client-side web application ([live site](https://waestatedocs.com/)) for generating, customizing, and printing legally structured estate planning documents drafted to the cited Washington statutes (not reviewed by an attorney). Ships these document types today — a Last Will and Testament (RCW Title 11), a Disposition of Remains Directive (RCW 68.50.160), a Health Care Directive (RCW 70.122.030, the Natural Death Act), a General Power of Attorney (RCW 11.125), and a Durable Power of Attorney (RCW 11.125) — switchable from the header picker, drafted from one shared plan.
 
 ## Features
 
