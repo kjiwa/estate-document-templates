@@ -225,7 +225,7 @@ permitted by law the author is not liable for any loss from its use, and you
 agree to hold the author harmless from claims arising from your use of the
 documents you create. Washington law governs. The site asks you to accept these
 terms on your first visit and again whenever they change materially; the footer
-reopens them.
+links to the Terms and Privacy pages.
 
 Privacy: entries stay in the browser's `localStorage`. The site sets no cookies
 and runs no analytics, advertising, or third-party scripts.

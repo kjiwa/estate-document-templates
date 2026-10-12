@@ -171,8 +171,7 @@ button {
 }
 
 @media (pointer: fine) {
-  .footer-links a,
-  .footer-links .link-button {
+  .footer-links a {
     min-height: 24px;
   }
 }

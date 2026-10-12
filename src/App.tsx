@@ -3,7 +3,8 @@ import { useEffect, useRef } from "preact/hooks";
 import { AppHeader } from "./components/AppHeader";
 import { BottomSheet } from "./components/BottomSheet";
 import { ContextPanel } from "./components/ContextPanel";
-import { AppFooter, Terms } from "./components/Terms";
+import { Footer } from "./components/Footer";
+import { Terms } from "./components/Terms";
 import { DocumentSurface } from "./components/DocumentSurface";
 import { ExecuteFlow } from "./components/ExecuteFlow";
 import { PlansView } from "./components/PlansView";
@@ -105,7 +106,7 @@ export function App() {
           )}
         </PlanContext.Provider>
       ) : null}
-      <AppFooter />
+      <Footer root="../" />
       <Terms />
       <div id="a11y-status" class="sr-only" aria-live="polite" />
     </div>

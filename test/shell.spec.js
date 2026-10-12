@@ -254,6 +254,11 @@ test.describe("Terms", () => {
     await page.keyboard.press("Escape");
     await expect(dialog).toBeVisible();
 
+    for (let i = 0; i < 4; i++) {
+      await page.keyboard.press("Tab");
+      await expect(page.locator(".app-header :focus")).toHaveCount(0);
+    }
+
     await dialog
       .getByRole("button", { name: "I understand and accept" })
       .click();
@@ -270,7 +275,9 @@ test.describe("Terms", () => {
     await expect(page.getByRole("dialog")).toHaveCount(0);
   });
 
-  test("footer reopens the terms with Close and Escape", async ({ page }) => {
+  test("footer links open the site pages and Back returns to the app", async ({
+    page,
+  }) => {
     await acceptTerms(page);
     await page.goto("/app/#/document");
     const footer = page.locator("footer.footer");
@@ -280,21 +287,18 @@ test.describe("Terms", () => {
     ).toHaveAttribute("href", /github\.com\/kjiwa\/estate-document-templates$/);
     await expect(footer.getByLabel("Theme")).toBeVisible();
 
-    await footer.getByRole("button", { name: "Terms" }).click();
-    const dialog = page.getByRole("dialog");
-    await expect(dialog).toBeVisible();
-    for (let i = 0; i < 4; i++) {
-      await page.keyboard.press("Tab");
-      await expect(page.locator(".app-header :focus")).toHaveCount(0);
+    for (const [name, heading] of [
+      ["Terms", "Terms of use"],
+      ["Privacy", "Privacy"],
+    ]) {
+      await footer.getByRole("link", { name }).click();
+      await expect(
+        page.getByRole("heading", { level: 1, name: heading })
+      ).toBeVisible();
+      await page.goBack();
+      await expect(page.locator("#document-sheet")).toBeVisible();
+      await expect(page.getByRole("dialog")).toHaveCount(0);
     }
-    await dialog.getByRole("button", { name: "Close" }).click();
-    await expect(dialog).toHaveCount(0);
-    await expect(footer.getByRole("button", { name: "Terms" })).toBeFocused();
-
-    await footer.getByRole("button", { name: "Terms" }).click();
-    await expect(dialog.getByRole("button", { name: "Close" })).toBeFocused();
-    await page.keyboard.press("Escape");
-    await expect(dialog).toHaveCount(0);
   });
 
   test("an older accepted version asks again", async ({ page }) => {
@@ -305,19 +309,6 @@ test.describe("Terms", () => {
     await expect(
       page.getByRole("dialog", { name: "Terms of use" })
     ).toBeVisible();
-  });
-
-  test("footer opens Privacy", async ({ page }) => {
-    await acceptTerms(page);
-    await page.goto("/app/#/document");
-    await page
-      .locator("footer.footer")
-      .getByRole("button", { name: "Privacy" })
-      .click();
-    const dialog = page.getByRole("dialog", { name: "Privacy" });
-    await expect(dialog).toContainText("no analytics");
-    await dialog.getByRole("button", { name: "Close" }).click();
-    await expect(dialog).toHaveCount(0);
   });
 
   test("at 393px the dialog fits the viewport and its body scrolls", async ({
