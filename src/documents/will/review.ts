@@ -255,16 +255,37 @@ function completenessAdvisories(plan: Plan): Advisory[] {
 
 function pourOverAdvisories(plan: Plan): Advisory[] {
   if (plan.basis !== "trust") return [];
-  if (normalizeName(plan.documents.revocableTrust.trustName)) return [];
-  return [
-    {
+  const advisories: Advisory[] = [];
+  if (!normalizeName(plan.documents.revocableTrust.trustName)) {
+    advisories.push({
       id: "pour-over-no-trust-name",
       severity: "warning",
       title: "Pour-over names no trust",
       message: `The Will pours over to a revocable trust, but the trust has no name. ${RCW_POUR_OVER} requires the Will to identify the trust; enter the trust name on the Revocable Living Trust document.`,
       path: "documents.revocableTrust.trustName",
-    },
-  ];
+    });
+  }
+  const { day, month, year } = plan.executions.revocableTrust.executionDate;
+  if (!day || !month || !year) {
+    advisories.push({
+      id: "pour-over-no-trust-date",
+      severity: "warning",
+      title: "Pour-over cites an undated trust",
+      message: `The Will cites the trust by its signing date, which is not set. ${RCW_POUR_OVER} requires the trust to be signed before or with the Will; enter the date on the Revocable Living Trust's signing day.`,
+      path: "executions.revocableTrust.executionDate.day",
+    });
+  }
+  if (!plan.fiduciaries.trustees.primary) {
+    advisories.push({
+      id: "pour-over-no-trustee",
+      severity: "warning",
+      title: "Pour-over fallback names no Trustee",
+      message:
+        "The Failure of Gift clause passes the residue to the Trustee named in this Will, but no primary Trustee is set.",
+      path: "fiduciaries.trustees.primary",
+    });
+  }
+  return advisories;
 }
 
 export function analyzeWill(plan: Plan): Advisory[] {

@@ -124,6 +124,12 @@ describe("analyzeWill with a pour-over basis", () => {
     expect(ids).not.toContain("pour-over-no-trust-name");
   });
 
+  it("flags an undated trust and a missing trustee", () => {
+    const ids = analyzeWill({ ...planWith(), basis: "trust" }).map((a) => a.id);
+    expect(ids).toContain("pour-over-no-trust-date");
+    expect(ids).toContain("pour-over-no-trustee");
+  });
+
   it("ignores the unused ultimate beneficiary and spousal gift", () => {
     const overlay = {
       trustees: { primary: "Robin", alternate: "" },

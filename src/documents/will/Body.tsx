@@ -287,8 +287,9 @@ function Article3() {
         If the gift in this Article to the trust fails for any reason, including
         revocation of the trust before my death, I give the rest, residue, and
         remainder of my estate to the Trustee named in this Will, to be held and
-        administered under the terms of that trust instrument as they exist at
-        my death, which are incorporated into this Will by reference.
+        administered under the terms of that trust instrument as they last
+        existed before the failure, which are incorporated into this Will by
+        reference.
       </>
     ),
   };
