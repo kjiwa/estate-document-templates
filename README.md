@@ -1,6 +1,6 @@
 # WA Estate Docs
 
-WA Estate Docs is a client-side web application ([live site](https://kjiwa.github.io/estate-document-templates/)) for generating, customizing, and printing legally structured estate planning documents drafted to the cited Washington statutes (not reviewed by an attorney). Ships five document types today — a Last Will and Testament (RCW Title 11), a Disposition of Remains Directive (RCW 68.50.160), a Health Care Directive (RCW 70.122.030, the Natural Death Act), a General Power of Attorney (RCW 11.125), and a Durable Power of Attorney (RCW 11.125) — switchable from the header picker, drafted from one shared plan.
+WA Estate Docs is a client-side web application ([live site](https://waestatedocs.com/)) for generating, customizing, and printing legally structured estate planning documents drafted to the cited Washington statutes (not reviewed by an attorney). Ships five document types today — a Last Will and Testament (RCW Title 11), a Disposition of Remains Directive (RCW 68.50.160), a Health Care Directive (RCW 70.122.030, the Natural Death Act), a General Power of Attorney (RCW 11.125), and a Durable Power of Attorney (RCW 11.125) — switchable from the header picker, drafted from one shared plan.
 
 ## Features
 
@@ -199,7 +199,7 @@ Every draft lives in the browser's `localStorage`, on the machine that typed it.
 Nothing is uploaded and there is no server. **Export JSON is the only backup** —
 save a backup file from the Plans view; clearing site data, using a private window,
 or switching browsers loses the draft. Signing details (city, date, witnesses, notary) are stored per document, so each document keeps its own record; the Execute view can copy them from another document in the same plan. Data is tied to the site address: a fork or
-a different URL starts empty.
+a different URL starts empty, and drafts saved at the earlier kjiwa.github.io address stay there.
 
 ## Terms and privacy
 
