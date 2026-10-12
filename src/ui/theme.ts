@@ -21,9 +21,15 @@ function resolveTheme(value: Theme): "light" | "dark" {
   return window.matchMedia(DARK_QUERY).matches ? "dark" : "light";
 }
 
+const THEME_COLORS = { light: "#f5f1ea", dark: "#141311" } as const;
+
 function applyTheme(value: Theme): void {
   if (typeof document === "undefined") return;
-  document.documentElement.setAttribute("data-theme", resolveTheme(value));
+  const resolved = resolveTheme(value);
+  document.documentElement.setAttribute("data-theme", resolved);
+  document
+    .querySelectorAll('meta[name="theme-color"]')
+    .forEach((meta) => meta.setAttribute("content", THEME_COLORS[resolved]));
 }
 
 function persistTheme(value: Theme): void {
