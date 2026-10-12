@@ -4,10 +4,7 @@ import { DOCUMENTS, type DocumentDefinition } from "../documents/registry";
 import { generateStandaloneBundle } from "../export/standaloneHtml";
 import type { Plan } from "../model/plan";
 import {
-  activeDocument,
-  activePlan,
   applyParsed,
-  activePlanId,
   createPlan,
   createReciprocalPlan,
   deletePlan,
@@ -59,6 +56,29 @@ function detailLines(readiness: DocumentReadiness): string[] {
   return lines;
 }
 
+function Icon({ path }: { path: string }) {
+  return (
+    <svg
+      class="icon"
+      viewBox="0 0 16 16"
+      width="16"
+      height="16"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d={path} />
+    </svg>
+  );
+}
+
+function ChevronIcon() {
+  return <Icon path="M6 3l5 5-5 5" />;
+}
+
 interface DocumentRowProps {
   plan: Plan;
   document: DocumentDefinition;
@@ -73,23 +93,31 @@ function DocumentRow({ plan, document }: DocumentRowProps) {
       ? `${STAGE_LABELS[readiness.stage]}, ${advisories.length} to review`
       : STAGE_LABELS[readiness.stage];
 
+  const { content, signing } = readiness;
+  const total = content.total + signing.total;
+  const answered = content.answered + signing.answered;
+  const percent =
+    ready || total === 0 ? 100 : Math.round((answered / total) * 100);
+
   return (
     <li class="plan-overview-row">
-      <div class="plan-overview-head">
-        <button
-          type="button"
-          class="plan-overview-title"
-          onClick={() => openDocument(plan, document)}
-        >
-          {document.title}
-        </button>
+      <button
+        type="button"
+        class="plan-doc"
+        onClick={() => openDocument(plan, document)}
+      >
+        <span class="plan-doc-title">{document.title}</span>
         <span class={`stage-chip ${ready ? "ready" : ""}`}>{chip}</span>
-      </div>
-      {detailLines(readiness).map((line) => (
-        <div class="field-hint" key={line}>
-          {line}
-        </div>
-      ))}
+        <ChevronIcon />
+        {detailLines(readiness).map((line) => (
+          <span class="plan-doc-detail" key={line}>
+            {line}
+          </span>
+        ))}
+        <span class="progress-bar" aria-hidden="true">
+          <span class="progress-fill" style={{ width: `${percent}%` }} />
+        </span>
+      </button>
       {advisories.length > 0 ? (
         <ul class="plan-overview-advisories">
           {groupByTitle(advisories).map(({ title, count, first }) => (
@@ -137,17 +165,33 @@ function downloadAll(plan: Plan) {
   );
 }
 
+const MEMO_DOCUMENT = DOCUMENTS.find((document) => document.id === "will");
+
+function downloadMemo(plan: Plan) {
+  if (!MEMO_DOCUMENT) return;
+  void saveFile(
+    `${fileSlug(plan.party.testator.name, "plan")}-memo.txt`,
+    "text/plain",
+    MEMO_DOCUMENT.memo(plan)
+  );
+}
+
+function closeMenu(event: Event) {
+  (event.currentTarget as HTMLElement)
+    .closest<HTMLElement>("[popover]")
+    ?.hidePopover();
+}
+
 interface PlanCardProps {
   plan: Plan;
   canDelete: boolean;
 }
 
 function PlanCard({ plan, canDelete }: PlanCardProps) {
-  const isActive = activePlanId.value === plan.id;
-
   const [renaming, setRenaming] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const menuId = `plan-menu-${plan.id}`;
 
   function commitRename() {
     const value = inputRef.current?.value.trim();
@@ -161,94 +205,120 @@ function PlanCard({ plan, canDelete }: PlanCardProps) {
   }
 
   return (
-    <div class={`card plan-card${isActive ? " plan-card-active" : ""}`}>
-      <div>
-        {renaming ? (
-          <input
-            ref={(el) => {
-              inputRef.current = el;
-              el?.focus();
-            }}
-            type="text"
-            value={plan.label}
-            aria-label="Plan name"
-            onKeyDown={(event) => {
-              if (event.key === "Enter") commitRename();
-              if (event.key === "Escape") cancelRename();
-            }}
-            onBlur={commitRename}
-          />
-        ) : (
-          <strong>{plan.label}</strong>
-        )}
-      </div>
-      <div class="plan-card-actions">
-        <button
-          type="button"
-          class="btn"
-          aria-pressed={isActive}
-          onClick={() => setActivePlan(plan.id)}
-        >
-          {isActive ? "Active" : "Make active"}
-        </button>
-        <button type="button" class="btn" onClick={() => setRenaming(true)}>
-          Rename
-        </button>
-        <button
-          type="button"
-          class="btn"
-          onClick={() => duplicatePlan(plan.id)}
-        >
-          Duplicate
-        </button>
-        {plan.party.maritalStatus !== "unmarried" ? (
+    <div class="card plan-card">
+      <div class="plan-card-header">
+        <div class="plan-card-title">
+          {renaming ? (
+            <input
+              ref={(el) => {
+                inputRef.current = el;
+                el?.focus();
+              }}
+              type="text"
+              value={plan.label}
+              aria-label="Plan name"
+              onKeyDown={(event) => {
+                if (event.key === "Enter") commitRename();
+                if (event.key === "Escape") cancelRename();
+              }}
+              onBlur={commitRename}
+            />
+          ) : (
+            <h2>{plan.label}</h2>
+          )}
+          <div class="field-hint">{stageSummary(plan)}</div>
+        </div>
+        <div class="plan-card-actions">
           <button
             type="button"
             class="btn"
-            onClick={() => createReciprocalPlan(plan.id)}
+            onClick={() => printAllDocuments(plan.id)}
           >
-            Create reciprocal spouse plan
+            Print all
           </button>
-        ) : null}
-        <button
-          type="button"
-          class="btn"
-          onClick={() => printAllDocuments(plan.id)}
-        >
-          Print all
-        </button>
-        <button type="button" class="btn" onClick={() => downloadAll(plan)}>
-          Download all
-        </button>
-        <button
-          type="button"
-          class="btn btn-danger"
-          disabled={!canDelete}
-          aria-label={
-            confirmingDelete
-              ? `Confirm delete ${plan.label}`
-              : `Delete ${plan.label}`
-          }
-          onBlur={() => setConfirmingDelete(false)}
-          onClick={() => {
-            if (confirmingDelete) {
-              deletePlan(plan.id);
-            } else {
-              setConfirmingDelete(true);
-            }
-          }}
-        >
-          {confirmingDelete ? "Confirm delete" : "Delete"}
-        </button>
+          <button type="button" class="btn" onClick={() => downloadAll(plan)}>
+            Download all
+          </button>
+          <button
+            type="button"
+            class="btn"
+            popovertarget={menuId}
+            aria-label={`More actions for ${plan.label}`}
+          >
+            More
+          </button>
+          <div id={menuId} class="plan-menu" popover="auto">
+            <button
+              type="button"
+              class="btn btn-quiet"
+              onClick={(event) => {
+                closeMenu(event);
+                setRenaming(true);
+              }}
+            >
+              Rename
+            </button>
+            <button
+              type="button"
+              class="btn btn-quiet"
+              onClick={(event) => {
+                closeMenu(event);
+                duplicatePlan(plan.id);
+              }}
+            >
+              Duplicate
+            </button>
+            {plan.party.maritalStatus !== "unmarried" ? (
+              <button
+                type="button"
+                class="btn btn-quiet"
+                onClick={(event) => {
+                  closeMenu(event);
+                  createReciprocalPlan(plan.id);
+                }}
+              >
+                Create spouse plan
+              </button>
+            ) : null}
+            <button
+              type="button"
+              class="btn btn-quiet"
+              onClick={(event) => {
+                closeMenu(event);
+                downloadMemo(plan);
+              }}
+            >
+              Download attorney memo
+            </button>
+            <hr class="plan-menu-separator" />
+            <button
+              type="button"
+              class="btn btn-quiet btn-danger"
+              disabled={!canDelete}
+              aria-label={
+                confirmingDelete
+                  ? `Confirm delete ${plan.label}`
+                  : `Delete ${plan.label}`
+              }
+              onBlur={() => setConfirmingDelete(false)}
+              onClick={() => {
+                if (confirmingDelete) {
+                  deletePlan(plan.id);
+                } else {
+                  setConfirmingDelete(true);
+                }
+              }}
+            >
+              {confirmingDelete ? "Confirm delete" : "Delete"}
+            </button>
+          </div>
+        </div>
       </div>
-      <details class="plan-documents" open>
-        <summary>{stageSummary(plan)}</summary>
-        <ul class="plan-overview">
-          {DOCUMENTS.map((document) => (
-            <DocumentRow plan={plan} document={document} key={document.id} />
-          ))}
-        </ul>
-      </details>
+      <ul class="plan-overview">
+        {DOCUMENTS.map((document) => (
+          <DocumentRow plan={plan} document={document} key={document.id} />
+        ))}
+      </ul>
     </div>
   );
 }
@@ -272,18 +342,6 @@ function DataCard() {
   const [pendingImport, setPendingImport] = useState<PendingImport | null>(
     null
   );
-
-  const memo = activeDocument.value?.memo;
-
-  function handleMemo() {
-    const plan = activePlan.value;
-    if (!plan || !memo) return;
-    void saveFile(
-      `${fileSlug(plan.party.testator.name, "plan")}-memo.txt`,
-      "text/plain",
-      memo(plan)
-    );
-  }
 
   function handleSave() {
     void saveFile("estate-plans.json", "application/json", serializeState(2));
@@ -317,14 +375,9 @@ function DataCard() {
   }
 
   return (
-    <div class="card" style={{ marginTop: "var(--space-6)" }}>
-      <strong>Data</strong>
-      <div class="card-list" style={{ marginTop: "var(--space-3)" }}>
-        {memo ? (
-          <button type="button" class="btn" onClick={handleMemo}>
-            Attorney memo
-          </button>
-        ) : null}
+    <div class="card data-card">
+      <h2>Data</h2>
+      <div class="card-list">
         <button type="button" class="btn" onClick={handleSave}>
           Save plans to file
         </button>
@@ -333,7 +386,7 @@ function DataCard() {
         </button>
       </div>
       {pendingImport ? (
-        <div class="card-list" style={{ marginTop: "var(--space-3)" }}>
+        <div class="card-list">
           <span>
             Replace {planCount(Object.keys(plans.value).length)} with{" "}
             {planCount(Object.keys(pendingImport.parsed.plans).length)} from{" "}
@@ -371,15 +424,8 @@ export function PlansView() {
 
   return (
     <main id="main-content" class="plans-view">
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "var(--space-4)",
-        }}
-      >
-        <h1 style={{ fontSize: "var(--font-size-xl)", margin: 0 }}>Plans</h1>
+      <div class="plans-header">
+        <h1>Plans</h1>
         <button
           type="button"
           class="btn btn-primary"
@@ -388,7 +434,8 @@ export function PlansView() {
             view.value = "document";
           }}
         >
-          + New plan
+          <Icon path="M8 3v10M3 8h10" />
+          New plan
         </button>
       </div>
       <div class="card-list">
