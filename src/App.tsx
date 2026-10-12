@@ -72,16 +72,8 @@ export function App() {
   const showPrintChecklist = view.value === "print";
   useFocusHeadingOnViewChange(view.value);
 
-  const workspace =
-    !printAllPlan &&
-    !showPlans &&
-    !showExecute &&
-    !showPrintChecklist &&
-    !!doc &&
-    !!plan;
-
   return (
-    <div class={`app-shell${workspace ? " workspace" : ""}`}>
+    <div class="app-shell">
       <a href="#main-content" class="skip-link">
         {SKIP_LABELS[view.value]}
       </a>

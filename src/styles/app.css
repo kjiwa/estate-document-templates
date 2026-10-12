@@ -102,30 +102,42 @@
 
 .app-body {
   display: grid;
-  grid-template-columns: var(--sidebar-width) 1fr;
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
   min-height: calc(100vh - var(--header-height));
 }
 
 .app-body.with-panel {
-  grid-template-columns: var(--sidebar-width) 1fr var(--sidebar-width);
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr) var(
+      --sidebar-width
+    );
 }
 
 @media (max-width: 900px) {
   .app-body,
   .app-body.with-panel {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
 @media (min-width: 901px) {
-  .app-shell.workspace {
-    height: 100dvh;
-    display: grid;
-    grid-template-rows: auto 1fr auto;
+  .app-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
   }
-  .workspace .app-body {
-    min-height: 0;
+  .app-rail,
+  .context-panel {
+    position: sticky;
+    top: var(--header-height);
+    align-self: start;
+    max-height: calc(100dvh - var(--header-height));
   }
+}
+
+#main-content,
+.doc-surface [data-path],
+.doc-surface [id] {
+  scroll-margin-top: var(--header-height);
 }
 
 /* ----------------------------------------------------------------------
@@ -278,7 +290,6 @@
 
 .doc-surface {
   padding: var(--space-6) var(--space-4);
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   align-items: stretch;

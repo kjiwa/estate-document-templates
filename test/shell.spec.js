@@ -138,7 +138,7 @@ test.describe("Application Shell, Layout & Accessibility", () => {
     await expect(page.locator(".plan-name")).toHaveText("My plan");
   });
 
-  test("rail and document surface scroll independently at 1280px", async ({
+  test("rail scrolls itself while the window scrolls the document at 1280px", async ({
     page,
   }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
@@ -150,13 +150,41 @@ test.describe("Application Shell, Layout & Accessibility", () => {
     });
     expect(railScrollable).toBe(true);
 
-    const surfaceScrollable = await page
+    const surfaceOverflow = await page
       .locator("main.doc-surface")
-      .evaluate((el) => {
-        const style = window.getComputedStyle(el);
-        return style.overflowY === "auto" || style.overflowY === "scroll";
-      });
-    expect(surfaceScrollable).toBe(true);
+      .evaluate((el) => window.getComputedStyle(el).overflowY);
+    expect(surfaceOverflow).toBe("visible");
+
+    const doc = await page.evaluate(() => ({
+      scrollable:
+        document.documentElement.scrollHeight >
+        document.documentElement.clientHeight,
+    }));
+    expect(doc.scrollable).toBe(true);
+
+    await page.evaluate(() => window.scrollTo(0, 400));
+    const header = await page
+      .locator(".app-header")
+      .evaluate((el) => el.getBoundingClientRect().top);
+    expect(header).toBe(0);
+    const railTop = await page
+      .locator(".app-rail")
+      .evaluate((el) => el.getBoundingClientRect().top);
+    const headerBottom = await page
+      .locator(".app-header")
+      .evaluate((el) => el.getBoundingClientRect().bottom);
+    expect(Math.abs(railTop - headerBottom)).toBeLessThanOrEqual(1);
+  });
+
+  test("footer sits below the fold on a document view at 1280px", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto("/app/#/document");
+    const top = await page
+      .locator(".footer")
+      .evaluate((el) => el.getBoundingClientRect().top);
+    expect(top).toBeGreaterThan(900);
   });
 
   test("CSS design tokens resolve properly", async ({ page }) => {
@@ -307,16 +335,13 @@ test.describe("Terms", () => {
     ).toBeInViewport();
   });
 
-  test("footer does not overlap the app body at desktop width", async ({
-    page,
-  }) => {
+  test("footer follows the app body at desktop width", async ({ page }) => {
     await acceptTerms(page);
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto("/app/#/document");
     const body = await page.locator(".app-body").boundingBox();
     const footer = await page.locator(".footer").boundingBox();
     expect(footer.y).toBeGreaterThanOrEqual(body.y + body.height - 1);
-    expect(footer.y + footer.height).toBeLessThanOrEqual(900);
   });
   test("hash routing: reload stays on Plans and Back leaves execute", async ({
     page,

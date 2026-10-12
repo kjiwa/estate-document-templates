@@ -125,7 +125,7 @@
   --sheet-padding: var(--sheet-margin-top) var(--sheet-margin-right)
     var(--sheet-margin-bottom) var(--sheet-margin-left);
 
-  --header-height: 3.5rem;
+  --header-height: 4rem;
   --sidebar-width: 22rem;
   --radius-sm: 0.25rem;
   --radius-md: 0.375rem;
