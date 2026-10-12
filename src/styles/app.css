@@ -23,10 +23,10 @@
    ---------------------------------------------------------------------- */
 
 .app-header {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, auto) minmax(0, 1fr) auto;
+  grid-template-areas: "lead plan doc controls";
   align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
   gap: var(--space-2) var(--space-4);
   min-height: var(--header-height);
   padding: var(--space-2) var(--space-4);
@@ -34,23 +34,25 @@
   border-bottom: 1px solid var(--rule-hairline);
 }
 
-.header-brand {
+.header-lead {
+  grid-area: lead;
   display: flex;
   align-items: center;
-  gap: var(--space-3);
 }
 
 .back-link {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  min-height: var(--tap-target);
-  color: var(--accent);
+  gap: var(--space-2);
   text-decoration: none;
 }
 
-.back-link:hover {
-  text-decoration: underline;
+.back-link svg {
+  width: 1em;
+  height: 1em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .app-title {
@@ -61,19 +63,41 @@
   margin: 0;
 }
 
-/* Two control groups (presentation, theme) don't fit one header row at
-   narrow widths. Wrapping keeps every control reachable instead of
-   clipping past the viewport edge. */
+.plan-name {
+  grid-area: plan;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: var(--font-weight-semibold);
+  color: var(--ink-strong);
+}
+
+.app-header > select.btn {
+  grid-area: doc;
+  justify-self: start;
+  max-width: 100%;
+  text-overflow: ellipsis;
+}
+
 .header-controls {
+  grid-area: controls;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: var(--space-2);
+  justify-self: end;
 }
 
-.header-controls select.btn {
-  max-width: 12rem;
-  text-overflow: ellipsis;
+@media (max-width: 40rem) {
+  .app-header {
+    grid-template-columns: auto minmax(0, 7rem) minmax(0, 1fr);
+    grid-template-areas:
+      "lead plan doc"
+      "controls controls controls";
+  }
+  .app-header > select.btn {
+    justify-self: stretch;
+  }
 }
 
 .app-body {
@@ -638,13 +662,31 @@ input[type="checkbox"] {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
   gap: var(--space-1) var(--space-4);
   padding: var(--space-2) var(--space-4);
   background: var(--surface-1);
   border-top: 1px solid var(--rule-hairline);
   color: var(--ink-muted);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
+}
+
+.app-footer a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target);
+}
+
+.footer-theme {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+@media (pointer: fine) {
+  .app-footer a,
+  .app-footer .link-button {
+    min-height: 24px;
+  }
 }
 
 .link-button {

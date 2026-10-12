@@ -8,10 +8,10 @@ test.describe("Execute flow (signing day)", () => {
     await page.goto("/app/#/document");
   });
 
-  test("the Execute button opens the flow at group 1 of 4", async ({
+  test("the Signing day button opens the flow at group 1 of 4", async ({
     page,
   }) => {
-    await page.getByRole("button", { name: "Execute" }).click();
+    await page.getByRole("button", { name: "Signing day" }).click();
 
     await expect(page.locator(".execute-flow")).toBeVisible();
     await expect(page.locator(".rail-progress-label")).toHaveText(
@@ -26,7 +26,7 @@ test.describe("Execute flow (signing day)", () => {
   test("Back/Continue walks all four groups, and Back at group 1 exits to the document", async ({
     page,
   }) => {
-    await page.getByRole("button", { name: "Execute" }).click();
+    await page.getByRole("button", { name: "Signing day" }).click();
 
     const label = page.locator(".rail-progress-label");
     await expect(label).toHaveText("Group 1 of 4 — City and date of execution");
@@ -55,7 +55,7 @@ test.describe("Execute flow (signing day)", () => {
   test("the last Continue lands on the pre-print checklist", async ({
     page,
   }) => {
-    await page.getByRole("button", { name: "Execute" }).click();
+    await page.getByRole("button", { name: "Signing day" }).click();
     for (let i = 0; i < 4; i++) {
       await page.getByRole("button", { name: "Continue →" }).click();
     }
@@ -66,7 +66,7 @@ test.describe("Execute flow (signing day)", () => {
   test("the 'Also in this flow' rows tick as groups complete", async ({
     page,
   }) => {
-    await page.getByRole("button", { name: "Execute" }).click();
+    await page.getByRole("button", { name: "Signing day" }).click();
 
     const rows = page.locator(".execute-flow .card-list .checklist-item");
     const cityRow = rows.filter({ hasText: "City and date of execution" });
@@ -85,7 +85,7 @@ test.describe("Execute flow (signing day)", () => {
   test("switching to a document with fewer groups resets to group 1", async ({
     page,
   }) => {
-    await page.getByRole("button", { name: "Execute" }).click();
+    await page.getByRole("button", { name: "Signing day" }).click();
     for (let i = 0; i < 3; i++) {
       await page.getByRole("button", { name: "Continue →" }).click();
     }
@@ -107,7 +107,7 @@ test.describe("Execute flow (signing day)", () => {
     page,
   }) => {
     await page.getByLabel("Active document").selectOption("remains-directive");
-    await page.getByRole("button", { name: "Execute" }).click();
+    await page.getByRole("button", { name: "Signing day" }).click();
 
     await expect(
       page.locator("#field-executions-remainsDirective-city")

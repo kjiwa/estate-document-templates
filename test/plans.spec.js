@@ -366,16 +366,23 @@ test.describe("Plan management", () => {
     );
   });
 
-  test("the header plan picker switches the active plan", async ({ page }) => {
-    const picker = page.getByLabel("Active plan");
-    await expect(picker).toHaveValue("profile-1");
-    await expect(picker.locator("option")).toHaveCount(2);
+  test("the header shows the active plan name as a label, not a picker", async ({
+    page,
+  }) => {
+    await expect(page.getByLabel("Active plan")).toHaveCount(0);
+    const label = page.locator(".plan-name");
+    await expect(label).toHaveAttribute("title", /\S/);
+    const first = await label.textContent();
 
-    await picker.selectOption("profile-2");
+    await page.getByRole("link", { name: "Plans", exact: true }).click();
+    await page
+      .locator(".plan-card")
+      .nth(1)
+      .getByRole("button", { name: /Make active|Active/ })
+      .click();
+    await openActiveDocument(page);
 
-    await expect(
-      page.locator('[data-path="party.testator.name"]').first()
-    ).toHaveText("Morgan T. Ramos");
+    await expect(label).not.toHaveText(first);
   });
 
   test("opening Plans focuses its heading and renames the skip link", async ({

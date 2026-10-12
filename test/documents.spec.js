@@ -113,7 +113,7 @@ test.describe("Every document", () => {
       expect(done.size).toBeGreaterThan(0);
 
       await page.getByRole("button", { name: "Close" }).click();
-      await page.getByRole("button", { name: "Execute" }).click();
+      await page.getByRole("button", { name: "Signing day" }).click();
       const label = page.locator(".rail-progress-label");
       const total = Number(
         (await label.textContent())?.match(/of (\d+)/)?.[1] ?? 0

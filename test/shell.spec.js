@@ -144,9 +144,7 @@ test.describe("Application Shell, Layout & Accessibility", () => {
   test("first run has one plan labelled My plan", async ({ page }) => {
     await page.goto("/app/#/document");
 
-    await expect(page.getByLabel("Active plan").locator("option")).toHaveText([
-      "My plan",
-    ]);
+    await expect(page.locator(".plan-name")).toHaveText("My plan");
   });
 
   test("rail and document surface scroll independently at 1280px", async ({
@@ -332,7 +330,7 @@ test.describe("Terms", () => {
 
     await page.goto("/app/#/document/will");
     await expect(page.locator("#document-sheet")).toBeVisible();
-    await page.getByRole("button", { name: "Execute" }).click();
+    await page.getByRole("button", { name: "Signing day" }).click();
     await expect(page.locator(".execute-flow")).toBeVisible();
     await expect(page).toHaveURL(/#\/execute\/will$/);
     await page.goBack();
