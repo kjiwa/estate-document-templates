@@ -165,14 +165,11 @@ function downloadAll(plan: Plan) {
   );
 }
 
-const MEMO_DOCUMENT = DOCUMENTS.find((document) => document.id === "will");
-
-function downloadMemo(plan: Plan) {
-  if (!MEMO_DOCUMENT) return;
+function downloadMemo(plan: Plan, document: DocumentDefinition) {
   void saveFile(
-    `${fileSlug(plan.party.testator.name, "plan")}-memo.txt`,
+    `${fileSlug(plan.party.testator.name, "plan")}-${document.id}-memo.txt`,
     "text/plain",
-    MEMO_DOCUMENT.memo(plan)
+    document.memo(plan)
   );
 }
 
@@ -192,6 +189,7 @@ function PlanCard({ plan, canDelete }: PlanCardProps) {
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const menuId = `plan-menu-${plan.id}`;
+  const memosLabelId = `plan-memos-${plan.id}`;
 
   function commitRename() {
     const value = inputRef.current?.value.trim();
@@ -289,16 +287,24 @@ function PlanCard({ plan, canDelete }: PlanCardProps) {
                 Create spouse plan
               </button>
             ) : null}
-            <button
-              type="button"
-              class="btn btn-quiet"
-              onClick={(event) => {
-                closeMenu(event);
-                downloadMemo(plan);
-              }}
-            >
-              Download attorney memo
-            </button>
+            <div role="group" aria-labelledby={memosLabelId}>
+              <div id={memosLabelId} class="plan-menu-label">
+                Attorney memos
+              </div>
+              {DOCUMENTS.map((document) => (
+                <button
+                  type="button"
+                  class="btn btn-quiet"
+                  key={document.id}
+                  onClick={(event) => {
+                    closeMenu(event);
+                    downloadMemo(plan, document);
+                  }}
+                >
+                  {document.title}
+                </button>
+              ))}
+            </div>
             <hr class="plan-menu-separator" />
             <button
               type="button"

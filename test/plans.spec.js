@@ -8,6 +8,15 @@ async function openFirstDocument(card) {
   await card.locator(".plan-doc").first().click();
 }
 
+const WILL_TITLE = "Last Will and Testament";
+const DOCUMENT_TITLES = [
+  WILL_TITLE,
+  "Disposition of Remains Directive",
+  "Health Care Directive",
+  "General Power of Attorney",
+  "Durable Power of Attorney",
+];
+
 async function chooseMenuItem(card, name) {
   await card.getByRole("button", { name: /^More/ }).click();
   await card.getByRole("button", { name }).click();
@@ -121,22 +130,30 @@ test.describe("Plan management", () => {
     ).toHaveText("Avery Q. Ramos");
   });
 
-  test("the More menu downloads an attorney memo for that plan", async ({
+  test("the More menu downloads an attorney memo for each document", async ({
     page,
   }) => {
     await disableFilePickers(page);
     await page.reload();
     await page.getByRole("link", { name: "Plans", exact: true }).click();
 
-    const [download] = await Promise.all([
-      page.waitForEvent("download"),
-      chooseMenuItem(
-        page.locator(".plan-card").first(),
-        "Download attorney memo"
-      ),
-    ]);
+    const card = page.locator(".plan-card").first();
+    await card.getByRole("button", { name: /^More/ }).click();
+    const group = card.getByRole("group", { name: "Attorney memos" });
+    await expect(group.getByRole("button")).toHaveCount(DOCUMENT_TITLES.length);
+    await page.keyboard.press("Escape");
 
-    expect(download.suggestedFilename()).toMatch(/\.txt$/);
+    for (const title of DOCUMENT_TITLES) {
+      await card.getByRole("button", { name: /^More/ }).click();
+      const [download] = await Promise.all([
+        page.waitForEvent("download"),
+        group.getByRole("button", { name: title, exact: true }).click(),
+      ]);
+      expect(download.suggestedFilename()).toMatch(/-memo\.txt$/);
+      const lines = fs.readFileSync(await download.path(), "utf8").split("\n");
+      expect(lines[0]).toBe("ATTORNEY MEMORANDUM");
+      if (title !== WILL_TITLE) expect(lines[1]).toBe(title);
+    }
   });
 
   test("Download all saves one HTML file with every document", async ({
