@@ -652,6 +652,36 @@ input[type="checkbox"] {
   margin: var(--space-2) var(--space-2) 0;
 }
 
+.plan-documents > summary {
+  min-height: var(--tap-target);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  border-top: 1px solid var(--rule-hairline);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  list-style: none;
+}
+
+.plan-documents > summary::-webkit-details-marker {
+  display: none;
+}
+
+.plan-documents > summary::before {
+  content: "";
+  width: 0.5em;
+  height: 0.5em;
+  flex: none;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg);
+}
+
+.plan-documents[open] > summary::before {
+  transform: rotate(45deg);
+}
+
 .plan-overview {
   list-style: none;
   margin: 0;
