@@ -100,3 +100,46 @@ describe("analyzeWill", () => {
     }
   });
 });
+
+describe("analyzeWill with a pour-over basis", () => {
+  it("flags a pour-over that names no trust", () => {
+    const ids = analyzeWill({ ...planWith(), basis: "trust" }).map((a) => a.id);
+    expect(ids).toContain("pour-over-no-trust-name");
+  });
+
+  it("does not flag a pour-over once the trust is named", () => {
+    const base = planWith();
+    const plan: Plan = {
+      ...base,
+      basis: "trust",
+      documents: {
+        ...base.documents,
+        revocableTrust: {
+          ...base.documents.revocableTrust,
+          trustName: "Ramos Trust",
+        },
+      },
+    };
+    const ids = analyzeWill(plan).map((a) => a.id);
+    expect(ids).not.toContain("pour-over-no-trust-name");
+  });
+
+  it("flags an undated trust and a missing trustee", () => {
+    const ids = analyzeWill({ ...planWith(), basis: "trust" }).map((a) => a.id);
+    expect(ids).toContain("pour-over-no-trust-date");
+    expect(ids).toContain("pour-over-no-trustee");
+  });
+
+  it("ignores the unused ultimate beneficiary and spousal gift", () => {
+    const overlay = {
+      trustees: { primary: "Robin", alternate: "" },
+      ultimateBeneficiary: { relationship: "sister", name: "Robin" },
+      spousalGift: "disclaimerTrust",
+    };
+    const ids = (basis: "will" | "trust") =>
+      analyzeWill({ ...planWith(overlay), basis }).map((a) => a.id);
+    expect(ids("will")).toContain("trustee-is-beneficiary");
+    expect(ids("trust")).not.toContain("trustee-is-beneficiary");
+    expect(ids("trust")).not.toContain("multi-role-robin");
+  });
+});

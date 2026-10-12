@@ -255,6 +255,45 @@ function Article3() {
     ),
   };
 
+  const pourOver = plan.basis === "trust";
+
+  const giftToTrustClause = {
+    title: "Gift to Trust",
+    body: (
+      <>
+        Pursuant to RCW 11.12.250, I give, devise, and bequeath all of my
+        estate, of every nature and wheresoever situated, to the Trustee then
+        serving of the trust known as{" "}
+        <Blank path="documents.revocableTrust.trustName" chars={24} />, created
+        by trust instrument dated{" "}
+        <Blank path="executions.revocableTrust.executionDate.day" chars={5} />{" "}
+        day of{" "}
+        <Blank
+          path="executions.revocableTrust.executionDate.month"
+          chars={14}
+        />
+        ,{" "}
+        <Blank path="executions.revocableTrust.executionDate.year" chars={6} />,
+        to be added to and administered under the terms of that trust
+        instrument, including any amendments made before my death.
+      </>
+    ),
+  };
+
+  const failureOfGiftClause = {
+    title: "Failure of Gift",
+    body: (
+      <>
+        If the gift in this Article to the trust fails for any reason, including
+        revocation of the trust before my death, I give the rest, residue, and
+        remainder of my estate to the Trustee named in this Will, to be held and
+        administered under the terms of that trust instrument as they last
+        existed before the failure, which are incorporated into this Will by
+        reference.
+      </>
+    ),
+  };
+
   return (
     <Article number={3} title="Disposition of Property">
       <Clause
@@ -296,7 +335,11 @@ function Article3() {
                 ),
               }
             : null,
-          married ? spousalGiftClause : giftToDescendantsClause,
+          pourOver
+            ? giftToTrustClause
+            : married
+              ? spousalGiftClause
+              : giftToDescendantsClause,
           {
             title: "Separate Writing",
             body: (
@@ -307,7 +350,8 @@ function Article3() {
               </>
             ),
           },
-          married
+          pourOver ? failureOfGiftClause : null,
+          married && !pourOver
             ? {
                 title: "Residue and Contingent Gift to Descendants",
                 body: (
@@ -321,29 +365,31 @@ function Article3() {
                 ),
               }
             : null,
-          {
-            title: "Ultimate Contingent Beneficiary",
-            body: (
-              <>
-                {married
-                  ? "If neither my spouse nor any of my descendants survive me"
-                  : "If none of my descendants survive me"}
-                , my estate shall be distributed to my{" "}
-                <Blank
-                  path="documents.will.ultimateBeneficiary.relationship"
-                  chars={12}
-                />
-                ,{" "}
-                <Blank
-                  path="documents.will.ultimateBeneficiary.name"
-                  chars={16}
-                />
-                , or if <Value value={beneficiaryPronouns.subjective} /> does
-                not survive me, to my heirs at law determined under the laws of
-                the State of Washington.
-              </>
-            ),
-          },
+          pourOver
+            ? null
+            : {
+                title: "Ultimate Contingent Beneficiary",
+                body: (
+                  <>
+                    {married
+                      ? "If neither my spouse nor any of my descendants survive me"
+                      : "If none of my descendants survive me"}
+                    , my estate shall be distributed to my{" "}
+                    <Blank
+                      path="documents.will.ultimateBeneficiary.relationship"
+                      chars={12}
+                    />
+                    ,{" "}
+                    <Blank
+                      path="documents.will.ultimateBeneficiary.name"
+                      chars={16}
+                    />
+                    , or if <Value value={beneficiaryPronouns.subjective} />{" "}
+                    does not survive me, to my heirs at law determined under the
+                    laws of the State of Washington.
+                  </>
+                ),
+              },
         ]}
       />
     </Article>

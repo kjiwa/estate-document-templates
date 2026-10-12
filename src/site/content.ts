@@ -12,7 +12,7 @@ export const CONTENT: Record<string, DocumentContent> = {
     description:
       "Draft a Washington will in your browser: guardians, fiduciaries, property disposition, and a self-proving affidavit, to bring to an attorney.",
     summary:
-      "A will names who receives property at death, who serves as personal representative and trustee, and who is nominated as guardian of the person and conservator of the estate. The draft covers family identification, disposition of remains, community property characterization, an optional spousal gift in trust or by disclaimer trust, residuary disposition by representation, trustee powers, a no-contest provision, and a self-proving affidavit.",
+      "A will names who receives property at death, who serves as personal representative and trustee, and who is nominated as guardian of the person and conservator of the estate. The draft covers family identification, disposition of remains, community property characterization, an optional spousal gift in trust or by disclaimer trust, residuary disposition by representation, trustee powers, a no-contest provision, and a self-proving affidavit. The will can instead pour the estate over to a revocable living trust under RCW 11.12.250.",
     audience:
       "Washington residents drafting a will, including married couples who draft reciprocal wills from one shared plan.",
     signing: [
@@ -23,6 +23,7 @@ export const CONTENT: Record<string, DocumentContent> = {
       "The Attorney Memo export lists every choice and advisory for counsel to review.",
     ],
     citations: [
+      "RCW 11.12.250",
       "RCW 11.12.260",
       "RCW 11.130.010",
       "RCW 68.50.160",
@@ -109,12 +110,13 @@ export const CONTENT: Record<string, DocumentContent> = {
     summary:
       "A revocable living trust holds property for the trustors during life and passes it at death without naming a personal representative. The draft covers the declaration and name, revocation and amendment, the trustors' rights during life, incapacity, successor trustees, disposition after death to a surviving spouse, then to descendants by representation with a holdback until age 25, then to a final taker, spendthrift protection, trustee powers, and a schedule of trust property. A joint trust is created by spouses together.",
     audience:
-      "Washington residents, single or married, who want to name who manages their property if they cannot and who receives it afterward.",
+      "Washington residents, single or married, who want to name who manages their property if they cannot and who receives it afterward. Ask a Washington attorney whether a trust fits your situation or whether a will alone does.",
     signing: [
       "The trustor signs the trust as trustor and as trustee. In a joint trust, both spouses sign.",
       "A notary completes a notarial acknowledgment for each trustor. This document provides for no witnesses.",
     ],
     after: [
+      "The will can pour over to this trust; sign the trust before or on the same day as the will.",
       "A trust holds only property that has been transferred to the trustee, so accounts and real property still have to be retitled.",
       "The Attorney Memo export lists every choice and advisory for counsel to review, with a funding checklist.",
     ],

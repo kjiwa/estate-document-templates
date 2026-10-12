@@ -5,6 +5,7 @@ import type { Path } from "../../model/paths";
 
 const RCW_INTERESTED_WITNESS = "RCW 11.12.160";
 const RCW_DISCLAIMER_TRUST = "RCW 11.86.031";
+const RCW_POUR_OVER = "RCW 11.12.250";
 
 interface RoleHolder {
   name: string;
@@ -22,11 +23,13 @@ function collectRoleHolders(plan: Plan): RoleHolder[] {
   };
 
   add(plan.party.spouse.name, "spouse", "party.spouse.name");
-  add(
-    plan.documents.will.ultimateBeneficiary.name,
-    "ultimate contingent beneficiary",
-    "documents.will.ultimateBeneficiary.name"
-  );
+  if (plan.basis !== "trust") {
+    add(
+      plan.documents.will.ultimateBeneficiary.name,
+      "ultimate contingent beneficiary",
+      "documents.will.ultimateBeneficiary.name"
+    );
+  }
   add(
     plan.fiduciaries.guardians.primary,
     "primary guardian",
@@ -151,7 +154,7 @@ function trusteeBeneficiaryAdvisory(plan: Plan): Advisory | null {
     .map(normalizeName)
     .filter(Boolean);
   const beneficiaryNames = [
-    plan.documents.will.ultimateBeneficiary.name,
+    plan.basis === "trust" ? "" : plan.documents.will.ultimateBeneficiary.name,
     ...plan.party.children,
   ]
     .map(normalizeName)
@@ -234,6 +237,7 @@ function completenessAdvisories(plan: Plan): Advisory[] {
   }
 
   if (
+    plan.basis !== "trust" &&
     plan.documents.will.spousalGift === "disclaimerTrust" &&
     !plan.fiduciaries.trustees.primary
   ) {
@@ -249,6 +253,41 @@ function completenessAdvisories(plan: Plan): Advisory[] {
   return advisories;
 }
 
+function pourOverAdvisories(plan: Plan): Advisory[] {
+  if (plan.basis !== "trust") return [];
+  const advisories: Advisory[] = [];
+  if (!normalizeName(plan.documents.revocableTrust.trustName)) {
+    advisories.push({
+      id: "pour-over-no-trust-name",
+      severity: "warning",
+      title: "Pour-over names no trust",
+      message: `The Will pours over to a revocable trust, but the trust has no name. ${RCW_POUR_OVER} requires the Will to identify the trust; enter the trust name on the Revocable Living Trust document.`,
+      path: "documents.revocableTrust.trustName",
+    });
+  }
+  const { day, month, year } = plan.executions.revocableTrust.executionDate;
+  if (!day || !month || !year) {
+    advisories.push({
+      id: "pour-over-no-trust-date",
+      severity: "warning",
+      title: "Pour-over cites an undated trust",
+      message: `The Will cites the trust by its signing date, which is not set. ${RCW_POUR_OVER} requires the trust to be signed before or with the Will; enter the date on the Revocable Living Trust's signing day.`,
+      path: "executions.revocableTrust.executionDate.day",
+    });
+  }
+  if (!plan.fiduciaries.trustees.primary) {
+    advisories.push({
+      id: "pour-over-no-trustee",
+      severity: "warning",
+      title: "Pour-over fallback names no Trustee",
+      message:
+        "The Failure of Gift clause passes the residue to the Trustee named in this Will, but no primary Trustee is set.",
+      path: "fiduciaries.trustees.primary",
+    });
+  }
+  return advisories;
+}
+
 export function analyzeWill(plan: Plan): Advisory[] {
   const holders = collectRoleHolders(plan);
   const trusteeAdvisory = trusteeBeneficiaryAdvisory(plan);
@@ -259,5 +298,6 @@ export function analyzeWill(plan: Plan): Advisory[] {
     ...(trusteeAdvisory ? [trusteeAdvisory] : []),
     ...missingAlternateAdvisories(plan),
     ...completenessAdvisories(plan),
+    ...pourOverAdvisories(plan),
   ];
 }

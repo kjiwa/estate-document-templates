@@ -31,6 +31,22 @@ function advisoryLines(advisories: Advisory[]): string[] {
   return lines;
 }
 
+function basisLines(plan: Plan): string[] {
+  if (plan.basis !== "trust") {
+    return [
+      formatChoice("Spousal gift structure", plan.documents.will.spousalGift),
+    ];
+  }
+  return [
+    formatChoice("Estate passes under", "pour-over to revocable trust"),
+    formatChoice(
+      "Trust named in the Will",
+      plan.documents.revocableTrust.trustName
+    ),
+    "- Signing order: the trust must be signed before or at the same time as the Will (RCW 11.12.250).",
+  ];
+}
+
 // A plain-text companion document listing every choice made and every
 // advisory raised, meant to be handed to counsel alongside the draft.
 // Generated from the same plan and the same `analyzeWill()` the Review
@@ -47,9 +63,7 @@ export function generateAttorneyMemo(plan: Plan): string {
 
   lines.push("CHOICES MADE");
   lines.push(formatChoice("Marital status", plan.party.maritalStatus));
-  lines.push(
-    formatChoice("Spousal gift structure", plan.documents.will.spousalGift)
-  );
+  lines.push(...basisLines(plan));
   lines.push(
     formatChoice(
       "Survivorship period (days)",
@@ -86,14 +100,16 @@ export function generateAttorneyMemo(plan: Plan): string {
       `${plan.fiduciaries.remains.agent || "(unset)"} / ${plan.fiduciaries.remains.alternate || "(unset)"}`
     )
   );
-  lines.push(
-    formatChoice(
-      "Ultimate contingent beneficiary",
-      plan.documents.will.ultimateBeneficiary.name
-        ? `${plan.documents.will.ultimateBeneficiary.name} (${plan.documents.will.ultimateBeneficiary.relationship || "relationship unset"})`
-        : ""
-    )
-  );
+  if (plan.basis !== "trust") {
+    lines.push(
+      formatChoice(
+        "Ultimate contingent beneficiary",
+        plan.documents.will.ultimateBeneficiary.name
+          ? `${plan.documents.will.ultimateBeneficiary.name} (${plan.documents.will.ultimateBeneficiary.relationship || "relationship unset"})`
+          : ""
+      )
+    );
+  }
   lines.push(
     formatChoice(
       "Community property agreement on file",

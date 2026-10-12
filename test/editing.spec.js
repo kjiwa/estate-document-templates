@@ -185,6 +185,32 @@ test.describe("Contextual editing", () => {
     }
   });
 
+  test("pour-over basis renders the Gift to Trust clause and hides the ultimate beneficiary section", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto("/app/#/document");
+    const rail = page.locator(".rail-item");
+    await expect(
+      rail.filter({ hasText: "Ultimate Contingent Beneficiary" })
+    ).toHaveCount(1);
+    await expect(page.locator("#document-sheet")).not.toContainText(
+      "Gift to Trust"
+    );
+
+    await rail.filter({ hasText: "Disposition of Property" }).click();
+    await page
+      .locator("#field-basis")
+      .selectOption({ label: "Pour-over to revocable trust" });
+
+    await expect(page.locator("#document-sheet")).toContainText(
+      "Gift to Trust"
+    );
+    await expect(
+      rail.filter({ hasText: "Ultimate Contingent Beneficiary" })
+    ).toHaveCount(0);
+  });
+
   test("Guardians and Conservators shows both guidance entries", async ({
     page,
   }) => {

@@ -1,5 +1,5 @@
 // Per-document goldens for the four non-will documents (the will's live in
-// `will/Body.golden.test.tsx`). Each file holds the flattened
+// `will/Body.golden.test.tsx`), plus the will's pour-over basis. Each file holds the flattened
 // [tag, class, text] sequence, one element per line. Update with
 // `vitest -u` after an intentional change to a document's markup.
 import path from "node:path";
@@ -19,6 +19,7 @@ import { HighlightContext, PlanContext } from "./shared/PlanContext";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const GOLDEN_DIR = path.resolve(__dirname, "../../test/golden");
 
+const WILL = DOCUMENTS.find((doc) => doc.id === "will")!;
 const NON_WILL = DOCUMENTS.filter((doc) => doc.id !== "will");
 
 function planFrom(raw: Record<string, unknown>): Plan {
@@ -155,5 +156,41 @@ describe("non-will document goldens", () => {
         );
       });
     }
+  }
+});
+
+describe("will pour-over goldens", () => {
+  const POUR_OVER = {
+    basis: "trust",
+    documents: {
+      ...FILLED_PLAN.documents,
+      revocableTrust: {
+        ...FILLED_PLAN.documents.revocableTrust,
+        trustName: "Ramos Family Revocable Living Trust",
+      },
+    },
+    executions: {
+      ...FILLED_PLAN.executions,
+      revocableTrust: SIGNING,
+    },
+  } as const;
+
+  for (const [name, plan] of [
+    ["married", { ...FILLED_PLAN, ...POUR_OVER }],
+    [
+      "unmarried",
+      {
+        ...FILLED_PLAN,
+        ...POUR_OVER,
+        party: { ...FILLED_PLAN.party, maritalStatus: "unmarried" },
+      },
+    ],
+    ["blank", { ...BLANK_PLAN, basis: "trust" }],
+  ] as const) {
+    it(`will pour-over ${name} matches its golden`, async () => {
+      await expect(renderFlat(WILL.Body, plan as Plan)).toMatchFileSnapshot(
+        path.join(GOLDEN_DIR, "will-pour-over", `${name}.html`)
+      );
+    });
   }
 });

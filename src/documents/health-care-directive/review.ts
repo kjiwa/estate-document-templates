@@ -62,7 +62,7 @@ function disqualifiedTakers(plan: Plan): Set<string> {
   };
   add(plan.party.spouse.name);
   plan.party.children.forEach(add);
-  add(plan.documents.will.ultimateBeneficiary.name);
+  if (plan.basis !== "trust") add(plan.documents.will.ultimateBeneficiary.name);
   return takers;
 }
 

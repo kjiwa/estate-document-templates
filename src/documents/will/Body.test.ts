@@ -1,8 +1,11 @@
+import { h } from "preact";
+import { render } from "preact-render-to-string";
 import { describe, expect, it } from "vitest";
 
 import { migrateProfile } from "../../model/migrate";
 import type { Plan } from "../../model/plan";
-import { countWord, formatList, isMarried, isSpouse } from "./Body";
+import { PlanContext } from "../shared/PlanContext";
+import { Body, countWord, formatList, isMarried, isSpouse } from "./Body";
 
 // Fixtures go through `migrateProfile` with v2-shaped overlays (the same
 // shape `mapV2ToV3` expects), since `Plan.parse` itself requires every
@@ -72,5 +75,40 @@ describe("isSpouse", () => {
     });
     expect(isSpouse(plan, "")).toBe(false);
     expect(isSpouse(plan, "Someone Else")).toBe(false);
+  });
+});
+
+describe("Article 3 basis", () => {
+  const renderText = (plan: Plan) =>
+    render(h(PlanContext.Provider, { value: plan }, h(Body, {})))
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " ");
+
+  it("pours over to the trust and drops the spousal and ultimate gifts", () => {
+    const text = renderText({ ...planWith(), basis: "trust" });
+    expect(text).toContain("Gift to Trust");
+    expect(text).toContain("RCW 11.12.250");
+    expect(text).toContain("Failure of Gift");
+    expect(text).toContain("Community Property Characterization");
+    expect(text).toContain("Separate Writing");
+    expect(text).not.toContain("Primary Gift to Spouse");
+    expect(text).not.toContain("Ultimate Contingent Beneficiary");
+    expect(text).toContain("Powers and Duties of Trustee");
+  });
+
+  it("drops the community property clauses for an unmarried testator", () => {
+    const text = renderText({
+      ...planWith({ maritalStatus: "unmarried" }),
+      basis: "trust",
+    });
+    expect(text).toContain("Gift to Trust");
+    expect(text).not.toContain("Community Property Characterization");
+    expect(text).not.toContain("Gift to Descendants");
+  });
+
+  it("leaves the will basis without a trust gift", () => {
+    const text = renderText(planWith());
+    expect(text).not.toContain("Gift to Trust");
+    expect(text).toContain("Ultimate Contingent Beneficiary");
   });
 });

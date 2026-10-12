@@ -64,11 +64,29 @@ function jointWithoutSpouseAdvisories(plan: Plan): Advisory[] {
   ];
 }
 
+function unusedTrustAdvisories(plan: Plan): Advisory[] {
+  const trust = plan.documents.revocableTrust;
+  const drafted =
+    normalizeName(trust.trustName) !== "" || trust.scheduleA.some(Boolean);
+  if (plan.basis === "trust" || !drafted) return [];
+  return [
+    {
+      id: "rt-will-does-not-pour-over",
+      severity: "info",
+      title: "The Will does not pour over to this trust",
+      message:
+        "This trust is drafted, but the Will is set to distribute the estate itself. Property not transferred to the trustee during life passes under the Will, not this trust. Set the Will to pour over to the trust if that is intended.",
+      path: "basis",
+    },
+  ];
+}
+
 export function analyzeRevocableTrust(plan: Plan): Advisory[] {
   return [
     ...scheduleAAdvisories(plan),
     ...successorTrusteeAdvisories(plan),
     ...finalTakerAdvisories(plan),
     ...jointWithoutSpouseAdvisories(plan),
+    ...unusedTrustAdvisories(plan),
   ];
 }
