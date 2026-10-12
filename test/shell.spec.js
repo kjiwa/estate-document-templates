@@ -252,10 +252,12 @@ test.describe("Terms", () => {
     await footer.getByRole("button", { name: "Terms" }).click();
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
-    await expect(page.locator(".app-header")).toHaveJSProperty("inert", true);
+    for (let i = 0; i < 4; i++) {
+      await page.keyboard.press("Tab");
+      await expect(page.locator(".app-header :focus")).toHaveCount(0);
+    }
     await dialog.getByRole("button", { name: "Close" }).click();
     await expect(dialog).toHaveCount(0);
-    await expect(page.locator(".app-header")).toHaveJSProperty("inert", false);
     await expect(footer.getByRole("button", { name: "Terms" })).toBeFocused();
 
     await footer.getByRole("button", { name: "Terms" }).click();
