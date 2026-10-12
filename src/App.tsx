@@ -73,8 +73,16 @@ export function App() {
   const showPrintChecklist = view.value === "print";
   useFocusHeadingOnViewChange(view.value);
 
+  const workspace =
+    !printAllPlan &&
+    !showPlans &&
+    !showExecute &&
+    !showPrintChecklist &&
+    !!doc &&
+    !!plan;
+
   return (
-    <>
+    <div class={`app-shell${workspace ? " workspace" : ""}`}>
       <a href="#main-content" class="skip-link">
         {SKIP_LABELS[view.value]}
       </a>
@@ -109,6 +117,6 @@ export function App() {
       <AppFooter />
       <Terms />
       <div id="a11y-status" class="sr-only" aria-live="polite" />
-    </>
+    </div>
   );
 }

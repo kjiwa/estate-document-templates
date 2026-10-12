@@ -94,18 +94,13 @@
 }
 
 @media (min-width: 901px) {
-  #app {
+  .app-shell.workspace {
     height: 100dvh;
     display: grid;
     grid-template-rows: auto 1fr auto;
   }
-  .app-body {
+  .workspace .app-body {
     min-height: 0;
-  }
-  .plans-view,
-  .execute-flow,
-  .print-checklist {
-    overflow-y: auto;
   }
 }
 
